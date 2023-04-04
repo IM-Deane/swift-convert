@@ -9,6 +9,10 @@ import { FileType } from "@/types/index";
 import { useSettingsContext } from "@/context/SettingsProvider";
 import { toast } from "react-hot-toast";
 import Alert from "./Alert";
+import SelectUploadMethod, {
+	UploadOption,
+	uploadOptions as uploadOptionsList,
+} from "./SelectUploadMethod";
 
 function FileUploader({ handleResult }) {
 	const [showProgressBar, setShowProgressBar] = useState(false);
@@ -17,6 +21,12 @@ function FileUploader({ handleResult }) {
 	const [uploadProgress, setUploadProgress] = useState<number>(0);
 	const [transcribeProgress, setTranscribeProgress] = useState<number>(1);
 	const [completionTime, setCompletionTime] = useState<number>(0);
+
+	const [selectedFileOption, setSelectedFileOption] = useState<UploadOption>(
+		uploadOptionsList[0]
+	);
+	// const [uploadOptions, setUploadOptions] =
+	// 	useState<UploadOption[]>(uploadOptions);
 
 	const { settings } = useSettingsContext();
 
@@ -220,31 +230,35 @@ function FileUploader({ handleResult }) {
 							</Dropzone>
 						</div>
 					</div>
-					<div className="bg-gray-50 px-4 py-3 text-right sm:px-6">
-						{completionTime ? (
-							<span className="mt-2 mr-8 text-sm text-blue-500">
-								Completed conversion in <strong>{completionTime}</strong>
-							</span>
-						) : (
-							""
-						)}
-
-						{selectedFiles?.length > 0 && (
-							<button
-								type="button"
-								onClick={() => setSelectedFiles(undefined)}
-								className="rounded-md bg-white mr-4 px-8 py-4 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-							>
-								Cancel
-							</button>
-						)}
-
-						<LoadingButton
-							isLoading={loading}
-							text="Convert"
-							loadingText="Loading..."
-							handleClick={handleSubmit}
-						/>
+					<div className="bg-gray-50 mb-20 px-4 py-3 text-right sm:px-6 flex flex-col md:flex-row md:justify-between items-center md:items-baseline">
+						<div>
+							<SelectUploadMethod
+								selectedOption={selectedFileOption}
+								handleSelectedMethod={setSelectedFileOption}
+							/>
+						</div>
+						<div className="mt-4 md:mt:0">
+							{!!completionTime && (
+								<span className="mt-2 mr-8 text-sm text-blue-500">
+									Completed conversion in <strong>{completionTime}</strong>
+								</span>
+							)}
+							{selectedFiles?.length > 0 && (
+								<button
+									type="button"
+									onClick={() => setSelectedFiles(undefined)}
+									className="rounded-md bg-white mr-4 px-8 py-4 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+								>
+									Cancel
+								</button>
+							)}
+							<LoadingButton
+								isLoading={loading}
+								text="Convert"
+								loadingText="Loading..."
+								handleClick={handleSubmit}
+							/>
+						</div>
 					</div>
 				</div>
 			</div>
