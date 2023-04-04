@@ -6,6 +6,7 @@ import Layout from "@/components/Layout";
 import FileUploader from "@/components/FileUploader";
 import { useSettingsContext } from "@/context/SettingsProvider";
 import siteConfig from "site.config";
+import Footer from "@/components/Footer";
 
 export default function Home() {
 	const [currentFile, setCurrentFile] = useState<any>();
@@ -41,7 +42,7 @@ export default function Home() {
 	return (
 		<Layout>
 			<div className="flex flex-1 items-stretch">
-				<main className="flex-1 overflow-y-auto">
+				<main className="flex-1 overflow-y-auto h-screen">
 					<div className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8">
 						<div className="border-b border-gray-200 pb-5">
 							<h1 className="text-base text-xl font-semibold leading-6 text-gray-900">
@@ -56,13 +57,17 @@ export default function Home() {
 								<span className="text-blue-800">.png | .jpeg</span>
 							</p>
 						</div>
-						<section className="mt-2 pb-16" aria-labelledby="main-heading">
+						<section
+							className="mt-2 pb-12 overflow-y-auto"
+							aria-labelledby="main-heading"
+						>
 							<h2 id="main-heading" className="sr-only">
 								Converting photos
 							</h2>
 							<FileUploader handleResult={handleResult} />
 						</section>
 					</div>
+					<Footer />
 				</main>
 				{/* Details sidebar */}
 				{currentFile && (

@@ -103,7 +103,7 @@ export default function Layout({ title = siteConfig.slogan, children }) {
 								leaveFrom="translate-x-0"
 								leaveTo="-translate-x-full"
 							>
-								<Dialog.Panel className="relative flex w-full max-w-xs flex-1 flex-col bg-blue-700 pb-4 pt-5">
+								<Dialog.Panel className="relative flex w-full max-w-xs flex-1 flex-col bg-gray-800 pb-4 pt-5">
 									<Transition.Child
 										as={Fragment}
 										enter="ease-in-out duration-300"
@@ -128,11 +128,13 @@ export default function Layout({ title = siteConfig.slogan, children }) {
 										</div>
 									</Transition.Child>
 									<div className="flex flex-shrink-0 items-center px-4">
-										<img
-											className="h-8 w-auto"
-											src="https://tailwindui.com/img/logos/mark.svg?color=white"
-											alt="Your Company"
-										/>
+										<div className="relative h-16 w-16">
+											<Image
+												src={siteConfig.productBrand}
+												alt={`${siteConfig.siteName} logo`}
+												fill
+											/>
+										</div>
 									</div>
 									<div className="mt-5 h-0 flex-1 overflow-y-auto px-2">
 										<nav className="flex h-full flex-col">
@@ -144,7 +146,7 @@ export default function Layout({ title = siteConfig.slogan, children }) {
 														className={classNames(
 															item.current
 																? "bg-gray-800 text-white"
-																: "text-blue-100 hover:bg-blue-800 hover:text-white",
+																: "text-blue-100 hover:bg-gray-800 hover:text-white",
 															"group flex items-center rounded-md py-2 px-3 text-sm font-medium"
 														)}
 														aria-current={item.current ? "page" : undefined}
