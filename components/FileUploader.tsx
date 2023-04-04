@@ -222,7 +222,7 @@ function FileUploader({ handleResult }) {
 					<div className="bg-gray-50 px-4 py-3 text-right sm:px-6">
 						{completionTime ? (
 							<span className="mt-2 mr-8 text-sm text-blue-500">
-								Completed transcription in <strong>{completionTime}</strong>
+								Completed conversion in <strong>{completionTime}</strong>
 							</span>
 						) : (
 							""
