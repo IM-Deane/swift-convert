@@ -25,6 +25,7 @@ function FileUploader({ handleResult }) {
 
 		// TODO: provide multiple file uploads
 		const currentFileData = selectedFiles[0]; // get first uploaded file
+
 		if (
 			!currentFileData.name.toLowerCase().includes("." + settings.fileInputId)
 		) {
@@ -240,7 +241,7 @@ function FileUploader({ handleResult }) {
 
 						<LoadingButton
 							isLoading={loading}
-							text="Upload file"
+							text="Convert"
 							loadingText="Loading..."
 							handleClick={handleSubmit}
 						/>
