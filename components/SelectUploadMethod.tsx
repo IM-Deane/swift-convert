@@ -27,25 +27,32 @@ export const uploadOptions: UploadOption[] = [
 		icon: PaperClipIcon,
 		action: () => console.log("Clicked!"),
 	},
-	// {
-	// 	id: 3,
-	// 	name: "Devon Webb",
-	// 	icon: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2.25&w=256&h=256&q=80",
-	// 	action: () => console.log("Clicked!"),
-	// },
 ];
 
 interface SelectUploadMethodProps {
-	selectedOption: UploadOption;
 	isUploadingMultiple?: boolean;
-	handleSelectedMethod: (option: UploadOption) => void;
+	openAddFileByURLModal: () => void;
 }
 
 export default function SelectUploadMethod({
-	selectedOption,
 	isUploadingMultiple = false,
-	handleSelectedMethod,
+	openAddFileByURLModal,
 }: SelectUploadMethodProps) {
+	const uploadOptions: UploadOption[] = [
+		{
+			id: 1,
+			name: "From Local System",
+			icon: FolderOpenIcon,
+			action: () => console.log("Clicked!"),
+		},
+		{
+			id: 2,
+			name: "From Public URL",
+			icon: PaperClipIcon,
+			action: openAddFileByURLModal,
+		},
+	];
+
 	return (
 		<div className="inline-flex rounded-md shadow-sm">
 			<button

@@ -13,6 +13,7 @@ import SelectUploadMethod, {
 	UploadOption,
 	uploadOptions as uploadOptionsList,
 } from "./SelectUploadMethod";
+import AddFileModal from "./AddFileModal";
 
 function FileUploader({ handleResult }) {
 	const [showProgressBar, setShowProgressBar] = useState(false);
@@ -25,10 +26,16 @@ function FileUploader({ handleResult }) {
 	const [selectedFileOption, setSelectedFileOption] = useState<UploadOption>(
 		uploadOptionsList[0]
 	);
-	// const [uploadOptions, setUploadOptions] =
-	// 	useState<UploadOption[]>(uploadOptions);
+	const [addFileModalOpen, setAddFileModalOpen] = useState<boolean>(false);
 
 	const { settings } = useSettingsContext();
+
+	const handleOpenModal = () => setAddFileModalOpen(true);
+	const handleCloseModal = () => setAddFileModalOpen(false);
+
+	const handleAddFileByURL = async (url: string) => {
+		console.log("handleAddFileByURL", url);
+	};
 
 	const handleSubmit = async () => {
 		if (!selectedFiles) return;
@@ -232,10 +239,7 @@ function FileUploader({ handleResult }) {
 					</div>
 					<div className="bg-gray-50 mb-20 px-4 py-3 text-right sm:px-6 flex flex-col md:flex-row md:justify-between items-center md:items-baseline">
 						<div>
-							<SelectUploadMethod
-								selectedOption={selectedFileOption}
-								handleSelectedMethod={setSelectedFileOption}
-							/>
+							<SelectUploadMethod openAddFileByURLModal={handleOpenModal} />
 						</div>
 						<div className="mt-4 md:mt:0">
 							{!!completionTime && (
@@ -262,6 +266,12 @@ function FileUploader({ handleResult }) {
 					</div>
 				</div>
 			</div>
+
+			<AddFileModal
+				isOpen={addFileModalOpen}
+				handleCloseModal={handleCloseModal}
+				handleSave={handleAddFileByURL}
+			/>
 		</div>
 	);
 }
