@@ -12,7 +12,11 @@ export default function Home() {
 
 	const { settings } = useSettingsContext();
 
-	const handleResult = (convertedImage: ArrayBuffer, previousImage: File) => {
+	const handleResult = (
+		convertedImage: ArrayBuffer,
+		previousImage: File,
+		elapsedTime: string
+	) => {
 		const filename = previousImage.name.replace(
 			/\.[^/.]+$/,
 			`.${settings.fileOutputId}`
@@ -27,6 +31,7 @@ export default function Home() {
 			size: prettyBytes(newImage.size),
 			source: imageURL,
 			information: {
+				"Elapsed time": elapsedTime,
 				Created: new Date(newImage.lastModified).toDateString(),
 				"Last modified": new Date(newImage.lastModified).toDateString(),
 			},

@@ -7,6 +7,8 @@ import UploadService from "@/services/upload-service";
 import LoadingButton from "./LoadingButton";
 import { FileType } from "@/types/index";
 import { useSettingsContext } from "@/context/SettingsProvider";
+import { toast } from "react-hot-toast";
+import Alert from "./Alert";
 
 function FileUploader({ handleResult }) {
 	const [showProgressBar, setShowProgressBar] = useState(false);
@@ -23,7 +25,19 @@ function FileUploader({ handleResult }) {
 
 		// TODO: provide multiple file uploads
 		const currentFileData = selectedFiles[0]; // get first uploaded file
-
+		if (
+			!currentFileData.name.toLowerCase().includes("." + settings.fileInputId)
+		) {
+			toast.custom(({ visible }) => (
+				<Alert
+					type="error"
+					isOpen={visible}
+					title="Invalid file type detected 🧐"
+					message="That file doesn't match your chosen input. Update your settings or choose a new file."
+				/>
+			));
+			return;
+		}
 		setUploadProgress(0);
 		setShowProgressBar(true);
 
@@ -52,8 +66,8 @@ function FileUploader({ handleResult }) {
 				uploadProgress
 			);
 
-			setCompletionTime(response.data.completionTime);
-			handleResult(response.data, fileData);
+			setCompletionTime(response.headers["server-timing"]);
+			handleResult(response.data, fileData, response.headers["server-timing"]);
 		} catch (error) {
 			if (error.response) {
 				// response with status code other than 2xx
@@ -180,14 +194,14 @@ function FileUploader({ handleResult }) {
 												</svg>
 												<div className="flex text-sm text-gray-600">
 													<label
-														htmlFor="audio-file"
+														htmlFor="image-file"
 														className="relative cursor-pointer rounded-md bg-white font-medium text-blue-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2 hover:text-blue-500"
 													>
 														<span>Upload photo</span>
 														<input
 															{...getInputProps()}
-															id="audio-file"
-															name="audio-file"
+															id="image-file"
+															name="image-file"
 															type="file"
 															className="sr-only"
 															accept="image/heic"
