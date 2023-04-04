@@ -30,7 +30,7 @@ const navigation = {
 					xmlns="http://www.w3.org/2000/svg"
 					viewBox="-31 -31 372.00 372.00"
 				>
-					<g id="SVGRepo_bgCarrier" stroke-width="0">
+					<g id="SVGRepo_bgCarrier" strokeWidth="0">
 						<rect
 							x="-31"
 							y="-31"
@@ -43,8 +43,8 @@ const navigation = {
 					</g>
 					<g
 						id="SVGRepo_tracerCarrier"
-						stroke-linecap="round"
-						stroke-linejoin="round"
+						strokeLinecap="round"
+						strokeLinejoin="round"
 					></g>
 					<g id="SVGRepo_iconCarrier">
 						{" "}
@@ -104,7 +104,11 @@ export default function Footer() {
 				</div>
 				<p className="mt-10 text-center text-xs leading-5 text-gray-500">
 					&copy; {new Date().getFullYear()}{" "}
-					<a href="https://tristandeane.ca" referrerPolicy="origin">
+					<a
+						className="underline"
+						href="https://tristandeane.ca"
+						referrerPolicy="origin"
+					>
 						Tristan Deane.
 					</a>{" "}
 					Made with &hearts;
