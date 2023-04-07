@@ -4,12 +4,65 @@ import prettyBytes from "pretty-bytes";
 
 import Layout from "@/components/Layout";
 import FileUploader from "@/components/FileUploader";
-import { useSettingsContext } from "@/context/SettingsProvider";
-import siteConfig from "site.config";
+import ImageGallery from "@/components/ImageGallery";
 import Footer from "@/components/Footer";
 
+import { useSettingsContext } from "@/context/SettingsProvider";
+import siteConfig from "site.config";
+
+import { ImageFile } from "types";
+
 export default function Home() {
-	const [currentFile, setCurrentFile] = useState<any>();
+	const [currentFile, setCurrentFile] = useState<ImageFile>();
+	const [imageFiles, setImageFiles] = useState<ImageFile[]>([
+		{
+			id: "12",
+			name: "IMG_12.png",
+			size: prettyBytes(12313),
+			current: true,
+			progress: 100,
+			source:
+				"https://images.unsplash.com/photo-1582053433976-25c00369fc93?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=512&q=80",
+			type: ".png",
+		},
+		{
+			id: "12",
+			name: 'IMG_32.HEIC"',
+			size: "",
+			current: false,
+			progress: 64,
+			source: "",
+			type: "",
+		},
+		{
+			id: "1212",
+			name: 'IMG_37.HEIC"',
+			size: "",
+			current: false,
+			progress: 45,
+			source: "",
+			type: "",
+		},
+		{
+			id: "143",
+			name: 'IMG_48.HEIC"',
+			size: "",
+			current: false,
+			progress: 27,
+			source: "",
+			type: "",
+		},
+		// {
+		// 	id: "143",
+		// 	name: "IMG_432.jpg",
+		// 	size: prettyBytes(12313),
+		// 	current: false,
+		// 	progress: 100,
+		// 	source:
+		// 		"https://images.unsplash.com/photo-1582053433976-25c00369fc93?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=512&q=80",
+		// 	type: ".jpg",
+		// },
+	]);
 
 	const { settings } = useSettingsContext();
 
@@ -22,15 +75,21 @@ export default function Home() {
 			/\.[^/.]+$/,
 			`.${settings.fileOutputId}`
 		);
+		const imageType = `image/${settings.fileOutputId}`;
+
 		const newImage = new File([convertedImage], filename, {
-			type: `image/${settings.fileOutputId}`,
+			type: imageType,
 		});
 		const imageURL = URL.createObjectURL(newImage);
 
 		setCurrentFile({
+			id: "12", // TODO: update this
 			name: filename,
 			size: prettyBytes(newImage.size),
+			current: true,
+			progress: 100,
 			source: imageURL,
+			type: imageType,
 			information: {
 				"Elapsed time": elapsedTime,
 				Created: new Date(newImage.lastModified).toDateString(),
@@ -65,6 +124,10 @@ export default function Home() {
 								Converting photos
 							</h2>
 							<FileUploader handleResult={handleResult} />
+						</section>
+						{/* Gallery */}
+						<section className="mt-8 pb-16">
+							<ImageGallery imageFiles={imageFiles} />
 						</section>
 					</div>
 					<Footer />

@@ -6,7 +6,6 @@ import Dropzone from "react-dropzone";
 import { PaperClipIcon, FolderOpenIcon } from "@heroicons/react/20/solid";
 
 import UploadService from "@/services/upload-service";
-import DownloadService from "@/services/download-service";
 
 import LoadingButton from "./LoadingButton";
 import { FileType, UploadOption } from "@/types/index";
@@ -15,6 +14,7 @@ import { toast } from "react-hot-toast";
 import Alert from "./Alert";
 import SelectUploadMethod from "./SelectUploadMethod";
 import AddFileModal from "./AddFileModal";
+import CardSkeleton from "./loading/CardSkeleton";
 
 import type { FileDownloadResult } from "types/api";
 
@@ -32,13 +32,13 @@ function FileUploader({ handleResult }) {
 	const handleOpenModal = () => setAddFileModalOpen(true);
 	const handleCloseModal = () => setAddFileModalOpen(false);
 
-	const handleAddFileByURL = (result: any) => {
+	const handleAddFileByURL = (result: FileDownloadResult) => {
 		console.log("handleAddFileByURL", result);
 	};
 
 	const handleDropboxSignin = () => {
 		try {
-			signIn();
+			signIn("dropbox");
 			console.log("handleDropboxSignin");
 		} catch (error) {
 			console.error(error);
@@ -240,8 +240,8 @@ function FileUploader({ handleResult }) {
 					)}
 				</div>
 				<div className="shadow sm:overflow-hidden sm:rounded-md">
-					<div className="space-y-6 bg-white px-4 py-5 sm:p-6">
-						<div>
+					<ul className="space-y-6 bg-white px-4 py-5 sm:p-6">
+						<li>
 							<Dropzone onDrop={handleFileDrop} multiple={false}>
 								{({ getRootProps, getInputProps }) => (
 									<div
@@ -294,8 +294,9 @@ function FileUploader({ handleResult }) {
 									</div>
 								)}
 							</Dropzone>
-						</div>
-					</div>
+						</li>
+					</ul>
+					{/* button container */}
 					<div className="bg-gray-50 mb-28 px-4 py-3 text-right sm:px-6 flex flex-col md:flex-row md:justify-between items-center md:items-baseline">
 						<div>
 							<SelectUploadMethod uploadOptions={uploadOptions} />

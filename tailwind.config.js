@@ -9,6 +9,8 @@ module.exports = {
 		aspectRatio: false, // avoid conflicts with native tailwind util
 	},
 
-	plugins: [require("@tailwindcss/forms")],
-	plugins: [require("@tailwindcss/aspect-ratio")],
+	plugins: [
+		require("@tailwindcss/forms"),
+		require("@tailwindcss/aspect-ratio"),
+	],
 };

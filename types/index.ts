@@ -32,3 +32,19 @@ export interface UploadOption {
 	icon: any;
 	action: () => void;
 }
+
+export interface LoadingImage {
+	imageTitle: string;
+	progress: number;
+}
+
+export interface ImageFile {
+	id: string;
+	name: string;
+	current: boolean;
+	source: string;
+	size: number | string;
+	type: string;
+	progress: number; // used for progress bar
+	information?: { [key: string]: string };
+}
