@@ -8,18 +8,29 @@ export default NextAuth({
 	// https://next-auth.js.org/configuration/providers
 	providers: [
 		GoogleProvider({
-			clientId: process.env.GOOGLE_ID,
-			clientSecret: process.env.GOOGLE_SECRET,
+			clientId: process.env.GOOGLE_CLIENT_ID,
+			clientSecret: process.env.GOOGLE_CLIENT_SECRET,
 		}),
 		DropboxProvider({
 			clientId: process.env.DROPBOX_CLIENT_ID,
 			clientSecret: process.env.DROPBOX_CLIENT_SECRET,
+			// token: "https://api.dropboxapi.com/oauth2/token",
+			// userinfo: "https://api.dropboxapi.com/2/users/get_current_account",
+			// profile(profile) {
+			// 	return {
+			// 		id: profile.account_id,
+			// 		name: profile.name.display_name,
+			// 		email: profile.email,
+			// 		image: profile.profile_photo_url,
+			// 	};
+			// },
+			// checks: ["state", "pkce"],
 		}),
 	],
 	// The secret should be set to a reasonably long random string.
 	// It is used to sign cookies and to sign and encrypt JSON Web Tokens, unless
 	// a separate secret is defined explicitly for encrypting the JWT.
-	secret: process.env.SECRET,
+	secret: process.env.NEXTAUTH_SECRET,
 
 	session: {
 		// Use JSON Web Tokens for session instead of database sessions.
@@ -41,7 +52,7 @@ export default NextAuth({
 	// https://next-auth.js.org/configuration/options#jwt
 	jwt: {
 		// A secret to use for key generation (you should set this explicitly)
-		secret: process.env.SECRET,
+		secret: process.env.NEXTAUTH_SECRET,
 		// Set to true to use encryption (default: false)
 		// encryption: true,
 		// You can define your own encode/decode functions for signing and encryption
@@ -56,9 +67,9 @@ export default NextAuth({
 	// pages is not specified for that route.
 	// https://next-auth.js.org/configuration/pages
 	pages: {
-		// signIn: '/auth/signin',  // Displays signin buttons
+		// signIn: "/auth/signin", // Displays signin buttons
 		// signOut: '/auth/signout', // Displays form with sign out button
-		// error: '/auth/error', // Error code passed in query string as ?error=
+		// error: "/auth/error", // Error code passed in query string as ?error=
 		// verifyRequest: '/auth/verify-request', // Used for check email page
 		// newUser: null // If set, new users will be directed here on first sign in
 	},
@@ -67,16 +78,33 @@ export default NextAuth({
 	// when an action is performed.
 	// https://next-auth.js.org/configuration/callbacks
 	callbacks: {
-		// async signIn({ user, account, profile, email, credentials }) { return true },
-		// async redirect({ url, baseUrl }) { return baseUrl },
-		// async session({ session, token, user }) { return session },
-		// async jwt({ token, user, account, profile, isNewUser }) { return token }
-	},
+		// 	// async signIn({ user, account, profile, email, credentials }) { return true },
+		// 	async redirect({ url, baseUrl }) {
+		// 		console.log(`Redirecting to ${url}`);
+		// 		if (url.startsWith("/")) return `${baseUrl}${url}`;
+		// 		// Allows callback URLs on the same origin
+		// 		else if (new URL(url).origin === baseUrl) return url;
 
+		// 		return baseUrl;
+		// 	},
+		async jwt({ token, user, account, profile }) {
+			console.log(token, user);
+
+			// if (account) {
+			// 	token.accessToken = account.access_token;
+			// 	token.id = profile;
+			// }
+			return token;
+		},
+		async session({ session, token, user }) {
+			console.log("session", session);
+			return session;
+		},
+	},
 	// Events are useful for logging
 	// https://next-auth.js.org/configuration/events
 	events: {},
 
 	// Enable debug messages in the console if you are having problems
-	debug: false,
+	debug: true,
 });

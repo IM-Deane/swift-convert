@@ -25,3 +25,10 @@ export const settingsInputTypes: Input[] = [
 	{ id: "jpeg", name: ".JPEG", unavailable: true },
 	{ id: "png", name: ".PNG", unavailable: true },
 ];
+
+export interface UploadOption {
+	id: number;
+	name: string;
+	icon: any;
+	action: () => void;
+}

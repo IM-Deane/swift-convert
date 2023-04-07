@@ -1,19 +1,22 @@
 import React, { useState } from "react";
+import { signIn } from "next-auth/react";
 
 import Dropzone from "react-dropzone";
 
+import { PaperClipIcon, FolderOpenIcon } from "@heroicons/react/20/solid";
+
 import UploadService from "@/services/upload-service";
+import DownloadService from "@/services/download-service";
 
 import LoadingButton from "./LoadingButton";
-import { FileType } from "@/types/index";
+import { FileType, UploadOption } from "@/types/index";
 import { useSettingsContext } from "@/context/SettingsProvider";
 import { toast } from "react-hot-toast";
 import Alert from "./Alert";
-import SelectUploadMethod, {
-	UploadOption,
-	uploadOptions as uploadOptionsList,
-} from "./SelectUploadMethod";
+import SelectUploadMethod from "./SelectUploadMethod";
 import AddFileModal from "./AddFileModal";
+
+import type { FileDownloadResult } from "types/api";
 
 function FileUploader({ handleResult }) {
 	const [showProgressBar, setShowProgressBar] = useState(false);
@@ -22,10 +25,6 @@ function FileUploader({ handleResult }) {
 	const [uploadProgress, setUploadProgress] = useState<number>(0);
 	const [transcribeProgress, setTranscribeProgress] = useState<number>(1);
 	const [completionTime, setCompletionTime] = useState<number>(0);
-
-	const [selectedFileOption, setSelectedFileOption] = useState<UploadOption>(
-		uploadOptionsList[0]
-	);
 	const [addFileModalOpen, setAddFileModalOpen] = useState<boolean>(false);
 
 	const { settings } = useSettingsContext();
@@ -33,9 +32,69 @@ function FileUploader({ handleResult }) {
 	const handleOpenModal = () => setAddFileModalOpen(true);
 	const handleCloseModal = () => setAddFileModalOpen(false);
 
-	const handleAddFileByURL = async (url: string) => {
-		console.log("handleAddFileByURL", url);
+	const handleAddFileByURL = (result: any) => {
+		console.log("handleAddFileByURL", result);
 	};
+
+	const handleDropboxSignin = () => {
+		try {
+			signIn();
+			console.log("handleDropboxSignin");
+		} catch (error) {
+			console.error(error);
+		}
+	};
+
+	const uploadOptions: UploadOption[] = [
+		{
+			id: 1,
+			name: "From Local System",
+			icon: FolderOpenIcon,
+			action: () => console.log("Local device selected!"),
+		},
+		{
+			id: 2,
+			name: "From Public URL",
+			icon: PaperClipIcon,
+			action: handleOpenModal,
+		},
+		{
+			id: 3,
+			name: "From Dropbox",
+			icon: () => (
+				<svg
+					width="20px"
+					height="20px"
+					viewBox="0 -0.5 20 20"
+					version="1.1"
+					xmlns="http://www.w3.org/2000/svg"
+					xmlnsXlink="http://www.w3.org/1999/xlink"
+				>
+					<g
+						id="Page-1"
+						stroke="none"
+						strokeWidth="1"
+						fill="none"
+						fillRule="evenodd"
+					>
+						<g
+							id="Dribbble-Light-Preview"
+							transform="translate(-300.000000, -7479.000000)"
+							fill="#000000"
+						>
+							<g id="icons" transform="translate(56.000000, 160.000000)">
+								<path
+									d="M254.012,7330.74707 L249.825,7334.24637 L248,7333.0687 L248,7334.38937 L254,7338 L260,7334.38937 L260,7333.0687 L258.187,7334.24637 L254.012,7330.74707 Z M264,7322.92318 L258.117,7319 L254,7322.50952 L259.932,7326.25089 L264,7322.92318 Z M254,7329.99226 L258.117,7333.50177 L264,7329.57859 L259.932,7326.25089 L254,7329.99226 Z M244,7329.57859 L249.883,7333.50177 L254,7329.99226 L248.068,7326.25089 L244,7329.57859 Z M254,7322.50952 L248.068,7326.25089 L244,7322.92318 L249.883,7319 L254,7322.50952 Z"
+									id="dropbox-[#158]"
+								/>
+							</g>
+						</g>
+					</g>
+				</svg>
+			),
+			action: handleDropboxSignin,
+		},
+	];
 
 	const handleSubmit = async () => {
 		if (!selectedFiles) return;
@@ -237,9 +296,9 @@ function FileUploader({ handleResult }) {
 							</Dropzone>
 						</div>
 					</div>
-					<div className="bg-gray-50 mb-20 px-4 py-3 text-right sm:px-6 flex flex-col md:flex-row md:justify-between items-center md:items-baseline">
+					<div className="bg-gray-50 mb-28 px-4 py-3 text-right sm:px-6 flex flex-col md:flex-row md:justify-between items-center md:items-baseline">
 						<div>
-							<SelectUploadMethod openAddFileByURLModal={handleOpenModal} />
+							<SelectUploadMethod uploadOptions={uploadOptions} />
 						</div>
 						<div className="mt-4 md:mt:0">
 							{!!completionTime && (

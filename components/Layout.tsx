@@ -2,6 +2,7 @@ import { Fragment, useState } from "react";
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 
 import { Dialog, Transition } from "@headlessui/react";
 import { Bars3BottomLeftIcon, XMarkIcon } from "@heroicons/react/24/outline";
@@ -19,6 +20,7 @@ export default function Layout({ title = siteConfig.slogan, children }) {
 	const [settingsModalOpen, setSettingsModalOpen] = useState(false);
 
 	const router = useRouter();
+	const { data: session } = useSession();
 
 	navigation.forEach((item) => {
 		if (item.href === router.pathname) {
@@ -27,6 +29,8 @@ export default function Layout({ title = siteConfig.slogan, children }) {
 			item.current = false;
 		}
 	});
+
+	console.log(session);
 
 	return (
 		<>

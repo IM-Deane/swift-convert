@@ -26,6 +26,10 @@ export interface SiteConfig {
 	description?: string;
 
 	mainNavTabs: MainNavTab[];
+	redirectUrls: {
+		dropbox: string;
+		google: string;
+	};
 }
 
 export const siteConfig = (config: SiteConfig): SiteConfig => {

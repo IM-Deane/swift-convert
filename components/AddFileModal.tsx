@@ -1,18 +1,34 @@
 import { Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { PaperClipIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { ExclamationCircleIcon } from "@heroicons/react/20/solid";
+
+import DownloadService from "@/services/download-service";
 
 import axios from "axios";
 
 import LoadingButton from "./LoadingButton";
-import { ExclamationCircleIcon } from "@heroicons/react/20/solid";
 
-export default function AddFileModal({ isOpen, handleCloseModal, handleSave }) {
+interface Props {
+	isOpen: boolean;
+	handleCloseModal: () => void;
+	handleSave: (url) => void;
+}
+
+export default function AddFileModal({
+	isOpen,
+	handleCloseModal,
+	handleSave,
+}: Props) {
 	const [inputURL, setInputURL] = useState<string>("");
 	const [errorMessage, setErrorMessage] = useState<string>("");
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 
 	const handleInputChange = (event) => {
+		if (event.target.value.length > 0 && errorMessage) {
+			setErrorMessage("");
+		}
+
 		setInputURL(event.target.value);
 	};
 
@@ -24,7 +40,7 @@ export default function AddFileModal({ isOpen, handleCloseModal, handleSave }) {
 		setIsLoading(true);
 
 		try {
-			const response = await axios.get(inputURL);
+			const response = await DownloadService.downloadPublicFile(inputURL);
 			console.log(response);
 			handleSave(response.data);
 			handleCloseModal();
@@ -109,20 +125,18 @@ export default function AddFileModal({ isOpen, handleCloseModal, handleSave }) {
 														placeholder="https://cdn.example.com"
 													/>
 													{errorMessage && (
-														<div>
-															<div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+														<p
+															className="mt-2 text-sm text-red-600 flex"
+															id="file-error"
+														>
+															<span>
 																<ExclamationCircleIcon
-																	className="h-5 w-5 text-red-500"
+																	className="h-5 w-5 mr-2 text-red-500"
 																	aria-hidden="true"
 																/>
-															</div>
-															<p
-																className="mt-2 text-sm text-red-600"
-																id="file-error"
-															>
-																{errorMessage}
-															</p>
-														</div>
+															</span>
+															{errorMessage}
+														</p>
 													)}
 												</div>
 											</div>

@@ -1,58 +1,21 @@
 import { Fragment } from "react";
 import { Menu, Transition } from "@headlessui/react";
-import {
-	ChevronDownIcon,
-	PaperClipIcon,
-	FolderOpenIcon,
-} from "@heroicons/react/20/solid";
+import { signIn } from "next-auth/react";
+
+import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import { classNames } from "@/utils/index";
 
-export interface UploadOption {
-	id: number;
-	name: string;
-	icon: any;
-	action: () => void;
-}
-
-export const uploadOptions: UploadOption[] = [
-	{
-		id: 1,
-		name: "From Local System",
-		icon: FolderOpenIcon,
-		action: () => console.log("Clicked!"),
-	},
-	{
-		id: 2,
-		name: "From Public URL",
-		icon: PaperClipIcon,
-		action: () => console.log("Clicked!"),
-	},
-];
+import { UploadOption } from "types/index";
 
 interface SelectUploadMethodProps {
+	uploadOptions: UploadOption[];
 	isUploadingMultiple?: boolean;
-	openAddFileByURLModal: () => void;
 }
 
 export default function SelectUploadMethod({
+	uploadOptions,
 	isUploadingMultiple = false,
-	openAddFileByURLModal,
 }: SelectUploadMethodProps) {
-	const uploadOptions: UploadOption[] = [
-		{
-			id: 1,
-			name: "From Local System",
-			icon: FolderOpenIcon,
-			action: () => console.log("Clicked!"),
-		},
-		{
-			id: 2,
-			name: "From Public URL",
-			icon: PaperClipIcon,
-			action: openAddFileByURLModal,
-		},
-	];
-
 	return (
 		<div className="inline-flex rounded-md shadow-sm">
 			<button
@@ -89,7 +52,7 @@ export default function SelectUploadMethod({
 										>
 											<item.icon
 												className="h-5 w-5 text-gray-800"
-												aria-hidden="true"
+												aria-hidden
 											/>
 
 											<span className="grow text-left ml-3">{item.name}</span>

@@ -1,16 +1,30 @@
 import "@/styles/globals.css";
-import type { AppProps } from "next/app";
+import Script from "next/script";
+
 import { Toaster } from "react-hot-toast";
+import { SessionProvider } from "next-auth/react";
 
 import { SettingsProvider } from "@/context/SettingsProvider";
 
-export default function App({ Component, pageProps }: AppProps) {
+export default function App({
+	Component,
+	pageProps: { session, ...pageProps },
+}) {
 	return (
 		<>
-			<SettingsProvider>
-				<Toaster />
-				<Component {...pageProps} />
-			</SettingsProvider>
+			<SessionProvider session={session}>
+				<SettingsProvider>
+					<Toaster />
+					<Script
+						type="text/javascript"
+						src="https://www.dropbox.com/static/api/2/dropins.js"
+						id="dropboxjs"
+						data-app-key="0srlta70mx0izr1"
+					/>
+
+					<Component {...pageProps} />
+				</SettingsProvider>
+			</SessionProvider>
 		</>
 	);
 }

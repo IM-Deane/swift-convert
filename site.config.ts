@@ -14,7 +14,11 @@ export default siteConfig({
 
 	slogan: "SwiftConvert: Free, fast, and flawless HEIC conversions",
 	description:
-		"SwiftConvert is the free and fast solution for converting HEIC photos to JPEGs without sacrificing quality. Our tool ensures flawless and lightning-speed conversions, so you can easily share your photos without any hassle. Try SwiftConvert today and experience the convenience of hassle-free photo conversions.",
+		"SwiftConvert is the free and fast solution for converting HEIC photos without sacrificing quality. Our tool ensures flawless and lightning-speed conversions, so you can easily share your photos without any hassle. Try SwiftConvert today and experience the convenience of hassle-free photo conversions.",
 
 	mainNavTabs: [{ name: "Photos", href: "/", icon: PhotoIcon, current: true }],
+	redirectUrls: {
+		dropbox: "http://localhost:3000/api/auth/callback/dropbox",
+		google: "http://localhost:3000/api/auth/callback/google",
+	},
 });
