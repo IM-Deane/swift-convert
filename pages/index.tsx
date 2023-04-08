@@ -10,63 +10,24 @@ import Footer from "@/components/Footer";
 import { useSettingsContext } from "@/context/SettingsProvider";
 import siteConfig from "site.config";
 
-import { ImageFile } from "types";
+import { ImageFile } from "@/types/index";
+import { ImageResult } from "@/types/api";
 
 export default function Home() {
 	const [currentFile, setCurrentFile] = useState<ImageFile>();
-	const [imageFiles, setImageFiles] = useState<ImageFile[]>([
-		{
-			id: "12",
-			name: "IMG_12.png",
-			size: prettyBytes(12313),
-			current: true,
-			progress: 100,
-			source:
-				"https://images.unsplash.com/photo-1582053433976-25c00369fc93?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=512&q=80",
-			type: ".png",
-		},
-		{
-			id: "12",
-			name: 'IMG_32.HEIC"',
-			size: "",
-			current: false,
-			progress: 64,
-			source: "",
-			type: "",
-		},
-		{
-			id: "1212",
-			name: 'IMG_37.HEIC"',
-			size: "",
-			current: false,
-			progress: 45,
-			source: "",
-			type: "",
-		},
-		{
-			id: "143",
-			name: 'IMG_48.HEIC"',
-			size: "",
-			current: false,
-			progress: 27,
-			source: "",
-			type: "",
-		},
-		// {
-		// 	id: "143",
-		// 	name: "IMG_432.jpg",
-		// 	size: prettyBytes(12313),
-		// 	current: false,
-		// 	progress: 100,
-		// 	source:
-		// 		"https://images.unsplash.com/photo-1582053433976-25c00369fc93?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=512&q=80",
-		// 	type: ".jpg",
-		// },
-	]);
+	const [imageFiles, setImageFiles] = useState<ImageFile[]>([]);
 
 	const { settings } = useSettingsContext();
 
 	const handleResult = (
+		convertedImages: ImageResult[],
+		elapsedTime: string
+	) => {
+		console.log("converted images", convertedImages);
+		console.log("elapsed time", elapsedTime);
+	};
+
+	const handleResultv1 = (
 		convertedImage: ArrayBuffer,
 		previousImage: File,
 		elapsedTime: string

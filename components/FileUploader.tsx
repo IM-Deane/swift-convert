@@ -14,16 +14,12 @@ import { toast } from "react-hot-toast";
 import Alert from "./Alert";
 import SelectUploadMethod from "./SelectUploadMethod";
 import AddFileModal from "./AddFileModal";
-import CardSkeleton from "./loading/CardSkeleton";
 
-import type { FileDownloadResult } from "types/api";
+import type { FileDownloadResult } from "@/types/api";
 
 function FileUploader({ handleResult }) {
-	const [showProgressBar, setShowProgressBar] = useState(false);
-	const [selectedFiles, setSelectedFiles] = useState<any>(undefined);
+	const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 	const [loading, setLoading] = useState(false);
-	const [uploadProgress, setUploadProgress] = useState<number>(0);
-	const [transcribeProgress, setTranscribeProgress] = useState<number>(1);
 	const [completionTime, setCompletionTime] = useState<number>(0);
 	const [addFileModalOpen, setAddFileModalOpen] = useState<boolean>(false);
 
@@ -99,12 +95,10 @@ function FileUploader({ handleResult }) {
 	const handleSubmit = async () => {
 		if (!selectedFiles) return;
 
-		// TODO: provide multiple file uploads
-		const currentFileData = selectedFiles[0]; // get first uploaded file
-
-		if (
-			!currentFileData.name.toLowerCase().includes("." + settings.fileInputId)
-		) {
+		const files = selectedFiles.filter((file: File) => {
+			if (file.name.toLowerCase().includes("." + settings.fileInputId)) {
+				return file;
+			}
 			toast.custom(({ visible }) => (
 				<Alert
 					type="error"
@@ -114,15 +108,9 @@ function FileUploader({ handleResult }) {
 				/>
 			));
 			return;
-		}
-		setUploadProgress(0);
-		setShowProgressBar(true);
+		});
 
-		await uploadFileToServer(currentFileData, (fileUploadEvent) =>
-			setUploadProgress(
-				Math.round((100 * fileUploadEvent.loaded) / fileUploadEvent.total)
-			)
-		);
+		await uploadFileToServer(files);
 	};
 
 	/**
@@ -130,21 +118,18 @@ function FileUploader({ handleResult }) {
 	 * @param fileData the file to upload
 	 * @param uploadProgress a callback function that updates file upload progress
 	 */
-	const uploadFileToServer = async (
-		fileData: File,
-		uploadProgress: (fileUploadEvent) => void
-	) => {
+	const uploadFileToServer = async (files: File[]) => {
 		setLoading(true);
 
 		try {
-			const response = await UploadService.newImage(
-				fileData,
-				FileType[settings.fileOutputId],
-				uploadProgress
+			const response = await UploadService.bulkUploadImages(
+				files,
+				FileType[settings.fileOutputId]
 			);
+			console.log("stream response", response);
 
 			setCompletionTime(response.headers["server-timing"]);
-			handleResult(response.data, fileData, response.headers["server-timing"]);
+			handleResult(response.data, response.headers["server-timing"]);
 		} catch (error) {
 			if (error.response) {
 				// response with status code other than 2xx
@@ -159,101 +144,57 @@ function FileUploader({ handleResult }) {
 				console.log(error);
 			}
 			console.log(error.config);
-
-			// reset state
-			setUploadProgress(0);
-			setTranscribeProgress(1);
 		} finally {
 			setLoading(false);
-			setSelectedFiles(undefined);
-			setShowProgressBar(false);
+			setSelectedFiles([]);
 		}
 	};
 
 	/**
 	 * Method that handles file drops/uploads
-	 * @param files an array of files
 	 */
 	const handleFileDrop = (files: File[]): void =>
 		files.length > 0 && setSelectedFiles(files);
 
-	/**
-	 * Method that calculates and sets the total progress of the upload
-	 * and transcription process.
-	 */
-	const getTotalProgress = () => {
-		const progress = Math.round(
-			((uploadProgress + transcribeProgress) / 200) * 100
-		);
-		return progress;
-	};
-
 	return (
 		<div className="mt-2">
 			<div className="mt-5 md:col-span-2 md:mt-0">
-				{/* Progress bar */}
-				<div className="my-6 py-5">
-					{showProgressBar && (
-						<div className="min-h-24">
-							<h4 className="sr-only">Status</h4>
-							<p className="text-sm font-medium text-gray-900">
-								{uploadProgress < 100 && transcribeProgress < 100
-									? "Processing..."
-									: ""}
-							</p>
-							<div className="mt-6" aria-hidden="true">
-								{/* upload segment */}
-								<div className="overflow-hidden rounded-full bg-gray-200">
-									<div
-										className="h-2 rounded-full bg-blue-600"
-										style={{
-											width: `${getTotalProgress()}%`,
-										}}
-									/>
-								</div>
-								<div className="mt-6 hidden grid-cols-4 text-sm font-medium text-gray-600 sm:grid">
-									<div className="text-blue-600">Uploading photo</div>
-									<div
-										className={`text-center ${
-											uploadProgress === 100 ? "text-blue-600" : ""
-										}`}
-									>
-										Converting photo
-									</div>
-									<div
-										className={`text-center ${
-											transcribeProgress >= 50 ? "text-blue-600" : ""
-										}`}
-									>
-										Saving changes
-									</div>
-									<div
-										className={`text-right ${
-											transcribeProgress === 100 ? "text-blue-600" : ""
-										}`}
-									>
-										Completed
-									</div>
-								</div>
-							</div>
-						</div>
-					)}
-				</div>
 				<div className="shadow sm:overflow-hidden sm:rounded-md">
 					<ul className="space-y-6 bg-white px-4 py-5 sm:p-6">
 						<li>
-							<Dropzone onDrop={handleFileDrop} multiple={false}>
+							<Dropzone onDrop={handleFileDrop} multiple={true} maxFiles={5}>
 								{({ getRootProps, getInputProps }) => (
 									<div
 										{...getRootProps()}
 										className="mt-1 flex justify-center rounded-md border-2 border-dashed border-gray-300 px-6 pt-5 pb-6"
 									>
-										{/* Show uploaded file  */}
-										{selectedFiles && selectedFiles[0].name ? (
-											<p className="rounded-md bg-white font-medium text-blue-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2 hover:text-blue-500">
-												{selectedFiles && selectedFiles[0].name}
-											</p>
+										{/* Show uploaded files  */}
+										{selectedFiles.length > 0 ? (
+											<ul role="list">
+												{selectedFiles.map((file) => (
+													<li key={file.lastModified} className="flex py-2">
+														{/* <img
+															className="h-10 w-10 rounded-full"
+															src={person.image}
+															alt=""
+														/> */}
+														<div className="ml-3">
+															<p className="text-sm font-medium text-blue-600">
+																{file.name}
+															</p>
+														</div>
+													</li>
+												))}
+											</ul>
 										) : (
+											// selectedFiles.map((file) => (
+											// 	<p
+											// 		key={file.name}
+											// 		className="rounded-md bg-white font-medium text-blue-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2 hover:text-blue-500"
+											// 	>
+											// 		{file.name}
+											// 	</p>
+											// ))
 											<div className="space-y-1 text-center">
 												<svg
 													className="mx-auto h-12 w-12 text-gray-400"
@@ -281,7 +222,7 @@ function FileUploader({ handleResult }) {
 															name="image-file"
 															type="file"
 															className="sr-only"
-															accept="image/heic"
+															accept={`image/${settings?.fileInputId}`}
 														/>
 													</label>
 													<p className="pl-1">or drag and drop</p>
@@ -307,10 +248,10 @@ function FileUploader({ handleResult }) {
 									Completed conversion in <strong>{completionTime}</strong>
 								</span>
 							)}
-							{selectedFiles?.length > 0 && (
+							{selectedFiles.length > 0 && (
 								<button
 									type="button"
-									onClick={() => setSelectedFiles(undefined)}
+									onClick={() => setSelectedFiles([])}
 									className="rounded-md bg-white mr-4 px-8 py-4 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
 								>
 									Cancel

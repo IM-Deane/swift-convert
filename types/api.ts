@@ -8,3 +8,9 @@ export interface FileDownloadResult {
 	path_display: string;
 	size: number;
 }
+
+export interface ImageResult {
+	filename: string;
+	data: Uint8Array[];
+	error: string;
+}

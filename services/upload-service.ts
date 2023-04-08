@@ -16,8 +16,7 @@ class UploadService {
 
 	newImage = async (
 		file: File,
-		convertToFormat: FileType,
-		onUploadProgress
+		convertToFormat: FileType
 	): Promise<AxiosResponse> => {
 		const formData = new FormData();
 		formData.append("file", file);
@@ -27,9 +26,27 @@ class UploadService {
 				format: convertToFormat,
 			},
 			responseType: "blob",
-			onUploadProgress,
+		});
+	};
+
+	bulkUploadImages = async (
+		files: File[],
+		convertToFormat: FileType
+	): Promise<AxiosResponse> => {
+		const formData = new FormData();
+
+		files.forEach((file, index) => {
+			formData.append(`file${index}`, file);
+		});
+
+		return this.service.post("/convert", formData, {
+			params: {
+				format: convertToFormat,
+			},
+			responseType: "stream",
 		});
 	};
 }
 
-export default new UploadService();
+const uploadInstance = new UploadService();
+export default uploadInstance;
