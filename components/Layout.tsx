@@ -30,8 +30,6 @@ export default function Layout({ title = siteConfig.slogan, children }) {
 		}
 	});
 
-	console.log(session);
-
 	return (
 		<>
 			<Head>

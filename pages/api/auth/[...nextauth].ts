@@ -88,8 +88,6 @@ export default NextAuth({
 		// 		return baseUrl;
 		// 	},
 		async jwt({ token, user, account, profile }) {
-			console.log(token, user);
-
 			// if (account) {
 			// 	token.accessToken = account.access_token;
 			// 	token.id = profile;
@@ -97,7 +95,6 @@ export default NextAuth({
 			return token;
 		},
 		async session({ session, token, user }) {
-			console.log("session", session);
 			return session;
 		},
 	},
