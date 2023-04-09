@@ -11,40 +11,27 @@ import { useSettingsContext } from "@/context/SettingsProvider";
 import siteConfig from "site.config";
 
 import { ImageFile } from "@/types/index";
-import { ImageResult } from "@/types/api";
+import axios from "axios";
 
 export default function Home() {
 	const [currentFile, setCurrentFile] = useState<ImageFile>();
-	const [imageFiles, setImageFiles] = useState<ImageFile[]>([]);
+	const [imageResults, setImageResults] = useState<ImageFile[]>([]);
+	const [progress, setProgress] = useState({});
 
 	const { settings } = useSettingsContext();
 
-	const handleResult = (
-		convertedImages: ImageResult[],
-		elapsedTime: string
+	const generateClientImage = (
+		data: Uint8Array,
+		filename: string,
+		elapsedTime
 	) => {
-		console.log("converted images", convertedImages);
-		console.log("elapsed time", elapsedTime);
-	};
-
-	const handleResultv1 = (
-		convertedImage: ArrayBuffer,
-		previousImage: File,
-		elapsedTime: string
-	) => {
-		const filename = previousImage.name.replace(
-			/\.[^/.]+$/,
-			`.${settings.fileOutputId}`
-		);
 		const imageType = `image/${settings.fileOutputId}`;
-
-		const newImage = new File([convertedImage], filename, {
+		const newImage = new File([data], filename, {
 			type: imageType,
 		});
 		const imageURL = URL.createObjectURL(newImage);
 
-		setCurrentFile({
-			id: "12", // TODO: update this
+		return {
 			name: filename,
 			size: prettyBytes(newImage.size),
 			current: true,
@@ -56,7 +43,42 @@ export default function Home() {
 				Created: new Date(newImage.lastModified).toDateString(),
 				"Last modified": new Date(newImage.lastModified).toDateString(),
 			},
+		};
+	};
+
+	const handleFileUpload = async (files: File[]) => {
+		const SERVER_URL = process.env.NEXT_PUBLIC_SSE_URL;
+
+		const formData = new FormData();
+		files.forEach((file, index) => {
+			formData.append("images", file);
+			formData.append("fileIds", index.toString());
 		});
+
+		formData.append("convertToPng", settings.fileOutputId);
+
+		setProgress({});
+		setImageResults([]);
+
+		files.forEach((_, index) => {
+			const eventSource = new EventSource(
+				`${SERVER_URL}/events?fileId=${index}`
+			);
+			eventSource.onmessage = (event) => {
+				const newProgress = { ...progress };
+				newProgress[index] = event.data;
+				setProgress(newProgress);
+			};
+		});
+
+		const response = await axios.post(`${SERVER_URL}/api/convert`, formData, {
+			headers: { "Content-Type": "multipart/form-data" },
+		});
+
+		const generatedImages = response.data.map(({ data, filename }) =>
+			generateClientImage(data, filename, response.headers["server-timing"])
+		);
+		setImageResults(generatedImages);
 	};
 
 	return (
@@ -84,11 +106,13 @@ export default function Home() {
 							<h2 id="main-heading" className="sr-only">
 								Converting photos
 							</h2>
-							<FileUploader handleResult={handleResult} />
+							<FileUploader onUpload={handleFileUpload} />
 						</section>
-						{/* Gallery */}
 						<section className="mt-8 pb-16">
-							<ImageGallery imageFiles={imageFiles} />
+							<ImageGallery
+								imageFiles={imageResults}
+								setCurrentFile={setCurrentFile}
+							/>
 						</section>
 					</div>
 					<Footer />

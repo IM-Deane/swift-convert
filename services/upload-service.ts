@@ -1,50 +1,38 @@
-import axios, { AxiosResponse } from "axios";
-
 import { FileType } from "@/types/index";
 
 class UploadService {
-	private service: any;
+	private serverURL: string;
 
 	constructor() {
-		this.service = axios.create({
-			baseURL: `${process.env.NEXT_PUBLIC_SSE_URL}/api`,
-			headers: {
-				"Content-Type": "multipart/form-data",
-			},
-		});
+		this.serverURL = process.env.NEXT_PUBLIC_SSE_URL;
 	}
 
-	newImage = async (
-		file: File,
-		convertToFormat: FileType
-	): Promise<AxiosResponse> => {
-		const formData = new FormData();
-		formData.append("file", file);
+	getServerURL(): string {
+		return this.serverURL;
+	}
 
-		return this.service.post("/convert", formData, {
-			params: {
-				format: convertToFormat,
-			},
-			responseType: "blob",
-		});
-	};
+	setServerURL(url: string): string {
+		this.serverURL = url;
+		return this.serverURL;
+	}
 
 	bulkUploadImages = async (
 		files: File[],
 		convertToFormat: FileType
-	): Promise<AxiosResponse> => {
+	): Promise<Response> => {
 		const formData = new FormData();
 
-		files.forEach((file, index) => {
-			formData.append(`file${index}`, file);
+		files.forEach((file) => {
+			formData.append("file", file);
 		});
 
-		return this.service.post("/convert", formData, {
-			params: {
-				format: convertToFormat,
-			},
-			responseType: "stream",
-		});
+		return await fetch(
+			`${this.serverURL}/api/convert?format=${convertToFormat}`,
+			{
+				method: "POST",
+				body: formData,
+			}
+		);
 	};
 }
 

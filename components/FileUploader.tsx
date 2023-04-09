@@ -5,10 +5,7 @@ import Dropzone from "react-dropzone";
 
 import { PaperClipIcon, FolderOpenIcon } from "@heroicons/react/20/solid";
 
-import UploadService from "@/services/upload-service";
-
-import LoadingButton from "./LoadingButton";
-import { FileType, UploadOption } from "@/types/index";
+import { UploadOption } from "@/types/index";
 import { useSettingsContext } from "@/context/SettingsProvider";
 import { toast } from "react-hot-toast";
 import Alert from "./Alert";
@@ -17,20 +14,41 @@ import AddFileModal from "./AddFileModal";
 
 import type { FileDownloadResult } from "@/types/api";
 
-function FileUploader({ handleResult }) {
+function FileUploader({
+	onUpload,
+}: {
+	onUpload: (validFiles: File[]) => void;
+}) {
 	const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-	const [loading, setLoading] = useState(false);
 	const [completionTime, setCompletionTime] = useState<number>(0);
 	const [addFileModalOpen, setAddFileModalOpen] = useState<boolean>(false);
 
 	const { settings } = useSettingsContext();
 
+	const handleFileDrop = async (files: File[]): Promise<void> => {
+		const validFiles = files.filter((file: File) => {
+			if (file.name.toLowerCase().includes("." + settings.fileInputId)) {
+				return file;
+			}
+			toast.custom(({ visible }) => (
+				<Alert
+					type="error"
+					isOpen={visible}
+					title="Invalid file type detected 🧐"
+					message="That file doesn't match your chosen input. Update your settings or choose a new file."
+				/>
+			));
+			return;
+		});
+		setSelectedFiles(validFiles);
+		onUpload(validFiles);
+	};
+
 	const handleOpenModal = () => setAddFileModalOpen(true);
 	const handleCloseModal = () => setAddFileModalOpen(false);
 
-	const handleAddFileByURL = (result: FileDownloadResult) => {
+	const handleAddFileByURL = (result: FileDownloadResult) =>
 		console.log("handleAddFileByURL", result);
-	};
 
 	const handleDropboxSignin = () => {
 		try {
@@ -92,70 +110,6 @@ function FileUploader({ handleResult }) {
 		},
 	];
 
-	const handleSubmit = async () => {
-		if (!selectedFiles) return;
-
-		const files = selectedFiles.filter((file: File) => {
-			if (file.name.toLowerCase().includes("." + settings.fileInputId)) {
-				return file;
-			}
-			toast.custom(({ visible }) => (
-				<Alert
-					type="error"
-					isOpen={visible}
-					title="Invalid file type detected 🧐"
-					message="That file doesn't match your chosen input. Update your settings or choose a new file."
-				/>
-			));
-			return;
-		});
-
-		await uploadFileToServer(files);
-	};
-
-	/**
-	 * Wrapper method that uploads a file to the server
-	 * @param fileData the file to upload
-	 * @param uploadProgress a callback function that updates file upload progress
-	 */
-	const uploadFileToServer = async (files: File[]) => {
-		setLoading(true);
-
-		try {
-			const response = await UploadService.bulkUploadImages(
-				files,
-				FileType[settings.fileOutputId]
-			);
-			console.log("stream response", response);
-
-			setCompletionTime(response.headers["server-timing"]);
-			handleResult(response.data, response.headers["server-timing"]);
-		} catch (error) {
-			if (error.response) {
-				// response with status code other than 2xx
-				console.log(error.response.data);
-				console.log(error.response.status);
-				console.log(error.response.headers);
-			} else if (error.request) {
-				// no response from server
-				console.log(error.request);
-			} else {
-				// something wrong with request
-				console.log(error);
-			}
-			console.log(error.config);
-		} finally {
-			setLoading(false);
-			setSelectedFiles([]);
-		}
-	};
-
-	/**
-	 * Method that handles file drops/uploads
-	 */
-	const handleFileDrop = (files: File[]): void =>
-		files.length > 0 && setSelectedFiles(files);
-
 	return (
 		<div className="mt-2">
 			<div className="mt-5 md:col-span-2 md:mt-0">
@@ -173,11 +127,6 @@ function FileUploader({ handleResult }) {
 											<ul role="list">
 												{selectedFiles.map((file) => (
 													<li key={file.lastModified} className="flex py-2">
-														{/* <img
-															className="h-10 w-10 rounded-full"
-															src={person.image}
-															alt=""
-														/> */}
 														<div className="ml-3">
 															<p className="text-sm font-medium text-blue-600">
 																{file.name}
@@ -187,14 +136,6 @@ function FileUploader({ handleResult }) {
 												))}
 											</ul>
 										) : (
-											// selectedFiles.map((file) => (
-											// 	<p
-											// 		key={file.name}
-											// 		className="rounded-md bg-white font-medium text-blue-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2 hover:text-blue-500"
-											// 	>
-											// 		{file.name}
-											// 	</p>
-											// ))
 											<div className="space-y-1 text-center">
 												<svg
 													className="mx-auto h-12 w-12 text-gray-400"
@@ -227,9 +168,7 @@ function FileUploader({ handleResult }) {
 													</label>
 													<p className="pl-1">or drag and drop</p>
 												</div>
-												<p className="text-xs text-gray-500">
-													{".HEIC up to 2MB"}
-												</p>
+												<p className="text-xs text-gray-500">.HEIC up to 2MB</p>
 											</div>
 										)}
 									</div>
@@ -257,17 +196,10 @@ function FileUploader({ handleResult }) {
 									Cancel
 								</button>
 							)}
-							<LoadingButton
-								isLoading={loading}
-								text="Convert"
-								loadingText="Loading..."
-								handleClick={handleSubmit}
-							/>
 						</div>
 					</div>
 				</div>
 			</div>
-
 			<AddFileModal
 				isOpen={addFileModalOpen}
 				handleCloseModal={handleCloseModal}

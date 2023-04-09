@@ -39,7 +39,6 @@ export interface LoadingImage {
 }
 
 export interface ImageFile {
-	id: string;
 	name: string;
 	current: boolean;
 	source: string;

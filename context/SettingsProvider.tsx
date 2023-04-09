@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 
 import { FileType, SettingsKeys } from "@/types/index";
 
-type Settings = { [key: string]: string };
+type Settings = { fileInputId: string; fileOutputId: string };
 
 type SettingsContextProperties = {
 	settings: Settings | null;
