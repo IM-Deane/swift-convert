@@ -34,7 +34,7 @@ export default function Home() {
 		return {
 			name: filename,
 			size: prettyBytes(newImage.size),
-			current: true,
+			current: false,
 			progress: 100,
 			source: imageURL,
 			type: imageType,
@@ -44,6 +44,31 @@ export default function Home() {
 				"Last modified": new Date(newImage.lastModified).toDateString(),
 			},
 		};
+	};
+
+	const updateCurrentFile = (file: ImageFile) => {
+		const newImageResults = imageResults.map((image) => {
+			if (image.name === file.name) {
+				return {
+					...file,
+					current: false,
+				};
+			}
+			return {
+				...image,
+				current: false,
+			};
+		});
+		setImageResults(newImageResults);
+		setCurrentFile(file);
+	};
+
+	const handleDeleteImage = () => {
+		const newImageResults = imageResults.filter(
+			(image) => image.name !== currentFile.name
+		);
+		setImageResults(newImageResults);
+		setCurrentFile(undefined);
 	};
 
 	const handleFileUpload = async (files: File[]) => {
@@ -111,7 +136,7 @@ export default function Home() {
 						<section className="mt-8 pb-16">
 							<ImageGallery
 								imageFiles={imageResults}
-								setCurrentFile={setCurrentFile}
+								setCurrentFile={updateCurrentFile}
 							/>
 						</section>
 					</div>
@@ -169,7 +194,7 @@ export default function Home() {
 								</a>
 								<button
 									type="button"
-									onClick={() => setCurrentFile(undefined)}
+									onClick={handleDeleteImage}
 									className="flex-1 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
 								>
 									Delete

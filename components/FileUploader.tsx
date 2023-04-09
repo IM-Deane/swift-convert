@@ -40,7 +40,6 @@ function FileUploader({
 			));
 			return;
 		});
-		setSelectedFiles(validFiles);
 		onUpload(validFiles);
 	};
 
