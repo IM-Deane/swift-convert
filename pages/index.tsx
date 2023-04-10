@@ -45,6 +45,40 @@ export default function Home() {
 		setCurrentFile(undefined);
 	};
 
+	// render image progress updates in real-time
+	const updateProgress = (index, progressValue) => {
+		setProgress((prevState) => ({
+			...prevState,
+			[index]: progressValue,
+		}));
+	};
+
+	// Initialize progress state for each file
+	const setupFileProgressUpdate = (files: File[]) => {
+		const SERVER_URL = process.env.NEXT_PUBLIC_SSE_URL;
+
+		const initialProgress = files.reduce((acc, _, index) => {
+			acc[index] = 0;
+			return acc;
+		}, {});
+
+		setProgress(initialProgress);
+		setImageResults([]);
+
+		files.forEach((_, index) => {
+			const eventSource = new EventSource(
+				`${SERVER_URL}/events?fileId=${index}`
+			);
+			eventSource.onmessage = (event) => {
+				const progressValue = parseInt(event.data, 10);
+				updateProgress(index, progressValue);
+			};
+			eventSource.onerror = (error) => {
+				console.error("EventSource error:", error);
+			};
+		});
+	};
+
 	const handleFileUpload = async (files: File[]) => {
 		const SERVER_URL = process.env.NEXT_PUBLIC_SSE_URL;
 
@@ -56,19 +90,7 @@ export default function Home() {
 
 		formData.append("convertToPng", settings.fileOutputId);
 
-		setProgress({});
-		setImageResults([]);
-
-		files.forEach((_, index) => {
-			const eventSource = new EventSource(
-				`${SERVER_URL}/events?fileId=${index}`
-			);
-			eventSource.onmessage = (event) => {
-				const newProgress = { ...progress };
-				newProgress[index] = event.data;
-				setProgress(newProgress);
-			};
-		});
+		setupFileProgressUpdate(files);
 
 		const response = await fetch(`${SERVER_URL}/api/convert`, {
 			method: "POST",
@@ -128,6 +150,7 @@ export default function Home() {
 							<ImageGallery
 								imageFiles={imageResults}
 								setCurrentFile={updateCurrentFile}
+								progress={progress}
 							/>
 						</section>
 					</div>
@@ -143,6 +166,7 @@ export default function Home() {
 										src={currentFile.source}
 										alt={currentFile.name}
 										className="object-cover"
+										style={{ imageOrientation: "from-image" }}
 									/>
 								</div>
 								<div className="mt-4 flex items-start justify-between">
