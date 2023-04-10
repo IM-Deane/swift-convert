@@ -1,6 +1,8 @@
 import { useState } from "react";
 
-import prettyBytes from "pretty-bytes";
+import siteConfig from "site.config";
+
+import type { ImageFile } from "@/types/index";
 
 import Layout from "@/components/Layout";
 import FileUploader from "@/components/FileUploader";
@@ -8,10 +10,8 @@ import ImageGallery from "@/components/ImageGallery";
 import Footer from "@/components/Footer";
 
 import { useSettingsContext } from "@/context/SettingsProvider";
-import siteConfig from "site.config";
 
-import { ImageFile } from "@/types/index";
-import axios from "axios";
+import { generateClientImage } from "@/utils/index";
 
 export default function Home() {
 	const [currentFile, setCurrentFile] = useState<ImageFile>();
@@ -19,32 +19,6 @@ export default function Home() {
 	const [progress, setProgress] = useState({});
 
 	const { settings } = useSettingsContext();
-
-	const generateClientImage = (
-		data: Uint8Array,
-		filename: string,
-		elapsedTime
-	) => {
-		const imageType = `image/${settings.fileOutputId}`;
-		const newImage = new File([data], filename, {
-			type: imageType,
-		});
-		const imageURL = URL.createObjectURL(newImage);
-
-		return {
-			name: filename,
-			size: prettyBytes(newImage.size),
-			current: false,
-			progress: 100,
-			source: imageURL,
-			type: imageType,
-			information: {
-				"Elapsed time": elapsedTime,
-				Created: new Date(newImage.lastModified).toDateString(),
-				"Last modified": new Date(newImage.lastModified).toDateString(),
-			},
-		};
-	};
 
 	const updateCurrentFile = (file: ImageFile) => {
 		const newImageResults = imageResults.map((image) => {
@@ -96,14 +70,31 @@ export default function Home() {
 			};
 		});
 
-		const response = await axios.post(`${SERVER_URL}/api/convert`, formData, {
-			headers: { "Content-Type": "multipart/form-data" },
+		const response = await fetch(`${SERVER_URL}/api/convert`, {
+			method: "POST",
+			body: formData,
 		});
+		const elapsedTime = response.headers.get("server-timing");
+		const data = await response.json();
 
-		const generatedImages = response.data.map(({ data, filename }) =>
-			generateClientImage(data, filename, response.headers["server-timing"])
-		);
-		setImageResults(generatedImages);
+		const images = data.map((item) => {
+			if (item.error) {
+				console.error("Image conversion error:", item.errorMsg);
+				return null;
+			}
+
+			const rawImageData = Uint8Array.from(atob(item.data), (c) =>
+				c.charCodeAt(0)
+			);
+			const generatedImage = generateClientImage(
+				rawImageData,
+				item.filename,
+				settings.fileOutputId,
+				elapsedTime
+			);
+			return generatedImage;
+		});
+		setImageResults(images.filter((img) => img !== null));
 	};
 
 	return (
@@ -145,7 +136,7 @@ export default function Home() {
 				{/* Details sidebar */}
 				{currentFile && (
 					<aside className="w-96 h-screen overflow-y-auto border-l border-gray-200 bg-white p-8 lg:block">
-						<div className="space-y-6 pb-12 h-96">
+						<div className="space-y-6 pb-12 ">
 							<div>
 								<div className="aspect-h-7 aspect-w-10 block w-full overflow-hidden rounded-lg">
 									<img
