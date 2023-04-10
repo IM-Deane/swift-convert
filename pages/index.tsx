@@ -46,12 +46,11 @@ export default function Home() {
 	};
 
 	// render image progress updates in real-time
-	const updateProgress = (index, progressValue) => {
+	const updateProgress = (index, progressValue) =>
 		setProgress((prevState) => ({
 			...prevState,
 			[index]: progressValue,
 		}));
-	};
 
 	// Initialize progress state for each file
 	const setupFileProgressUpdate = (files: File[]) => {
@@ -88,7 +87,7 @@ export default function Home() {
 			formData.append("fileIds", index.toString());
 		});
 
-		formData.append("convertToPng", settings.fileOutputId);
+		formData.append("convertToFormat", settings.fileOutputId);
 
 		setupFileProgressUpdate(files);
 

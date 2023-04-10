@@ -1,5 +1,7 @@
 import prettyBytes from "pretty-bytes";
 
+import { ImageFile } from "@/types/index";
+
 export function classNames(...classes) {
 	return classes.filter(Boolean).join(" ");
 }
@@ -9,7 +11,7 @@ export const generateClientImage = (
 	filename: string,
 	filetype: string,
 	elapsedTime: string
-) => {
+): ImageFile => {
 	const imageType = `image/${filetype}`;
 	const imageBlob = new Blob([rawImageData], { type: imageType });
 	const newImageFile = new File([imageBlob], filename, {
