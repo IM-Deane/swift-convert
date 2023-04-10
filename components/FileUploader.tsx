@@ -115,6 +115,28 @@ function FileUploader({
 				<div className="shadow sm:overflow-hidden sm:rounded-md">
 					<ul className="space-y-6 bg-white px-4 py-5 sm:p-6">
 						<li>
+							{/* button container */}
+							<div className="bg-gray-50 px-4 py-3 mb-8 text-right sm:px-6 flex flex-col md:flex-row md:justify-between items-center md:items-baseline">
+								<div>
+									<SelectUploadMethod uploadOptions={uploadOptions} />
+								</div>
+								<div className="mt-4 md:mt:0">
+									{!!completionTime && (
+										<span className="mt-2 mr-8 text-sm text-blue-500">
+											Completed conversion in <strong>{completionTime}</strong>
+										</span>
+									)}
+									{selectedFiles.length > 0 && (
+										<button
+											type="button"
+											onClick={() => setSelectedFiles([])}
+											className="rounded-md bg-white mr-4 px-8 py-4 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+										>
+											Cancel
+										</button>
+									)}
+								</div>
+							</div>
 							<Dropzone onDrop={handleFileDrop} multiple={true} maxFiles={5}>
 								{({ getRootProps, getInputProps }) => (
 									<div
@@ -175,28 +197,6 @@ function FileUploader({
 							</Dropzone>
 						</li>
 					</ul>
-					{/* button container */}
-					<div className="bg-gray-50 mb-28 px-4 py-3 text-right sm:px-6 flex flex-col md:flex-row md:justify-between items-center md:items-baseline">
-						<div>
-							<SelectUploadMethod uploadOptions={uploadOptions} />
-						</div>
-						<div className="mt-4 md:mt:0">
-							{!!completionTime && (
-								<span className="mt-2 mr-8 text-sm text-blue-500">
-									Completed conversion in <strong>{completionTime}</strong>
-								</span>
-							)}
-							{selectedFiles.length > 0 && (
-								<button
-									type="button"
-									onClick={() => setSelectedFiles([])}
-									className="rounded-md bg-white mr-4 px-8 py-4 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-								>
-									Cancel
-								</button>
-							)}
-						</div>
-					</div>
 				</div>
 			</div>
 			<AddFileModal
