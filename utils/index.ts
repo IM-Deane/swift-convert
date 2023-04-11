@@ -35,3 +35,17 @@ export const generateClientImage = (
 		},
 	};
 };
+
+// Create an inital object for displaying images
+export const generateInitialClientImage = (file: File): ImageFile => {
+	return {
+		id: 0,
+		name: file.name,
+		size: file.size,
+		type: file.type,
+		current: false,
+		source: null, // initial source is null
+		progress: 0, // initial progress is 0
+		information: {}, // initial information is an empty object
+	};
+};

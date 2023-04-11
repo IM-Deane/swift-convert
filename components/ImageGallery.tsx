@@ -6,26 +6,20 @@ import CardSkeleton from "./loading/CardSkeleton";
 function ImageGallery({
 	imageFiles,
 	setCurrentFile,
-	progress,
 }: {
 	imageFiles: File[] | ImageFile[];
 	setCurrentFile: (File) => void;
-	progress: { [index: number]: number };
 }) {
 	return (
 		<ul
 			role="list"
 			className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8"
 		>
-			{imageFiles.map((file, index) => {
-				const ImageConversionProgress = progress[index] || 0;
+			{imageFiles.map((file) => {
 				return (
 					<li key={file.name.toLowerCase() + file.size} className="relative">
-						{ImageConversionProgress < 100 ? (
-							<CardSkeleton
-								imageTitle={file.name}
-								progress={ImageConversionProgress}
-							/>
+						{file.progress < 100 && !file.source ? (
+							<CardSkeleton imageTitle={file.name} progress={file.progress} />
 						) : (
 							<div>
 								<div

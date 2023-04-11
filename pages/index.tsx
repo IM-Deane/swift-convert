@@ -11,12 +11,11 @@ import Footer from "@/components/Footer";
 
 import { useSettingsContext } from "@/context/SettingsProvider";
 
-import { generateClientImage } from "@/utils/index";
+import { generateClientImage, generateInitialClientImage } from "@/utils/index";
 
 export default function Home() {
 	const [currentFile, setCurrentFile] = useState<ImageFile>();
 	const [imageResults, setImageResults] = useState<ImageFile[]>([]);
-	const [progress, setProgress] = useState({});
 
 	const { settings } = useSettingsContext();
 
@@ -47,24 +46,24 @@ export default function Home() {
 
 	// render image progress updates in real-time
 	const updateProgress = (index, progressValue) =>
-		setProgress((prevState) => ({
-			...prevState,
-			[index]: progressValue,
-		}));
+		setImageResults((prevImageResults) =>
+			prevImageResults.map((image, idx) => {
+				if (idx === index) {
+					return { ...image, progress: progressValue };
+				}
+				return image;
+			})
+		);
 
 	// Initialize progress state for each file
 	const setupFileProgressUpdate = (files: File[]) => {
 		const SERVER_URL = process.env.NEXT_PUBLIC_SSE_URL;
 
-		const initialProgress = files.reduce((acc, _, index) => {
-			acc[index] = 0;
-			return acc;
-		}, {});
-
-		setProgress(initialProgress);
 		setImageResults([]);
 
-		files.forEach((_, index) => {
+		const tempClientImages: ImageFile[] = [];
+
+		files.forEach((file, index) => {
 			const eventSource = new EventSource(
 				`${SERVER_URL}/events?fileId=${index}`
 			);
@@ -75,7 +74,11 @@ export default function Home() {
 			eventSource.onerror = (error) => {
 				console.error("EventSource error:", error);
 			};
+
+			// add images to client for progress updates
+			tempClientImages.push(generateInitialClientImage(file));
 		});
+		setImageResults(tempClientImages);
 	};
 
 	const handleFileUpload = async (files: File[]) => {
@@ -98,7 +101,7 @@ export default function Home() {
 		const elapsedTime = response.headers.get("server-timing");
 		const data = await response.json();
 
-		const images = data.map((item) => {
+		const images = data.map((item, index) => {
 			if (item.error) {
 				console.error("Image conversion error:", item.errorMsg);
 				return null;
@@ -113,6 +116,22 @@ export default function Home() {
 				settings.fileOutputId,
 				elapsedTime
 			);
+
+			// Update imageResults with the new data
+			setImageResults((prevImageResults) =>
+				prevImageResults.map((image, idx) => {
+					if (idx === index) {
+						return {
+							...image,
+							source: generatedImage.source,
+							information: generatedImage.information,
+							progress: 100, // Set progress to 100
+						};
+					}
+					return image;
+				})
+			);
+
 			return generatedImage;
 		});
 		setImageResults(images.filter((img) => img !== null));
@@ -149,7 +168,6 @@ export default function Home() {
 							<ImageGallery
 								imageFiles={imageResults}
 								setCurrentFile={updateCurrentFile}
-								progress={progress}
 							/>
 						</section>
 					</div>
