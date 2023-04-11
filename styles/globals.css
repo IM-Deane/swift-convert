@@ -1,3 +1,19 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+#__next {
+	@apply h-full;
+}
+html,
+body {
+	@apply h-full;
+}
+
+html {
+	@apply bg-gray-50;
+}
+
+body {
+	@apply overflow-hidden;
+}

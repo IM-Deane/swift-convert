@@ -3,7 +3,7 @@ import siteConfig from "site.config";
 
 export default function Document() {
 	return (
-		<Html lang="en" className="h-full bg-gray-50">
+		<Html lang="en">
 			<Head>
 				<link
 					rel="apple-touch-icon"
@@ -36,7 +36,7 @@ export default function Document() {
 				<meta name="theme-color" content="#ffffff" />
 				<meta name="description" content={siteConfig.description} />
 			</Head>
-			<body className="h-full overflow-hidden">
+			<body>
 				<Main />
 				<NextScript />
 			</body>

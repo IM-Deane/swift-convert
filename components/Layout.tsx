@@ -12,6 +12,7 @@ import siteConfig from "site.config";
 import SettingsModal from "@/components/SettingsModal";
 import { classNames } from "@/utils/index";
 import { useRouter } from "next/router";
+import Footer from "./Footer";
 
 const navigation = siteConfig.mainNavTabs;
 
@@ -36,9 +37,9 @@ export default function Layout({ title = siteConfig.slogan, children }) {
 				<title>{title}</title>
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
 			</Head>
-			<div className="flex">
+			<div className="flex h-full py-0 my-0">
 				{/* Narrow sidebar */}
-				<div className="hidden h-screen w-28 overflow-y-auto bg-gray-900 md:block">
+				<div className="hidden w-28 overflow-y-auto bg-gray-900 md:block">
 					<div className="flex w-full flex-col items-center py-6">
 						<div className="flex flex-shrink-0 items-center">
 							<div className="relative h-16 w-16">
@@ -206,6 +207,7 @@ export default function Layout({ title = siteConfig.slogan, children }) {
 						</div>
 					</header>
 					{children}
+					<Footer />
 				</div>
 				<SettingsModal
 					isOpen={settingsModalOpen}

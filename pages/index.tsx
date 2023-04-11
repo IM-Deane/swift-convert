@@ -7,7 +7,6 @@ import type { ImageFile } from "@/types/index";
 import Layout from "@/components/Layout";
 import FileUploader from "@/components/FileUploader";
 import ImageGallery from "@/components/ImageGallery";
-import Footer from "@/components/Footer";
 
 import { useSettingsContext } from "@/context/SettingsProvider";
 
@@ -19,20 +18,28 @@ export default function Home() {
 
 	const { settings } = useSettingsContext();
 
-	const updateCurrentFile = (file: ImageFile) => {
-		const newImageResults = imageResults.map((image) => {
-			if (image.name === file.name) {
-				return {
-					...file,
-					current: false,
-				};
-			}
-			return {
+	const updateCurrentFile = (file: ImageFile | undefined) => {
+		if (!file) {
+			const resetImages = imageResults.map((image) => ({
 				...image,
 				current: false,
-			};
-		});
-		setImageResults(newImageResults);
+			}));
+			setImageResults(resetImages);
+		} else {
+			const newImageResults = imageResults.map((image) => {
+				if (image.name === file.name) {
+					return {
+						...file,
+						current: false,
+					};
+				}
+				return {
+					...image,
+					current: false,
+				};
+			});
+			setImageResults(newImageResults);
+		}
 		setCurrentFile(file);
 	};
 
@@ -140,7 +147,7 @@ export default function Home() {
 	return (
 		<Layout>
 			<div className="flex flex-1 items-stretch">
-				<main className="flex-1 overflow-y-auto h-screen">
+				<main className="flex-1 overflow-y-auto">
 					<div className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8">
 						<div className="border-b border-gray-200 pb-5">
 							<h1 className="text-base text-xl font-semibold leading-6 text-gray-900">
@@ -171,12 +178,11 @@ export default function Home() {
 							/>
 						</section>
 					</div>
-					<Footer />
 				</main>
 				{/* Details sidebar */}
 				{currentFile && (
-					<aside className="w-96 h-screen overflow-y-auto border-l border-gray-200 bg-white p-8 lg:block">
-						<div className="space-y-6 pb-12 ">
+					<aside className="w-96 h-ful overflow-y-auto border-l border-gray-200 bg-white p-8 lg:block">
+						<div className="space-y-6 pb-12">
 							<div>
 								<div className="aspect-h-7 aspect-w-10 block w-full overflow-hidden rounded-lg">
 									<img
