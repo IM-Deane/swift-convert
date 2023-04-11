@@ -41,7 +41,6 @@ export default function AddFileModal({
 
 		try {
 			const response = await DownloadService.downloadPublicFile(inputURL);
-			console.log(response);
 			handleSave(response.data);
 			handleCloseModal();
 		} catch (error) {

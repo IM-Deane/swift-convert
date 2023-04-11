@@ -48,3 +48,15 @@ export interface ImageFile {
 	progress: number; // used for progress bar
 	information?: { [key: string]: string };
 }
+
+export enum UPLOAD_ORIGINS {
+	googleDrive = "Google Drive",
+	dropbox = "Dropbox",
+	s3 = "S3",
+	localStorage = "Local Storage",
+}
+
+export interface AdditionalInfo {
+	uploadOrigin: UPLOAD_ORIGINS;
+	filePath?: string;
+}

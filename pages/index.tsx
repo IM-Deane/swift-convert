@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import siteConfig from "site.config";
 
-import type { ImageFile } from "@/types/index";
+import type { ImageFile, AdditionalInfo } from "@/types/index";
 
 import Layout from "@/components/Layout";
 import FileUploader from "@/components/FileUploader";
@@ -65,9 +65,7 @@ export default function Home() {
 	// Initialize progress state for each file
 	const setupFileProgressUpdate = (files: File[]) => {
 		const SERVER_URL = process.env.NEXT_PUBLIC_SSE_URL;
-
 		setImageResults([]);
-
 		const tempClientImages: ImageFile[] = [];
 
 		files.forEach((file, index) => {

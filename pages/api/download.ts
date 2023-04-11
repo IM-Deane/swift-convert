@@ -1,6 +1,12 @@
 import { Dropbox, Error, sharing } from "dropbox"; // eslint-disable-line no-unused-vars
 import type { FileDownloadResult } from "types/api";
 
+export const config = {
+	api: {
+		responseLimit: "10MB", // default is "4mb"
+	},
+};
+
 const Handler = async (req, res) => {
 	if (req.method !== "POST") return res.status(405).send("Method Not Allowed");
 
@@ -20,11 +26,12 @@ const Handler = async (req, res) => {
 				url: imageURL,
 			});
 			if (linkResponse.status !== 200)
-				return res.status(status).send(linkResponse.result);
+				return res.status(linkResponse.status).send(linkResponse.result);
 
 			const downloadResponse = await dropbox.filesDownload({
 				path: linkResponse.result.path_lower,
 			});
+			console.log(downloadResponse);
 			if (downloadResponse.status !== 200)
 				return res
 					.status(downloadResponse.status)
@@ -42,7 +49,8 @@ const Handler = async (req, res) => {
 				size: downloadResponse.result.size,
 			};
 
-			return res.status(200).send(fileData);
+			res.status(200).send(fileData);
+			return;
 		} else if (imageURL.startsWith("https://drive.google.com/")) {
 			// TODO: implement GoogleDrive flow
 			res.status(200).send("Success");

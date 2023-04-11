@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { signIn } from "next-auth/react";
 
-import Dropzone from "react-dropzone";
+import Dropzone, { useDropzone } from "react-dropzone";
 
 import { PaperClipIcon, FolderOpenIcon } from "@heroicons/react/20/solid";
 
@@ -14,6 +14,8 @@ import AddFileModal from "./AddFileModal";
 
 import type { FileDownloadResult } from "@/types/api";
 
+const IMAGE_FILE_TYPES = ["jpeg", "png", "heic"];
+
 function FileUploader({
 	onUpload,
 }: {
@@ -22,6 +24,8 @@ function FileUploader({
 	const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 	const [completionTime, setCompletionTime] = useState<number>(0);
 	const [addFileModalOpen, setAddFileModalOpen] = useState<boolean>(false);
+
+	const dropzoneRef = useRef();
 
 	const { settings } = useSettingsContext();
 
@@ -44,11 +48,63 @@ function FileUploader({
 		onUpload(validFiles);
 	};
 
+	// triggers local device uploader
+	const handleOpenLocalFileDialog = () => {
+		// Note that the ref is set async so it might be null at some point
+		if (dropzoneRef.current) {
+			// @ts-expect-error Property 'open' does not exist on type 'never'.ts(2339)
+			dropzoneRef.current.open();
+		}
+	};
 	const handleOpenModal = () => setAddFileModalOpen(true);
 	const handleCloseModal = () => setAddFileModalOpen(false);
 
-	const handleAddFileByURL = (result: FileDownloadResult) =>
-		console.log("handleAddFileByURL", result);
+	const handleAddFileByURL = (result: FileDownloadResult) => {
+		const fileType = result.name.split(".").pop().toLowerCase();
+
+		if (!IMAGE_FILE_TYPES.includes(fileType)) {
+			if (fileType !== settings.fileInputId) {
+				toast.custom(({ visible }) => (
+					<Alert
+						type="error"
+						isOpen={visible}
+						title="Invalid file type detected 🧐"
+						message="That file doesn't match your chosen input. Update your settings or choose a new file."
+					/>
+				));
+			} else if (fileType === settings.fileOutputId) {
+				toast.custom(({ visible }) => (
+					<Alert
+						type="error"
+						isOpen={visible}
+						title="Invalid file type detected 🧐"
+						message="That file matches your chosen output type. Update your settings or choose a new file."
+					/>
+				));
+			} else {
+				toast.custom(({ visible }) => (
+					<Alert
+						type="error"
+						isOpen={visible}
+						title="Invalid file type detected 🧐"
+						message="We don't support that type of file just yet."
+					/>
+				));
+			}
+			return;
+		}
+		const uint8Array = new Uint8Array(result.fileBinary.data);
+		const fileBlob = new Blob([uint8Array], {
+			type: "application/octet-stream",
+		});
+		const file = new File([fileBlob], result.name.toLowerCase(), {
+			type: `image/${fileType}`,
+		});
+
+		// add file to uploader and start upload process
+		setSelectedFiles([...selectedFiles, file]);
+		onUpload([...selectedFiles, file]);
+	};
 
 	const handleDropboxSignin = () => {
 		try {
@@ -64,7 +120,7 @@ function FileUploader({
 			id: 1,
 			name: "From Local System",
 			icon: FolderOpenIcon,
-			action: () => console.log("Local device selected!"),
+			action: handleOpenLocalFileDialog,
 		},
 		{
 			id: 2,
@@ -72,42 +128,42 @@ function FileUploader({
 			icon: PaperClipIcon,
 			action: handleOpenModal,
 		},
-		{
-			id: 3,
-			name: "From Dropbox",
-			icon: () => (
-				<svg
-					width="20px"
-					height="20px"
-					viewBox="0 -0.5 20 20"
-					version="1.1"
-					xmlns="http://www.w3.org/2000/svg"
-					xmlnsXlink="http://www.w3.org/1999/xlink"
-				>
-					<g
-						id="Page-1"
-						stroke="none"
-						strokeWidth="1"
-						fill="none"
-						fillRule="evenodd"
-					>
-						<g
-							id="Dribbble-Light-Preview"
-							transform="translate(-300.000000, -7479.000000)"
-							fill="#000000"
-						>
-							<g id="icons" transform="translate(56.000000, 160.000000)">
-								<path
-									d="M254.012,7330.74707 L249.825,7334.24637 L248,7333.0687 L248,7334.38937 L254,7338 L260,7334.38937 L260,7333.0687 L258.187,7334.24637 L254.012,7330.74707 Z M264,7322.92318 L258.117,7319 L254,7322.50952 L259.932,7326.25089 L264,7322.92318 Z M254,7329.99226 L258.117,7333.50177 L264,7329.57859 L259.932,7326.25089 L254,7329.99226 Z M244,7329.57859 L249.883,7333.50177 L254,7329.99226 L248.068,7326.25089 L244,7329.57859 Z M254,7322.50952 L248.068,7326.25089 L244,7322.92318 L249.883,7319 L254,7322.50952 Z"
-									id="dropbox-[#158]"
-								/>
-							</g>
-						</g>
-					</g>
-				</svg>
-			),
-			action: handleDropboxSignin,
-		},
+		// {
+		// 	id: 3,
+		// 	name: "From Dropbox",
+		// 	icon: () => (
+		// 		<svg
+		// 			width="20px"
+		// 			height="20px"
+		// 			viewBox="0 -0.5 20 20"
+		// 			version="1.1"
+		// 			xmlns="http://www.w3.org/2000/svg"
+		// 			xmlnsXlink="http://www.w3.org/1999/xlink"
+		// 		>
+		// 			<g
+		// 				id="Page-1"
+		// 				stroke="none"
+		// 				strokeWidth="1"
+		// 				fill="none"
+		// 				fillRule="evenodd"
+		// 			>
+		// 				<g
+		// 					id="Dribbble-Light-Preview"
+		// 					transform="translate(-300.000000, -7479.000000)"
+		// 					fill="#000000"
+		// 				>
+		// 					<g id="icons" transform="translate(56.000000, 160.000000)">
+		// 						<path
+		// 							d="M254.012,7330.74707 L249.825,7334.24637 L248,7333.0687 L248,7334.38937 L254,7338 L260,7334.38937 L260,7333.0687 L258.187,7334.24637 L254.012,7330.74707 Z M264,7322.92318 L258.117,7319 L254,7322.50952 L259.932,7326.25089 L264,7322.92318 Z M254,7329.99226 L258.117,7333.50177 L264,7329.57859 L259.932,7326.25089 L254,7329.99226 Z M244,7329.57859 L249.883,7333.50177 L254,7329.99226 L248.068,7326.25089 L244,7329.57859 Z M254,7322.50952 L248.068,7326.25089 L244,7322.92318 L249.883,7319 L254,7322.50952 Z"
+		// 							id="dropbox-[#158]"
+		// 						/>
+		// 					</g>
+		// 				</g>
+		// 			</g>
+		// 		</svg>
+		// 	),
+		// 	action: handleDropboxSignin,
+		// },
 	];
 
 	return (
@@ -138,7 +194,12 @@ function FileUploader({
 									)}
 								</div>
 							</div>
-							<Dropzone onDrop={handleFileDrop} multiple={true} maxFiles={5}>
+							<Dropzone
+								ref={dropzoneRef}
+								onDrop={handleFileDrop}
+								multiple={true}
+								maxFiles={5}
+							>
 								{({ getRootProps, getInputProps }) => (
 									<div
 										{...getRootProps()}

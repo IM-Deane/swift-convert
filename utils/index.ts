@@ -1,6 +1,6 @@
 import prettyBytes from "pretty-bytes";
 
-import { ImageFile } from "@/types/index";
+import { ImageFile, UPLOAD_ORIGINS, AdditionalInfo } from "@/types/index";
 
 export function classNames(...classes) {
 	return classes.filter(Boolean).join(" ");
@@ -10,7 +10,8 @@ export const generateClientImage = (
 	rawImageData: Uint8Array,
 	filename: string,
 	filetype: string,
-	elapsedTime: string
+	elapsedTime: string,
+	additionalInfo?: AdditionalInfo
 ): ImageFile => {
 	const imageType = `image/${filetype}`;
 	const imageBlob = new Blob([rawImageData], { type: imageType });
@@ -18,6 +19,11 @@ export const generateClientImage = (
 		type: imageType,
 	});
 	const imageURL = URL.createObjectURL(newImageFile);
+
+	let uploadedFrom = UPLOAD_ORIGINS.localStorage;
+	if (additionalInfo && additionalInfo.uploadOrigin) {
+		uploadedFrom = additionalInfo.uploadOrigin;
+	}
 
 	return {
 		name: newImageFile.name,
@@ -32,12 +38,25 @@ export const generateClientImage = (
 			"Elapsed time": elapsedTime,
 			Created: new Date(newImageFile.lastModified).toDateString(),
 			"Last modified": new Date(newImageFile.lastModified).toDateString(),
+			"Uploaded from": uploadedFrom,
+			"File path": additionalInfo ? additionalInfo?.filePath : "N/A",
 		},
 	};
 };
 
 // Create an inital object for displaying images
-export const generateInitialClientImage = (file: File): ImageFile => {
+export const generateInitialClientImage = (
+	file: File,
+	additionalInfo?: {
+		uploadOrigin: UPLOAD_ORIGINS;
+		filePath?: string;
+	}
+): ImageFile => {
+	let uploadedFrom = UPLOAD_ORIGINS.localStorage;
+	if (additionalInfo && additionalInfo.uploadOrigin) {
+		uploadedFrom = additionalInfo.uploadOrigin;
+	}
+
 	return {
 		id: 0,
 		name: file.name,
@@ -46,6 +65,9 @@ export const generateInitialClientImage = (file: File): ImageFile => {
 		current: false,
 		source: null, // initial source is null
 		progress: 0, // initial progress is 0
-		information: {}, // initial information is an empty object
+		information: {
+			"Uploaded from": uploadedFrom,
+			"File path": additionalInfo ? additionalInfo?.filePath : "N/A",
+		}, // initial information is an empty object
 	};
 };
