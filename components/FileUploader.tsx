@@ -115,8 +115,8 @@ function FileUploader({
 				<div className="shadow sm:overflow-hidden sm:rounded-md">
 					<ul className="space-y-6 bg-white px-4 py-5 sm:p-6">
 						<li>
-							{/* button container */}
-							<div className="bg-gray-50 px-4 py-3 mb-8 text-right sm:px-6 flex flex-col md:flex-row md:justify-between items-center md:items-baseline">
+							{/* button container, TODO: hide until we have other upload methods */}
+							{/* <div className="bg-gray-50 px-4 py-3 mb-8 text-right sm:px-6 flex flex-col md:flex-row md:justify-between items-center md:items-baseline">
 								<div>
 									<SelectUploadMethod uploadOptions={uploadOptions} />
 								</div>
@@ -136,7 +136,7 @@ function FileUploader({
 										</button>
 									)}
 								</div>
-							</div>
+							</div> */}
 							<Dropzone onDrop={handleFileDrop} multiple={true} maxFiles={5}>
 								{({ getRootProps, getInputProps }) => (
 									<div
