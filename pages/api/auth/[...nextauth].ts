@@ -1,6 +1,5 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import DropboxProvider from "next-auth/providers/dropbox";
 
 export interface DropboxAccount {}
 
@@ -12,23 +11,6 @@ export default NextAuth({
 		GoogleProvider({
 			clientId: process.env.GOOGLE_CLIENT_ID,
 			clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-		}),
-		DropboxProvider({
-			clientId: process.env.DROPBOX_CLIENT_ID,
-			clientSecret: process.env.DROPBOX_CLIENT_SECRET,
-			authorization:
-				"https://www.dropbox.com/oauth2/authorize?token_access_type=online",
-			// token: "https://api.dropboxapi.com/oauth2/token",
-			// userinfo: "https://api.dropboxapi.com/2/users/get_current_account",
-			// profile(profile) {
-			// 	return {
-			// 		id: profile.account_id,
-			// 		name: profile.name.display_name,
-			// 		email: profile.email,
-			// 		image: profile.profile_photo_url,
-			// 	};
-			// },
-			// checks: ["state", "pkce"],
 		}),
 	],
 	// The secret should be set to a reasonably long random string.
@@ -82,32 +64,10 @@ export default NextAuth({
 	// when an action is performed.
 	// https://next-auth.js.org/configuration/callbacks
 	callbacks: {
-		// 	// async signIn({ user, account, profile, email, credentials }) { return true },
-		// 	async redirect({ url, baseUrl }) {
-		// 		console.log(`Redirecting to ${url}`);
-		// 		if (url.startsWith("/")) return `${baseUrl}${url}`;
-		// 		// Allows callback URLs on the same origin
-		// 		else if (new URL(url).origin === baseUrl) return url;
-
-		// 		return baseUrl;
-		// 	},
-		async jwt({ token, user, account, profile }) {
-			if (account.provider && !token[account.provider]) {
-				token[account.provider] = {};
-			}
-
-			if (account.accessToken) {
-				token[account.provider].accessToken = account.accessToken;
-			}
-			if (account.refreshToken) {
-				token[account.provider].refreshToken = account.refreshToken;
-			}
-
-			return token;
-		},
-		async session({ session, token, user }) {
-			return session;
-		},
+		// async signIn({ user, account, profile, email, credentials }) { return true },
+		// async redirect({ url, baseUrl }) { return baseUrl },
+		// async session({ session, token, user }) { return session },
+		// async jwt({ token, user, account, profile, isNewUser }) { return token }
 	},
 	// Events are useful for logging
 	// https://next-auth.js.org/configuration/events
