@@ -74,7 +74,7 @@ export default function DropboxChooseModal({ isOpen, setIsOpen, onSuccess }) {
 										</Dialog.Title>
 										<div className="mt-2">
 											<p className="text-sm text-gray-500">
-												Sign into your Dropbox account to access your files.
+												Upload files using your Dropbox account.
 											</p>
 										</div>
 									</div>

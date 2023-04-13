@@ -1,23 +1,18 @@
 import React, { useState, useRef } from "react";
 
-import { signIn } from "next-auth/react";
-
 import Dropzone from "react-dropzone";
 
-import { PaperClipIcon, FolderOpenIcon } from "@heroicons/react/20/solid";
+import { FolderOpenIcon } from "@heroicons/react/20/solid";
 
 import { UploadOption } from "@/types/index";
 import { useSettingsContext } from "@/context/SettingsProvider";
 import { toast } from "react-hot-toast";
 import Alert from "./Alert";
 import SelectUploadMethod from "./SelectUploadMethod";
-import AddFileModal from "./AddFileModal";
 import DropboxChooseModal from "./DropboxChooseModal";
 import { convertToBrowserFileObjects } from "@/utils/index";
 
-import type { FileDownloadResult, DropboxChooserFile } from "@/types/api";
-
-const IMAGE_FILE_TYPES = ["jpeg", "png", "heic"];
+import type { DropboxChooserFile } from "@/types/api";
 
 function FileUploader({
 	onUpload,
@@ -25,8 +20,7 @@ function FileUploader({
 	onUpload: (validFiles: File[]) => void;
 }) {
 	const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-	const [completionTime, setCompletionTime] = useState<number>(0);
-	const [addFileModalOpen, setAddFileModalOpen] = useState<boolean>(false);
+	const [completionTime] = useState<number>(0);
 	const [showDropboxChooser, setShowDropboxChooser] = useState<boolean>(false);
 
 	const dropzoneRef = useRef();
@@ -59,61 +53,6 @@ function FileUploader({
 			dropzoneRef.current.open();
 		}
 	};
-	const handleOpenModal = () => setAddFileModalOpen(true);
-	const handleCloseModal = () => setAddFileModalOpen(false);
-
-	/**
-	 * This file is used for downloading files from public folders such
-	 * as Dropbox or Google Drive.
-	 * Note: we might deprecate this in favor of `DropboxChooseModal` and
-	 * 'GoogleDriveChooseModal'.
-	 */
-	const handleAddFileByURL = (result: FileDownloadResult) => {
-		const fileType = result.name.split(".").pop().toLowerCase();
-
-		if (!IMAGE_FILE_TYPES.includes(fileType)) {
-			if (fileType !== settings.fileInputId) {
-				toast.custom(({ visible }) => (
-					<Alert
-						type="error"
-						isOpen={visible}
-						title="Invalid file type detected 🧐"
-						message="That file doesn't match your chosen input. Update your settings or choose a new file."
-					/>
-				));
-			} else if (fileType === settings.fileOutputId) {
-				toast.custom(({ visible }) => (
-					<Alert
-						type="error"
-						isOpen={visible}
-						title="Invalid file type detected 🧐"
-						message="That file matches your chosen output type. Update your settings or choose a new file."
-					/>
-				));
-			} else {
-				toast.custom(({ visible }) => (
-					<Alert
-						type="error"
-						isOpen={visible}
-						title="Invalid file type detected 🧐"
-						message="We don't support that type of file just yet."
-					/>
-				));
-			}
-			return;
-		}
-		const uint8Array = new Uint8Array(result.fileBinary.data);
-		const fileBlob = new Blob([uint8Array], {
-			type: "application/octet-stream",
-		});
-		const file = new File([fileBlob], result.name.toLowerCase(), {
-			type: `image/${fileType}`,
-		});
-
-		// add file to uploader and start upload process
-		setSelectedFiles([...selectedFiles, file]);
-		onUpload([...selectedFiles, file]);
-	};
 
 	const handleDropboxChooserDownload = async (files: DropboxChooserFile[]) => {
 		const fileObjects = await convertToBrowserFileObjects(files);
@@ -129,12 +68,6 @@ function FileUploader({
 		},
 		{
 			id: 2,
-			name: "From Public URL",
-			icon: PaperClipIcon,
-			action: handleOpenModal,
-		},
-		{
-			id: 3,
 			name: "From Dropbox",
 			icon: () => (
 				<svg
@@ -167,7 +100,6 @@ function FileUploader({
 					</g>
 				</svg>
 			),
-			// ts-expect-error: Property 'Dropbox' does not exist on type 'Window & typeof globalThis'.
 			action: () => setShowDropboxChooser(true),
 		},
 	];
@@ -178,7 +110,6 @@ function FileUploader({
 				<div className="shadow sm:overflow-hidden sm:rounded-md">
 					<ul className="space-y-6 bg-white px-4 py-5 sm:p-6">
 						<li>
-							{/* button container, TODO: hide until we have other upload methods */}
 							<div className="bg-gray-50 px-4 py-3 mb-8 text-right sm:px-6 flex flex-col md:flex-row md:justify-between items-center md:items-baseline">
 								<div>
 									<SelectUploadMethod uploadOptions={uploadOptions} />
@@ -267,11 +198,6 @@ function FileUploader({
 					</ul>
 				</div>
 			</div>
-			<AddFileModal
-				isOpen={addFileModalOpen}
-				handleCloseModal={handleCloseModal}
-				handleSave={handleAddFileByURL}
-			/>
 			<DropboxChooseModal
 				isOpen={showDropboxChooser}
 				setIsOpen={setShowDropboxChooser}

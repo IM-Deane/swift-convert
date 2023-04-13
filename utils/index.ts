@@ -73,6 +73,12 @@ export const generateInitialClientImage = (
 	};
 };
 
+/**
+ * Convert dropbox files to browser files that can be sent to our image server.
+ * @more https://www.dropbox.com/developers/chooser
+ * @param dropboxFiles
+ * @returns
+ */
 export const convertToBrowserFileObjects = async (
 	dropboxFiles: DropboxChooserFile[]
 ): Promise<File[]> => {
