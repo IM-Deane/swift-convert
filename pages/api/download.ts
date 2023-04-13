@@ -1,4 +1,4 @@
-import { Dropbox, Error, sharing } from "dropbox"; // eslint-disable-line no-unused-vars
+import { Dropbox } from "dropbox"; // eslint-disable-line no-unused-vars
 import type { FileDownloadResult } from "types/api";
 
 export const config = {
@@ -14,7 +14,6 @@ const Handler = async (req, res) => {
 	if (!imageURL) return res.status(400).send("No Image Provided");
 
 	try {
-		// res.setHeader("Content-Type", "image/heic");
 		// use a switch statement to check the origin of imageURL. If it's from dropbox, then we start the dropbox flow. If it's from Google then we start the GoogleDrive flow
 		if (imageURL.startsWith("https://www.dropbox.com/s/")) {
 			// TODO: this is jsut for testing. Eventually, we need to use OAuth to login
@@ -55,11 +54,11 @@ const Handler = async (req, res) => {
 			// TODO: implement GoogleDrive flow
 			res.status(200).send("Success");
 		} else {
-			return res.status(400).send("Invalid Image URL");
+			return res.status(400).send("Image URL unsupported");
 		}
-	} catch (error: unknown) {
+	} catch (error: any) {
 		console.log(error);
-		res.status(500).send("error", error);
+		res.status(error.status).send("error", error);
 	}
 };
 

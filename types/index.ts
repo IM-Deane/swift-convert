@@ -53,7 +53,7 @@ export enum UPLOAD_ORIGINS {
 	googleDrive = "Google Drive",
 	dropbox = "Dropbox",
 	s3 = "S3",
-	localStorage = "Local Storage",
+	localStorage = "Current Device",
 }
 
 export interface AdditionalInfo {

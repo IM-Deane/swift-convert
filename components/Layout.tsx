@@ -35,7 +35,7 @@ export default function Layout({ title = siteConfig.slogan, children }) {
 				<title>{title}</title>
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
 			</Head>
-			<div className="flex h-full py-0 my-0">
+			<div className="flex h-full">
 				{/* Narrow sidebar */}
 				<div className="hidden w-28 overflow-y-auto bg-gray-900 md:block">
 					<div className="flex w-full flex-col items-center py-6">
@@ -176,7 +176,7 @@ export default function Layout({ title = siteConfig.slogan, children }) {
 					</Dialog>
 				</Transition.Root>
 				{/* Content area */}
-				<div className="flex flex-1 flex-col overflow-hidden">
+				<div className="flex flex-1 flex-col overflow-y-auto">
 					<header className="w-full">
 						<div className="relative z-10 flex h-16 flex-shrink-0 border-b border-gray-200 bg-white shadow-sm">
 							<button

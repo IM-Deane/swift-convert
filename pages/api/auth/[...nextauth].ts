@@ -2,6 +2,8 @@ import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import DropboxProvider from "next-auth/providers/dropbox";
 
+export interface DropboxAccount {}
+
 // For more information on each option (and a full list of options) go to
 // https://next-auth.js.org/configuration/options
 export default NextAuth({
@@ -14,6 +16,8 @@ export default NextAuth({
 		DropboxProvider({
 			clientId: process.env.DROPBOX_CLIENT_ID,
 			clientSecret: process.env.DROPBOX_CLIENT_SECRET,
+			authorization:
+				"https://www.dropbox.com/oauth2/authorize?token_access_type=online",
 			// token: "https://api.dropboxapi.com/oauth2/token",
 			// userinfo: "https://api.dropboxapi.com/2/users/get_current_account",
 			// profile(profile) {
@@ -88,10 +92,17 @@ export default NextAuth({
 		// 		return baseUrl;
 		// 	},
 		async jwt({ token, user, account, profile }) {
-			// if (account) {
-			// 	token.accessToken = account.access_token;
-			// 	token.id = profile;
-			// }
+			if (account.provider && !token[account.provider]) {
+				token[account.provider] = {};
+			}
+
+			if (account.accessToken) {
+				token[account.provider].accessToken = account.accessToken;
+			}
+			if (account.refreshToken) {
+				token[account.provider].refreshToken = account.refreshToken;
+			}
+
 			return token;
 		},
 		async session({ session, token, user }) {

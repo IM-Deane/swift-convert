@@ -1,6 +1,7 @@
 import prettyBytes from "pretty-bytes";
 
 import { ImageFile, UPLOAD_ORIGINS, AdditionalInfo } from "@/types/index";
+import { DropboxChooserFile } from "@/types/api";
 
 export function classNames(...classes) {
 	return classes.filter(Boolean).join(" ");
@@ -70,4 +71,16 @@ export const generateInitialClientImage = (
 			"File path": additionalInfo ? additionalInfo?.filePath : "N/A",
 		}, // initial information is an empty object
 	};
+};
+
+export const convertToBrowserFileObjects = async (
+	dropboxFiles: DropboxChooserFile[]
+): Promise<File[]> => {
+	const filePromises = dropboxFiles.map(async (dropboxFile) => {
+		const response = await fetch(dropboxFile.link);
+		const fileData = await response.blob();
+		return new File([fileData], dropboxFile.name, { type: fileData.type });
+	});
+
+	return Promise.all(filePromises);
 };
