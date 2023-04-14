@@ -1,10 +1,11 @@
-import { useState, useRef, useEffect, Fragment } from "react";
+import { useState, useRef, useEffect, Fragment, SyntheticEvent } from "react";
 
 import { Dialog, Transition } from "@headlessui/react";
 
 import SelectInput from "./SelectInput";
 import { useSettingsContext } from "@/context/SettingsProvider";
 import { Input, fileTypes, settingsInputTypes } from "@/types/index";
+import { AdjustmentsHorizontalIcon } from "@heroicons/react/24/outline";
 
 export default function SettingsModal({ isOpen, setIsOpen }) {
 	const { settings, updateSettings } = useSettingsContext();
@@ -12,14 +13,21 @@ export default function SettingsModal({ isOpen, setIsOpen }) {
 	const [isReady, setIsReady] = useState(false);
 	const [selectedInputType, setSelectedInputType] = useState<Input>(null);
 	const [selectedOutputType, setSelectedOutputType] = useState<Input>(null);
+	const [selectedImageQuality, setSelectedImageQuality] = useState<number>(90);
 
 	const cancelButtonRef = useRef(null);
 
+	const handleImageQualityChange = (event: SyntheticEvent) => {
+		const target = event.target as HTMLInputElement;
+		setSelectedImageQuality(Number(target.value));
+	};
+
 	const handleSave = () => {
-		updateSettings(
-			selectedInputType.id as string,
-			selectedOutputType.id as string
-		);
+		updateSettings({
+			fileInputId: selectedInputType.id as string,
+			fileOutputId: selectedOutputType.id as string,
+			imageQuality: selectedImageQuality,
+		});
 		setIsOpen(false);
 	};
 
@@ -31,6 +39,7 @@ export default function SettingsModal({ isOpen, setIsOpen }) {
 			setSelectedOutputType(
 				fileTypes.find((input) => input.id === settings?.fileOutputId)
 			);
+			setSelectedImageQuality(Number(settings?.imageQuality));
 			setIsReady(true);
 		}
 	}, [settings]);
@@ -66,22 +75,28 @@ export default function SettingsModal({ isOpen, setIsOpen }) {
 							leaveFrom="opacity-100 translate-y-0 sm:scale-100"
 							leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
 						>
-							<Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
-								<form>
-									<div className="space-y-12">
-										<div className="grid grid-cols-1 gap-x-8 gap-y-10 border-b border-gray-900/10 pb-12 md:grid-cols-3">
-											<div>
-												<h2 className="text-base font-semibold leading-7 text-gray-900">
-													Photo Settings
-												</h2>
-												<p className="mt-1 text-sm leading-6 text-gray-600">
-													Modify the input and output file types
-												</p>
-											</div>
-
+							<Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-sm sm:p-6">
+								<div>
+									<div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
+										<AdjustmentsHorizontalIcon
+											className="h-6 w-6 text-blue-600"
+											aria-hidden="true"
+										/>
+									</div>
+									<div className="mt-3 text-center sm:mt-5">
+										<Dialog.Title
+											as="h3"
+											className="text-base font-semibold leading-6 text-gray-900"
+										>
+											Photo Settings
+										</Dialog.Title>
+										<div className="mt-2 px-8">
+											<p className="text-sm text-gray-500">
+												Customize your image settings
+											</p>
 											{isReady && (
-												<div className="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6 md:col-span-2">
-													<div className="sm:col-span-3">
+												<div className="flex flex-wrap mt-8">
+													<div className="flex-auto w-50 mr-1">
 														<SelectInput
 															inputLabel="Input"
 															inputList={settingsInputTypes}
@@ -90,7 +105,7 @@ export default function SettingsModal({ isOpen, setIsOpen }) {
 															handleSelectedInput={setSelectedInputType}
 														/>
 													</div>
-													<div className="sm:col-span-3">
+													<div className="flex-auto w-50 ml-1">
 														<SelectInput
 															inputLabel="Output"
 															inputList={fileTypes}
@@ -98,11 +113,73 @@ export default function SettingsModal({ isOpen, setIsOpen }) {
 															handleSelectedInput={setSelectedOutputType}
 														/>
 													</div>
+													<div className="mt-8 mb-4 grow w-full">
+														<label
+															htmlFor="image-quality"
+															className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+														>
+															Set image quality
+														</label>
+														<input
+															id="image-quality"
+															type="range"
+															min="25"
+															max="100"
+															step="25"
+															value={selectedImageQuality}
+															onChange={handleImageQualityChange}
+															className="w-full h-2 accent-pink-500 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+														/>
+														<ul className="flex justify-between w-full px-[10px]">
+															<li className="flex justify-center relative">
+																<span
+																	className={`absolute ${
+																		selectedImageQuality >= 25 &&
+																		selectedImageQuality < 50 &&
+																		"text-xl"
+																	}`}
+																>
+																	🥴
+																</span>
+															</li>
+															<li className="flex justify-center relative">
+																<span
+																	className={`absolute ${
+																		selectedImageQuality >= 50 &&
+																		selectedImageQuality < 75 &&
+																		"text-xl"
+																	}`}
+																>
+																	😵‍💫
+																</span>
+															</li>
+															<li className="flex justify-center relative">
+																<span
+																	className={`absolute ${
+																		selectedImageQuality >= 75 &&
+																		selectedImageQuality < 85 &&
+																		"text-xl"
+																	}`}
+																>
+																	😄
+																</span>
+															</li>
+															<li className="flex justify-center relative">
+																<span
+																	className={`absolute ${
+																		selectedImageQuality >= 85 && "text-xl"
+																	}`}
+																>
+																	🤩
+																</span>
+															</li>
+														</ul>
+													</div>
 												</div>
 											)}
 										</div>
 									</div>
-								</form>
+								</div>
 								<div className="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
 									<button
 										type="button"

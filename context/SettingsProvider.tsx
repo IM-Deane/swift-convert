@@ -1,17 +1,25 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 
-import { FileType, SettingsKeys } from "@/types/index";
+import { SettingsKeys } from "@/types/index";
 
-type Settings = { fileInputId: string; fileOutputId: string };
+type Settings = {
+	fileInputId: string;
+	fileOutputId: string;
+	imageQuality: number;
+};
 
 type SettingsContextProperties = {
 	settings: Settings | null;
-	updateSettings: (fileInputId: string, fileOutputId: string) => void;
+	updateSettings: ({
+		fileInputId,
+		fileOutputId,
+		imageQuality,
+	}: Settings) => void;
 };
 
 const SettingsContext = createContext<SettingsContextProperties>({
 	settings: null,
-	updateSettings: (fileInputId, fileOutputId) => undefined,
+	updateSettings: ({ fileInputId, fileOutputId, imageQuality }) => undefined,
 });
 
 interface Properties {
@@ -21,13 +29,19 @@ interface Properties {
 const SettingsProvider = ({ ...properties }: Properties) => {
 	const [settings, setSettings] = useState<Settings>(null);
 
-	const updateSettings = (fileInputId: string, fileOutputId: string) => {
+	const updateSettings = ({
+		fileInputId,
+		fileOutputId,
+		imageQuality,
+	}: Settings) => {
 		localStorage.setItem(SettingsKeys.FILE_INPUT_TYPE, fileInputId);
 		localStorage.setItem(SettingsKeys.FILE_OUTPUT_TYPE, fileOutputId);
+		localStorage.setItem(SettingsKeys.IMAGE_QUALITY, imageQuality.toString());
 
 		setSettings({
 			fileInputId: fileInputId,
 			fileOutputId: fileOutputId,
+			imageQuality: imageQuality,
 		});
 	};
 
@@ -40,14 +54,13 @@ const SettingsProvider = ({ ...properties }: Properties) => {
 		if (!settings) {
 			const input = localStorage.getItem(SettingsKeys.FILE_INPUT_TYPE);
 			const output = localStorage.getItem(SettingsKeys.FILE_OUTPUT_TYPE);
+			const imageQuality = localStorage.getItem(SettingsKeys.IMAGE_QUALITY);
 
-			if (!input && output) {
-				updateSettings(FileType.heic, output);
-			} else if (input && !output) {
-				updateSettings(input, FileType.jpeg);
-			} else {
-				updateSettings(FileType.heic, FileType.jpeg);
-			}
+			updateSettings({
+				fileInputId: input,
+				fileOutputId: output,
+				imageQuality: Number(imageQuality),
+			});
 		}
 	}, []);
 

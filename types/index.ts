@@ -7,6 +7,7 @@ export interface Input {
 export enum SettingsKeys {
 	FILE_INPUT_TYPE = "fileInput",
 	FILE_OUTPUT_TYPE = "fileOutput",
+	IMAGE_QUALITY = "imageQuality",
 }
 
 export enum FileType {
