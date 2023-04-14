@@ -155,6 +155,9 @@ export default function Home() {
 				src="https://www.dropbox.com/static/api/2/dropins.js"
 				id="dropboxjs"
 				data-app-key="0srlta70mx0izr1"
+				onError={(e) => {
+					console.error("Dropbox Chooser failed to load", e);
+				}}
 			/>
 
 			<Layout>

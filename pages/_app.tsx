@@ -1,8 +1,8 @@
 import "@/styles/globals.css";
-import Script from "next/script";
 
 import { Toaster } from "react-hot-toast";
 import { SessionProvider } from "next-auth/react";
+import { Analytics } from "@vercel/analytics/react";
 
 import { SettingsProvider } from "@/context/SettingsProvider";
 
@@ -15,14 +15,8 @@ export default function App({
 			<SessionProvider session={session}>
 				<SettingsProvider>
 					<Toaster />
-					<Script
-						type="text/javascript"
-						src="https://www.dropbox.com/static/api/2/dropins.js"
-						id="dropboxjs"
-						data-app-key="0srlta70mx0izr1"
-					/>
-
 					<Component {...pageProps} />
+					<Analytics />
 				</SettingsProvider>
 			</SessionProvider>
 		</>
