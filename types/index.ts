@@ -47,7 +47,7 @@ export interface ImageFile {
 	size: number | string;
 	type: string;
 	progress: number; // used for progress bar
-	information?: { [key: string]: string };
+	information?: { [key: string]: string | number };
 }
 
 export enum UPLOAD_ORIGINS {
@@ -58,6 +58,7 @@ export enum UPLOAD_ORIGINS {
 }
 
 export interface AdditionalInfo {
-	uploadOrigin: UPLOAD_ORIGINS;
+	uploadOrigin?: UPLOAD_ORIGINS;
 	filePath?: string;
+	imageQuality?: number;
 }

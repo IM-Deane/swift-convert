@@ -40,6 +40,7 @@ export const generateClientImage = (
 			Created: new Date(newImageFile.lastModified).toDateString(),
 			"Last modified": new Date(newImageFile.lastModified).toDateString(),
 			"Uploaded from": uploadedFrom,
+			"Image Quality": additionalInfo?.imageQuality || 100,
 			// "File path": additionalInfo ? additionalInfo?.filePath : "N/A",
 		},
 	};

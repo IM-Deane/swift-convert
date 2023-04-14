@@ -17,14 +17,17 @@ import { generateClientImage, generateInitialClientImage } from "@/utils/index";
 import Image from "next/image";
 
 export default function Home() {
-	const [currentFile, setCurrentFile] = useState<ImageFile>();
+	const [currentFile, setCurrentFile] = useState<ImageFile>(null);
 	const [imageResults, setImageResults] = useState<ImageFile[]>([]);
 
 	const { settings } = useSettingsContext();
 
-	const resetFileData = () => setImageResults([]);
+	const resetFileData = () => {
+		setCurrentFile(null);
+		setImageResults([]);
+	};
 
-	const updateCurrentFile = (file: ImageFile | undefined) => {
+	const updateCurrentFile = (file: ImageFile | null) => {
 		if (!file) {
 			const resetImages = imageResults.map((image) => ({
 				...image,
@@ -102,6 +105,7 @@ export default function Home() {
 		});
 
 		formData.append("convertToFormat", settings.fileOutputId);
+		formData.append("imageQuality", settings.imageQuality.toString());
 
 		setupFileProgressUpdate(files);
 
@@ -121,11 +125,15 @@ export default function Home() {
 			const rawImageData = Uint8Array.from(atob(item.data), (c) =>
 				c.charCodeAt(0)
 			);
+
 			const generatedImage = generateClientImage(
 				rawImageData,
 				item.filename,
 				settings.fileOutputId,
-				elapsedTime
+				elapsedTime,
+				{
+					imageQuality: settings.imageQuality,
+				}
 			);
 
 			// Update imageResults with the new data
@@ -206,7 +214,7 @@ export default function Home() {
 										<button
 											type="button"
 											className="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-											onClick={() => updateCurrentFile(undefined)}
+											onClick={() => updateCurrentFile(null)}
 										>
 											<span className="sr-only">Close</span>
 											<XMarkIcon className="h-8 w-8" aria-hidden="true" />
