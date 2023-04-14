@@ -196,7 +196,7 @@ export default function Home() {
 					</main>
 					{/* Details sidebar */}
 					{currentFile && (
-						<aside className="w-96 h-ful overflow-y-auto border-l border-gray-200 bg-white p-8 lg:block">
+						<aside className="w-96 h-full overflow-y-auto border-l border-gray-200 bg-white p-8 lg:block">
 							<div className="space-y-6 pb-12">
 								<div>
 									<div className="float-right mt-0 mb-2 sm:block">
