@@ -16,8 +16,10 @@ import type { DropboxChooserFile } from "@/types/api";
 
 function FileUploader({
 	onUpload,
+	resetFileData,
 }: {
 	onUpload: (validFiles: File[]) => void;
+	resetFileData: () => void;
 }) {
 	const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 	const [completionTime] = useState<number>(0);
@@ -25,6 +27,11 @@ function FileUploader({
 
 	const dropzoneRef = useRef();
 	const { settings } = useSettingsContext();
+
+	const clearFileData = () => {
+		setSelectedFiles([]);
+		resetFileData();
+	};
 
 	const handleFileDrop = (files: File[]): void => {
 		const validFiles = files.filter((file: File) => {
@@ -123,7 +130,7 @@ function FileUploader({
 									{selectedFiles.length > 0 && (
 										<button
 											type="button"
-											onClick={() => setSelectedFiles([])}
+											onClick={clearFileData}
 											className="rounded-md bg-white mr-4 px-8 py-4 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
 										>
 											Clear file data
@@ -176,7 +183,7 @@ function FileUploader({
 														htmlFor="image-file"
 														className="relative cursor-pointer rounded-md bg-white font-medium text-blue-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2 hover:text-blue-500"
 													>
-														<span>Upload photo</span>
+														<span>Upload photo from device</span>
 														<input
 															{...getInputProps()}
 															id="image-file"

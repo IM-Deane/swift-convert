@@ -40,7 +40,7 @@ export const generateClientImage = (
 			Created: new Date(newImageFile.lastModified).toDateString(),
 			"Last modified": new Date(newImageFile.lastModified).toDateString(),
 			"Uploaded from": uploadedFrom,
-			"File path": additionalInfo ? additionalInfo?.filePath : "N/A",
+			// "File path": additionalInfo ? additionalInfo?.filePath : "N/A",
 		},
 	};
 };
@@ -68,7 +68,7 @@ export const generateInitialClientImage = (
 		progress: 0, // initial progress is 0
 		information: {
 			"Uploaded from": uploadedFrom,
-			"File path": additionalInfo ? additionalInfo?.filePath : "N/A",
+			// "File path": additionalInfo ? additionalInfo?.filePath : "N/A",
 		}, // initial information is an empty object
 	};
 };

@@ -2,9 +2,8 @@ import { useState } from "react";
 
 import Script from "next/script";
 
-// import { Dropbox } from "dropbox";
-
 import siteConfig from "site.config";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 
 import type { ImageFile } from "@/types/index";
 
@@ -15,12 +14,15 @@ import ImageGallery from "@/components/ImageGallery";
 import { useSettingsContext } from "@/context/SettingsProvider";
 
 import { generateClientImage, generateInitialClientImage } from "@/utils/index";
+import Image from "next/image";
 
 export default function Home() {
 	const [currentFile, setCurrentFile] = useState<ImageFile>();
 	const [imageResults, setImageResults] = useState<ImageFile[]>([]);
 
 	const { settings } = useSettingsContext();
+
+	const resetFileData = () => setImageResults([]);
 
 	const updateCurrentFile = (file: ImageFile | undefined) => {
 		if (!file) {
@@ -179,7 +181,10 @@ export default function Home() {
 								<h2 id="main-heading" className="sr-only">
 									Converting photos
 								</h2>
-								<FileUploader onUpload={handleFileUpload} />
+								<FileUploader
+									onUpload={handleFileUpload}
+									resetFileData={resetFileData}
+								/>
 							</section>
 							<section className="mt-8 pb-16">
 								<ImageGallery
@@ -194,12 +199,23 @@ export default function Home() {
 						<aside className="w-96 h-ful overflow-y-auto border-l border-gray-200 bg-white p-8 lg:block">
 							<div className="space-y-6 pb-12">
 								<div>
-									<div className="aspect-h-7 aspect-w-10 block w-full overflow-hidden rounded-lg">
-										<img
+									<div className="float-right mt-0 mb-2 sm:block">
+										<button
+											type="button"
+											className="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+											onClick={() => updateCurrentFile(undefined)}
+										>
+											<span className="sr-only">Close</span>
+											<XMarkIcon className="h-8 w-8" aria-hidden="true" />
+										</button>
+									</div>
+
+									<div className="relative aspect-h-7 aspect-w-10 block w-full overflow-hidden rounded-lg">
+										<Image
 											src={currentFile.source}
 											alt={currentFile.name}
+											fill
 											className="object-cover"
-											style={{ imageOrientation: "from-image" }}
 										/>
 									</div>
 									<div className="mt-4 flex items-start justify-between">
