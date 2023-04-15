@@ -13,18 +13,24 @@ import ImageGallery from "@/components/ImageGallery";
 
 import { useSettingsContext } from "@/context/SettingsProvider";
 
-import { generateClientImage, generateInitialClientImage } from "@/utils/index";
+import {
+	generateClientImage,
+	generateInitialClientImage,
+	compressAndSaveImages,
+} from "@/utils/index";
 import Image from "next/image";
 
 export default function Home() {
 	const [currentFile, setCurrentFile] = useState<ImageFile>(null);
 	const [imageResults, setImageResults] = useState<ImageFile[]>([]);
+	const [isDownloadDisabled, setIsDownloadDisabled] = useState<boolean>(true);
 
 	const { settings } = useSettingsContext();
 
 	const resetFileData = () => {
 		setCurrentFile(null);
 		setImageResults([]);
+		setIsDownloadDisabled(true);
 	};
 
 	const updateCurrentFile = (file: ImageFile | null) => {
@@ -57,7 +63,10 @@ export default function Home() {
 			(image) => image.name !== currentFile.name
 		);
 		setImageResults(newImageResults);
-		setCurrentFile(undefined);
+		setCurrentFile(null);
+		if (imageResults.length === 0) {
+			resetFileData();
+		}
 	};
 
 	// render image progress updates in real-time
@@ -154,6 +163,15 @@ export default function Home() {
 			return generatedImage;
 		});
 		setImageResults(images.filter((img) => img !== null));
+		setIsDownloadDisabled(false);
+	};
+
+	const handleDownloadPhotos = async () => {
+		try {
+			await compressAndSaveImages(imageResults);
+		} catch (error) {
+			console.error(error);
+		}
 	};
 
 	return (
@@ -195,6 +213,8 @@ export default function Home() {
 								<FileUploader
 									onUpload={handleFileUpload}
 									resetFileData={resetFileData}
+									isDownloadDisabled={isDownloadDisabled}
+									handleDownloadPhotos={handleDownloadPhotos}
 								/>
 							</section>
 							<section className="mt-8 pb-16">

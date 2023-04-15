@@ -2,7 +2,10 @@ import React, { useState, useRef } from "react";
 
 import Dropzone from "react-dropzone";
 
-import { FolderOpenIcon } from "@heroicons/react/20/solid";
+import {
+	FolderOpenIcon,
+	ArrowDownOnSquareStackIcon,
+} from "@heroicons/react/20/solid";
 
 import { UploadOption } from "@/types/index";
 import { useSettingsContext } from "@/context/SettingsProvider";
@@ -17,8 +20,12 @@ import type { DropboxChooserFile } from "@/types/api";
 function FileUploader({
 	onUpload,
 	resetFileData,
+	isDownloadDisabled,
+	handleDownloadPhotos,
 }: {
+	isDownloadDisabled: boolean;
 	onUpload: (validFiles: File[]) => void;
+	handleDownloadPhotos: () => void;
 	resetFileData: () => void;
 }) {
 	const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -118,9 +125,31 @@ function FileUploader({
 					<ul className="space-y-6 bg-white px-4 py-5 sm:p-6">
 						<li>
 							<div className="bg-gray-50 px-4 py-3 mb-8 text-right sm:px-6 flex flex-col md:flex-row md:justify-between items-center md:items-baseline">
-								<div>
+								<div className="shrink w-50">
 									<SelectUploadMethod uploadOptions={uploadOptions} />
 								</div>
+
+								<div className="grow w-50">
+									<button
+										type="button"
+										disabled={isDownloadDisabled}
+										onClick={handleDownloadPhotos}
+										className={`${
+											isDownloadDisabled
+												? "cursor-not-allowed bg-blue-200"
+												: "cursor-pointer bg-blue-700 hover:bg-blue-800"
+										} text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800`}
+									>
+										Download photos
+										<span>
+											<ArrowDownOnSquareStackIcon
+												className="h-5 w-5 ml-2"
+												aria-hidden="true"
+											/>
+										</span>
+									</button>
+								</div>
+
 								<div className="mt-4 md:mt:0">
 									{!!completionTime && (
 										<span className="mt-2 mr-8 text-sm text-blue-500">
@@ -131,9 +160,9 @@ function FileUploader({
 										<button
 											type="button"
 											onClick={clearFileData}
-											className="rounded-md bg-white mr-4 px-8 py-4 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+											className="rounded-lg bg-white mx-4 px-8 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
 										>
-											Clear file data
+											Clear files
 										</button>
 									)}
 								</div>

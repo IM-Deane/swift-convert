@@ -2,6 +2,8 @@ import prettyBytes from "pretty-bytes";
 
 import { ImageFile, UPLOAD_ORIGINS, AdditionalInfo } from "@/types/index";
 import { DropboxChooserFile } from "@/types/api";
+import JSZip from "jszip";
+import { saveAs } from "file-saver";
 
 export function classNames(...classes) {
 	return classes.filter(Boolean).join(" ");
@@ -90,4 +92,26 @@ export const convertToBrowserFileObjects = async (
 	});
 
 	return Promise.all(filePromises);
+};
+
+export const compressAndSaveImages = async (images: ImageFile[]) => {
+	const zip = new JSZip();
+
+	// Add each image to the zip file
+	const loadImagePromises = images.map(async (image, index) => {
+		const response = await fetch(image.source);
+		const blob = await response.blob();
+		zip.file(image.name, blob);
+	});
+
+	// Wait for all images to be added to the zip file
+	await Promise.all(loadImagePromises);
+
+	// Generate and download the zip file
+	const content = await zip.generateAsync({ type: "blob" });
+	const currentDate = new Date()
+		.toDateString()
+		.toLowerCase()
+		.replace(/ /g, "-");
+	saveAs(content, `swift-convert-${currentDate}.zip`);
 };
