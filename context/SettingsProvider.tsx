@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 
-import { SettingsKeys } from "@/types/index";
+import { FileType, SettingsKeys } from "@/types/index";
 
 type Settings = {
 	fileInputId: string;
@@ -54,12 +54,13 @@ const SettingsProvider = ({ ...properties }: Properties) => {
 		if (!settings) {
 			const input = localStorage.getItem(SettingsKeys.FILE_INPUT_TYPE);
 			const output = localStorage.getItem(SettingsKeys.FILE_OUTPUT_TYPE);
-			const imageQuality = localStorage.getItem(SettingsKeys.IMAGE_QUALITY);
-
+			const imageQuality = Number(
+				localStorage.getItem(SettingsKeys.IMAGE_QUALITY)
+			);
 			updateSettings({
-				fileInputId: input,
-				fileOutputId: output,
-				imageQuality: Number(imageQuality),
+				fileInputId: input === null ? FileType.heic : input,
+				fileOutputId: output === null ? FileType.jpeg : output,
+				imageQuality: imageQuality === 0 ? 100 : imageQuality,
 			});
 		}
 	}, []);
