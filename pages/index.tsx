@@ -3,7 +3,7 @@ import { useState } from "react";
 import Script from "next/script";
 
 import siteConfig from "site.config";
-import { XMarkIcon } from "@heroicons/react/24/outline";
+import { XMarkIcon, PaperAirplaneIcon } from "@heroicons/react/24/outline";
 
 import type { ImageFile } from "@/types/index";
 
@@ -19,13 +19,18 @@ import {
 	compressAndSaveImages,
 } from "@/utils/index";
 import Image from "next/image";
+import WaitListModal from "@/components/marketing/WaitListModal";
+import { toast } from "react-hot-toast";
+import Alert from "@/components/Alert";
 
 export default function Home() {
 	const [currentFile, setCurrentFile] = useState<ImageFile>(null);
 	const [imageResults, setImageResults] = useState<ImageFile[]>([]);
 	const [isDownloadDisabled, setIsDownloadDisabled] = useState<boolean>(true);
+	const [showWaitListModal, setShowWaitListModal] = useState<boolean>(false);
 
-	const { settings } = useSettingsContext();
+	const { settings, selectedFeature, handleSelectFeature } =
+		useSettingsContext();
 
 	const resetFileData = () => {
 		setCurrentFile(null);
@@ -174,6 +179,34 @@ export default function Home() {
 		}
 	};
 
+	const handleOpenWaitListModal = (featureId: string) => {
+		handleSelectFeature(featureId);
+		setShowWaitListModal(true);
+	};
+	const handleCloseWaitListModal = () => setShowWaitListModal(false);
+
+	const handleWaitListResult = (waitlistResult: boolean) => {
+		if (waitlistResult) {
+			toast.custom(({ visible }) => (
+				<Alert
+					type="success"
+					isOpen={visible}
+					title="You've been added to the waitlist! 🎉"
+					message="Check your email to learn more."
+				/>
+			));
+		} else {
+			toast.custom(({ visible }) => (
+				<Alert
+					type="error"
+					isOpen={visible}
+					title="We had some trouble with your request. 😓"
+					message="Try again in a few minutes."
+				/>
+			));
+		}
+	};
+
 	return (
 		<>
 			<Script
@@ -259,6 +292,21 @@ export default function Home() {
 												{currentFile.size}
 											</p>
 										</div>
+										<button
+											type="button"
+											onClick={() =>
+												handleOpenWaitListModal(
+													siteConfig.featureDiscovery.emailImageResults.id
+												)
+											}
+											className="ml-4 flex h-8 w-8 items-center justify-center rounded-full bg-white text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+										>
+											<PaperAirplaneIcon
+												className="h-6 w-6"
+												aria-hidden="true"
+											/>
+											<span className="sr-only">Send an email</span>
+										</button>
 									</div>
 								</div>
 								<div>
@@ -298,6 +346,12 @@ export default function Home() {
 							</div>
 						</aside>
 					)}
+					<WaitListModal
+						isOpen={showWaitListModal}
+						handleCloseModal={handleCloseWaitListModal}
+						handleResult={handleWaitListResult}
+						feature={{ ...selectedFeature }}
+					/>
 				</div>
 			</Layout>
 		</>

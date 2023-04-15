@@ -1,11 +1,14 @@
 import React from "react";
+import { classNames } from "utils/index";
 
 interface ButtonProps {
 	handleClick: (event: any) => any;
 	isLoading: boolean;
 	text: string;
+	type?: "button" | "submit";
 	loadingText?: string;
 	isDownload?: boolean;
+	classes?: string;
 }
 
 function LoadingButton({
@@ -13,15 +16,20 @@ function LoadingButton({
 	isLoading,
 	text,
 	loadingText = "Loading...",
+	type = "button",
 	isDownload = false,
+	classes = "",
 }: ButtonProps) {
 	return (
 		<button
-			type="button"
+			type={type}
 			value={isDownload ? "download" : ""}
 			onClick={handleClick}
 			disabled={isLoading}
-			className="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+			className={classNames(
+				"inline-flex items-center rounded-md border border-transparent bg-blue-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
+				classes
+			)}
 		>
 			{isLoading && (
 				<svg className="h-4 w-4 animate-spin" viewBox="3 3 18 18">

@@ -16,6 +16,12 @@ interface MainNavTab extends NavTab {
 	children?: any;
 }
 
+export interface FeatureDiscoveryItem {
+	id: string;
+	name: string;
+	description: string;
+}
+
 export interface SiteConfig {
 	siteName: string;
 	domain: string;
@@ -29,6 +35,11 @@ export interface SiteConfig {
 	redirectUrls: {
 		dropbox: string;
 		google: string;
+	};
+
+	featureDiscovery: {
+		emailImageResults: FeatureDiscoveryItem;
+		googleDriveImports: FeatureDiscoveryItem;
 	};
 }
 

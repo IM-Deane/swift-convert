@@ -14,3 +14,10 @@ export interface DropboxChooserFile {
 	name: string;
 	thumbnailLink: string;
 }
+
+export interface WaitListBodyContents {
+	featureId: string;
+	name: string;
+	email: string;
+	isEarlyAdopter: boolean;
+}
