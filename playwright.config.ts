@@ -13,7 +13,7 @@ const config: PlaywrightTestConfig = {
 	// If a test fails, retry it additional 2 times
 	retries: 2,
 	// Artifacts folder where screenshots, videos, and traces are stored.
-	outputDir: "playwright-report/",
+	outputDir: path.join(__dirname, "e2e/playwright-report/"),
 
 	// 'github' for GitHub Actions CI to generate annotations, plus a concise 'dot'
 	// default 'list' when running locally
