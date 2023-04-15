@@ -29,7 +29,6 @@ function FileUploader({
 	resetFileData: () => void;
 }) {
 	const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-	const [completionTime] = useState<number>(0);
 	const [showDropboxChooser, setShowDropboxChooser] = useState<boolean>(false);
 
 	const dropzoneRef = useRef();
@@ -124,47 +123,43 @@ function FileUploader({
 				<div className="shadow sm:overflow-hidden sm:rounded-md">
 					<ul className="space-y-6 bg-white px-4 py-5 sm:p-6">
 						<li>
-							<div className="bg-gray-50 px-4 py-3 mb-8 text-right sm:px-6 flex flex-col md:flex-row md:justify-between items-center md:items-baseline">
-								<div className="shrink w-50">
-									<SelectUploadMethod uploadOptions={uploadOptions} />
-								</div>
-
-								<div className="grow w-50">
-									<button
-										type="button"
-										disabled={isDownloadDisabled}
-										onClick={handleDownloadPhotos}
-										className={`${
-											isDownloadDisabled
-												? "cursor-not-allowed bg-blue-200"
-												: "cursor-pointer bg-blue-700 hover:bg-blue-800"
-										} text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800`}
-									>
-										Download photos
-										<span>
-											<ArrowDownOnSquareStackIcon
-												className="h-5 w-5 ml-2"
-												aria-hidden="true"
-											/>
-										</span>
-									</button>
-								</div>
-
-								<div className="mt-4 md:mt:0">
-									{!!completionTime && (
-										<span className="mt-2 mr-8 text-sm text-blue-500">
-											Completed conversion in <strong>{completionTime}</strong>
-										</span>
-									)}
-									{selectedFiles.length > 0 && (
+							<div className="bg-gray-50 px-4 py-3 mb-8 sm:px-6">
+								<div className="w-full flex flex-col md:flex-row items-center justify-center md:justify-between mt-4 lg:mt-auto">
+									<div className="grow">
+										<SelectUploadMethod uploadOptions={uploadOptions} />
+									</div>
+									<div className=" mt-4 md:my-auto flex-inline">
+										<button
+											type="button"
+											disabled={isDownloadDisabled}
+											onClick={handleDownloadPhotos}
+											className={`${
+												isDownloadDisabled
+													? "cursor-not-allowed bg-blue-200"
+													: "cursor-pointer bg-blue-700 hover:bg-blue-800"
+											} text-white focus:ring-4 flex-1 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800`}
+										>
+											Download{" "}
+											<span className="hidden md:inline ml-1">photos</span>
+											<span>
+												<ArrowDownOnSquareStackIcon
+													className="h-5 w-5 ml-2"
+													aria-hidden="true"
+												/>
+											</span>
+										</button>
 										<button
 											type="button"
 											onClick={clearFileData}
-											className="rounded-lg bg-white mx-4 px-8 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+											className={`${
+												selectedFiles.length > 0
+													? "cursor-pointer bg-white hover:bg-gray-50"
+													: "cursor-not-allowed bg-gray-200 "
+											} rounded-lg flex-initial ml-3 px-2 py-2.5 text-sm font-medium text-gray-800 shadow-sm ring-1 ring-inset ring-gray-300`}
 										>
-											Clear files
+											Clear <span className="hidden md:inline">files</span>
 										</button>
-									)}
+									</div>
 								</div>
 							</div>
 							<Dropzone

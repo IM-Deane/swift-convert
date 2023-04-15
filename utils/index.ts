@@ -42,7 +42,7 @@ export const generateClientImage = (
 			Created: new Date(newImageFile.lastModified).toDateString(),
 			"Last modified": new Date(newImageFile.lastModified).toDateString(),
 			"Uploaded from": uploadedFrom,
-			"Image Quality": additionalInfo?.imageQuality || 100,
+			"Image Quality": `${additionalInfo?.imageQuality}%` || "100%",
 			// "File path": additionalInfo ? additionalInfo?.filePath : "N/A",
 		},
 	};
@@ -98,7 +98,7 @@ export const compressAndSaveImages = async (images: ImageFile[]) => {
 	const zip = new JSZip();
 
 	// Add each image to the zip file
-	const loadImagePromises = images.map(async (image, index) => {
+	const loadImagePromises = images.map(async (image) => {
 		const response = await fetch(image.source);
 		const blob = await response.blob();
 		zip.file(image.name, blob);
