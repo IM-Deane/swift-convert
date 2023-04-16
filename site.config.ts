@@ -21,4 +21,21 @@ export default siteConfig({
 		dropbox: "http://localhost:3000/api/auth/callback/dropbox",
 		google: "http://localhost:3000/api/auth/callback/google",
 	},
+
+	// NOTE: make sure you get the feature ID from Notion otherwise it won't register
+	// as of April 15, 2023 it's a multi_select field
+	/*
+	 */
+	featureDiscovery: {
+		emailImageResults: {
+			id: "{fw=",
+			name: "Email Images",
+			description: "Send an email containing your converted photos",
+		},
+		googleDriveImports: {
+			id: "g[X`",
+			name: "Google Drive Import",
+			description: "Import your photos from Google Drive",
+		},
+	},
 });

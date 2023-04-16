@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 
 import { FileType, SettingsKeys } from "@/types/index";
+import { FeatureDiscoveryItem } from "@/types/site-config";
+import siteConfig from "site.config";
 
 type Settings = {
 	fileInputId: string;
@@ -10,16 +12,26 @@ type Settings = {
 
 type SettingsContextProperties = {
 	settings: Settings | null;
+	selectedFeature: FeatureDiscoveryItem;
 	updateSettings: ({
 		fileInputId,
 		fileOutputId,
 		imageQuality,
 	}: Settings) => void;
+	handleSelectFeature: (featureId: string) => void;
+};
+
+const defaultSettings: Settings = {
+	fileInputId: FileType.heic,
+	fileOutputId: FileType.jpeg,
+	imageQuality: 100,
 };
 
 const SettingsContext = createContext<SettingsContextProperties>({
-	settings: null,
-	updateSettings: ({ fileInputId, fileOutputId, imageQuality }) => undefined,
+	settings: defaultSettings,
+	selectedFeature: null,
+	updateSettings: () => undefined,
+	handleSelectFeature: () => undefined,
 });
 
 interface Properties {
@@ -28,7 +40,12 @@ interface Properties {
 
 const SettingsProvider = ({ ...properties }: Properties) => {
 	const [settings, setSettings] = useState<Settings>(null);
+	const [selectedFeature, setSelectedFeature] =
+		useState<FeatureDiscoveryItem>(null);
 
+	/**
+	 * Handles changes regarding custom file settings.
+	 */
 	const updateSettings = ({
 		fileInputId,
 		fileOutputId,
@@ -45,9 +62,22 @@ const SettingsProvider = ({ ...properties }: Properties) => {
 		});
 	};
 
+	/**
+	 * Searches the object keys for the feature with the given ID.
+	 */
+	const handleSelectFeature = (featureId: string) => {
+		for (let key in siteConfig.featureDiscovery) {
+			if (siteConfig.featureDiscovery[key].id === featureId) {
+				setSelectedFeature(siteConfig.featureDiscovery[key]);
+			}
+		}
+	};
+
 	const returnValue = {
 		settings,
+		selectedFeature,
 		updateSettings,
+		handleSelectFeature,
 	};
 
 	useEffect(() => {
