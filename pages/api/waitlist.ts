@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 
-import { Client, APIErrorCode, ClientErrorCode } from "@notionhq/client";
+import { Client } from "@notionhq/client";
 
 import type { WaitListBodyContents } from "types/api";
 
@@ -35,7 +35,6 @@ async function addUserToWaitList(body: WaitListBodyContents) {
 	});
 
 	response.results.forEach((result: any) => {
-		console.log(result.properties.Features.multi_select);
 		if (
 			result.properties.Email.email.toLowerCase() === body.email.toLowerCase()
 		) {

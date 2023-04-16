@@ -5,7 +5,6 @@ import axios from "axios";
 import type { WaitListBodyContents } from "types/api";
 import { FeatureDiscoveryItem } from "@/types/site-config";
 import LoadingButton from "../LoadingButton";
-import siteConfig from "site.config";
 
 interface Props {
 	isOpen: boolean;
@@ -21,14 +20,13 @@ export default function WaitListModal({
 	handleResult,
 }: Props) {
 	const [userData, setUserData] = useState<WaitListBodyContents>({
-		featureId: feature.id || siteConfig.featureDiscovery.emailImageResults.id,
+		featureId: feature.id,
 		name: "",
 		email: "",
 		isEarlyAdopter: false,
 	});
 	const [errorMessage, setErrorMessage] = useState<string>("");
 	const [isLoading, setIsLoading] = useState<boolean>(false);
-	console.log(userData);
 
 	const handleFormChange = (event) => {
 		const name = event.target.name;
@@ -46,12 +44,12 @@ export default function WaitListModal({
 		event.preventDefault();
 		setIsLoading(true);
 		try {
-			const response = await axios.post("/api/waitlist", userData);
-			console.log(response);
+			await axios.post("/api/waitlist", userData);
 			handleResult(true);
 			handleCloseModal();
 		} catch (error) {
 			setErrorMessage(error.message);
+			handleResult(false);
 		} finally {
 			setIsLoading(false);
 		}

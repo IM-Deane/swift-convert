@@ -1,11 +1,4 @@
-import React, {
-	createContext,
-	useContext,
-	useState,
-	useEffect,
-	Dispatch,
-	SetStateAction,
-} from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 
 import { FileType, SettingsKeys } from "@/types/index";
 import { FeatureDiscoveryItem } from "@/types/site-config";
@@ -69,8 +62,16 @@ const SettingsProvider = ({ ...properties }: Properties) => {
 		});
 	};
 
-	const handleSelectFeature = (featureId: string) =>
-		setSelectedFeature(siteConfig.featureDiscovery[featureId]);
+	/**
+	 * Searches the object keys for the feature with the given ID.
+	 */
+	const handleSelectFeature = (featureId: string) => {
+		for (let key in siteConfig.featureDiscovery) {
+			if (siteConfig.featureDiscovery[key].id === featureId) {
+				setSelectedFeature(siteConfig.featureDiscovery[key]);
+			}
+		}
+	};
 
 	const returnValue = {
 		settings,
