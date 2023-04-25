@@ -7,6 +7,8 @@ import {
 	ArrowDownOnSquareStackIcon,
 } from "@heroicons/react/20/solid";
 
+import * as Fathom from "fathom-client";
+
 import { UploadOption } from "@/types/index";
 import { useSettingsContext } from "@/context/SettingsProvider";
 import { toast } from "react-hot-toast";
@@ -67,8 +69,14 @@ function FileUploader({
 		}
 	};
 
+	const handleDropboxChooserOpen = () => {
+		setShowDropboxChooser(true);
+		Fathom.trackGoal("EGRZJJPS", 0); // see if people care about using Dropbox uploader
+	};
+
 	const handleDropboxChooserDownload = async (files: DropboxChooserFile[]) => {
 		const fileObjects = await convertToBrowserFileObjects(files);
+		Fathom.trackGoal("XTTZ7MKP", 0); // we want to know if users are importing files
 		handleFileDrop(fileObjects);
 	};
 
@@ -113,7 +121,7 @@ function FileUploader({
 					</g>
 				</svg>
 			),
-			action: () => setShowDropboxChooser(true),
+			action: handleDropboxChooserOpen,
 		},
 	];
 

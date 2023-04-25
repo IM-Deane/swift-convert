@@ -2,15 +2,18 @@ import { Fragment, useState } from "react";
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/router";
 
 import { Dialog, Transition } from "@headlessui/react";
 import { Bars3BottomLeftIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { AdjustmentsHorizontalIcon } from "@heroicons/react/20/solid";
+import * as Fathom from "fathom-client";
 
 import siteConfig from "site.config";
+
 import SettingsModal from "@/components/SettingsModal";
 import { classNames } from "@/utils/index";
-import { useRouter } from "next/router";
+
 import Footer from "./Footer";
 
 const navigation = siteConfig.mainNavTabs;
@@ -20,6 +23,12 @@ export default function Layout({ title = siteConfig.slogan, children }) {
 	const [settingsModalOpen, setSettingsModalOpen] = useState(false);
 
 	const router = useRouter();
+
+	const handleSettingsModalOpen = () => {
+		setSettingsModalOpen(true);
+		// we want to know when the modal is opened to learn about its visiblity
+		Fathom.trackGoal("7GQ5PUN6", 0);
+	};
 
 	navigation.forEach((item) => {
 		if (item.href === router.pathname) {
@@ -182,7 +191,7 @@ export default function Layout({ title = siteConfig.slogan, children }) {
 							<button
 								type="button"
 								className="border-r border-gray-200 px-4 text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 md:hidden"
-								onClick={() => setMobileMenuOpen(true)}
+								onClick={handleSettingsModalOpen}
 							>
 								<span className="sr-only">Open sidebar</span>
 								<Bars3BottomLeftIcon className="h-6 w-6" aria-hidden="true" />
@@ -191,7 +200,7 @@ export default function Layout({ title = siteConfig.slogan, children }) {
 								<div className="flex items-center space-x-4 sm:ml-6 sm:space-x-6">
 									<button
 										type="button"
-										onClick={() => setSettingsModalOpen(true)}
+										onClick={handleSettingsModalOpen}
 										className="rounded-full bg-blue-600 p-1.5 text-white hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
 									>
 										<AdjustmentsHorizontalIcon
