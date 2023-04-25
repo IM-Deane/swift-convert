@@ -111,7 +111,7 @@ export default function Footer() {
 					>
 						Tristan Deane.
 					</a>{" "}
-					Made with &hearts;
+					Made with &#x2615;
 				</p>
 			</div>
 		</footer>
