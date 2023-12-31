@@ -9,26 +9,30 @@ export function classNames(...classes) {
 	return classes.filter(Boolean).join(" ");
 }
 
-export const generateClientImage = (
-	rawImageData: Uint8Array,
-	filename: string,
-	filetype: string,
-	elapsedTime: string,
-	additionalInfo?: AdditionalInfo
-): ImageFile => {
-	const imageType = `image/${filetype}`;
-	const imageBlob = new Blob([rawImageData], { type: imageType });
-	const newImageFile = new File([imageBlob], filename, {
+interface ClientImagePayload {
+	imageData: Uint8Array;
+	filename: string;
+	fileId: string;
+	fileType: string;
+	elapsedTime: string;
+	additionalInfo?: AdditionalInfo;
+}
+
+export const generateClientImage = (payload: ClientImagePayload): ImageFile => {
+	const imageType = `image/${payload.fileType}`;
+	const imageBlob = new Blob([payload.imageData], { type: imageType });
+	const newImageFile = new File([imageBlob], payload.filename, {
 		type: imageType,
 	});
 	const imageURL = URL.createObjectURL(newImageFile);
 
 	let uploadedFrom = UPLOAD_ORIGINS.localStorage;
-	if (additionalInfo && additionalInfo.uploadOrigin) {
-		uploadedFrom = additionalInfo.uploadOrigin;
+	if (payload.additionalInfo && payload.additionalInfo.uploadOrigin) {
+		uploadedFrom = payload.additionalInfo.uploadOrigin;
 	}
 
 	return {
+		id: payload.fileId,
 		name: newImageFile.name,
 		size: prettyBytes(newImageFile.size),
 		current: false,
@@ -38,11 +42,11 @@ export const generateClientImage = (
 		information: {
 			Filename: newImageFile.name,
 			Type: imageType,
-			"Elapsed time": elapsedTime,
+			"Elapsed time": payload.elapsedTime,
 			Created: new Date(newImageFile.lastModified).toDateString(),
 			"Last modified": new Date(newImageFile.lastModified).toDateString(),
 			"Uploaded from": uploadedFrom,
-			"Image Quality": `${additionalInfo?.imageQuality}%` || "100%",
+			"Image Quality": `${payload.additionalInfo?.imageQuality}%` || "100%",
 			// "File path": additionalInfo ? additionalInfo?.filePath : "N/A",
 		},
 	};
@@ -51,6 +55,7 @@ export const generateClientImage = (
 // Create an inital object for displaying images
 export const generateInitialClientImage = (
 	file: File,
+	fileId: string,
 	additionalInfo?: {
 		uploadOrigin: UPLOAD_ORIGINS;
 		filePath?: string;
@@ -62,7 +67,7 @@ export const generateInitialClientImage = (
 	}
 
 	return {
-		id: 0,
+		id: fileId,
 		name: file.name,
 		size: file.size,
 		type: file.type,

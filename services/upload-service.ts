@@ -1,5 +1,11 @@
 import { FileType } from "@/types/index";
 
+interface BulkImageUploadRequest {
+	files: FormData;
+	convertToFormat: string;
+	imageQuality: number;
+}
+
 class UploadService {
 	private serverURL: string;
 
@@ -17,22 +23,27 @@ class UploadService {
 	}
 
 	bulkUploadImages = async (
-		files: File[],
-		convertToFormat: FileType
+		request: BulkImageUploadRequest
 	): Promise<Response> => {
-		const formData = new FormData();
+		if (!request.files) {
+			throw new Error("No files provided");
+		} else if (!request.convertToFormat) {
+			throw new Error("New image format must be provided");
+		} else if (!Object.hasOwn(FileType, request.convertToFormat)) {
+			throw new Error("Invalid image format provided");
+		}
 
-		files.forEach((file) => {
-			formData.append("file", file);
+		const apiUrl =
+			`${this.getServerURL()}/api/convert?` +
+			new URLSearchParams({
+				convertToFormat: request.convertToFormat,
+				imageQuality: request.imageQuality.toString() || "85",
+			});
+
+		return await fetch(apiUrl, {
+			method: "POST",
+			body: request.files,
 		});
-
-		return await fetch(
-			`${this.serverURL}/api/convert?format=${convertToFormat}`,
-			{
-				method: "POST",
-				body: formData,
-			}
-		);
 	};
 }
 

@@ -1,29 +1,32 @@
 import { useState } from "react";
-
+import Image from "next/image";
 import Script from "next/script";
+
+import { toast } from "react-hot-toast";
+import { v4 as uuidv4 } from "uuid";
 
 import siteConfig from "site.config";
 import { XMarkIcon, PaperAirplaneIcon } from "@heroicons/react/24/outline";
 
 import type { ImageFile } from "@/types/index";
 
+import Alert from "@/components/Alert";
 import Layout from "@/components/Layout";
 import FileUploader from "@/components/FileUploader";
 import ImageGallery from "@/components/ImageGallery";
+import WaitListModal from "@/components/marketing/WaitListModal";
 
 import { useSettingsContext } from "@/context/SettingsProvider";
+import uploadInstance from "@/services/upload-service";
 
 import {
 	generateClientImage,
 	generateInitialClientImage,
 	compressAndSaveImages,
 } from "@/utils/index";
-import Image from "next/image";
-import WaitListModal from "@/components/marketing/WaitListModal";
-import { toast } from "react-hot-toast";
-import Alert from "@/components/Alert";
 
 export default function Home() {
+	const fileMap = new Map();
 	const [currentFile, setCurrentFile] = useState<ImageFile>(null);
 	const [imageResults, setImageResults] = useState<ImageFile[]>([]);
 	const [isDownloadDisabled, setIsDownloadDisabled] = useState<boolean>(true);
@@ -36,6 +39,7 @@ export default function Home() {
 		setCurrentFile(null);
 		setImageResults([]);
 		setIsDownloadDisabled(true);
+		fileMap.clear();
 	};
 
 	const updateCurrentFile = (file: ImageFile | null) => {
@@ -69,68 +73,75 @@ export default function Home() {
 		);
 		setImageResults(newImageResults);
 		setCurrentFile(null);
+		fileMap.delete(currentFile.id);
 		if (imageResults.length === 0) {
 			resetFileData();
 		}
 	};
 
-	// render image progress updates in real-time
-	const updateProgress = (index, progressValue) =>
+	const updateProgress = (fileId: string, progressValue: number) =>
 		setImageResults((prevImageResults) =>
-			prevImageResults.map((image, idx) => {
-				if (idx === index) {
+			prevImageResults.map((image) => {
+				if (image.id === fileId) {
 					return { ...image, progress: progressValue };
 				}
 				return image;
 			})
 		);
 
-	// Initialize progress state for each file
-	const setupFileProgressUpdate = (files: File[]) => {
-		const SERVER_URL = process.env.NEXT_PUBLIC_SSE_URL;
+	const setupFileProgressUpdate = (file: any, fileId: string) => {
 		setImageResults([]);
 		const tempClientImages: ImageFile[] = [];
 
-		files.forEach((file, index) => {
-			const eventSource = new EventSource(
-				`${SERVER_URL}/events?fileId=${index}`
-			);
-			eventSource.onmessage = (event) => {
-				const progressValue = parseInt(event.data, 10);
-				updateProgress(index, progressValue);
-			};
-			eventSource.onerror = (error) => {
-				console.error("EventSource error:", error);
-			};
+		subscribeToSSE(fileId);
 
-			// add images to client for progress updates
-			tempClientImages.push(generateInitialClientImage(file));
-		});
+		tempClientImages.push(generateInitialClientImage(file, fileId));
 		setImageResults(tempClientImages);
 	};
 
-	const handleFileUpload = async (files: File[]) => {
-		const SERVER_URL = process.env.NEXT_PUBLIC_SSE_URL;
+	const subscribeToSSE = (fileId: string) => {
+		const eventSourceURL =
+			`${process.env.NEXT_PUBLIC_SSE_URL}/api/events?` +
+			new URLSearchParams({
+				fileId,
+			});
 
+		const eventSource = new EventSource(eventSourceURL);
+
+		eventSource.onmessage = (event) => {
+			const parsedData = JSON.parse(event.data);
+
+			if (parsedData.fileId === fileId) {
+				updateProgress(fileId, parsedData.progress);
+				if (parsedData.progress === 100) {
+					eventSource.close();
+				}
+			}
+		};
+
+		eventSource.onerror = (error) => {
+			console.error("EventSource error:", error);
+		};
+	};
+
+	const handleFileUpload = async (files: File[]) => {
 		const formData = new FormData();
-		files.forEach((file, index) => {
-			formData.append("images", file);
-			formData.append("fileIds", index.toString());
+		files.forEach((file) => {
+			const fileId = uuidv4();
+			fileMap.set(fileId, file);
+			formData.append(`file-${fileId}`, file);
+			setupFileProgressUpdate(file, fileId);
 		});
 
-		formData.append("convertToFormat", settings.fileOutputId);
-		formData.append("imageQuality", settings.imageQuality.toString());
-
-		setupFileProgressUpdate(files);
-
-		const response = await fetch(`${SERVER_URL}/api/convert`, {
-			method: "POST",
-			body: formData,
+		const response = await uploadInstance.bulkUploadImages({
+			files: formData,
+			convertToFormat: settings.fileOutputId,
+			imageQuality: settings.imageQuality,
 		});
 		const elapsedTime = response.headers.get("server-timing");
 		const data = await response.json();
 
-		const images = data.map((item, index) => {
+		const images = data.map((item) => {
 			if (item.error) {
 				console.error("Image conversion error:", item.errorMsg);
 				return null;
@@ -140,25 +151,26 @@ export default function Home() {
 				c.charCodeAt(0)
 			);
 
-			const generatedImage = generateClientImage(
-				rawImageData,
-				item.filename,
-				settings.fileOutputId,
+			const generatedImage = generateClientImage({
+				imageData: rawImageData,
+				filename: item.filename,
+				fileId: item.fileId,
+				fileType: settings.fileOutputId,
 				elapsedTime,
-				{
+				additionalInfo: {
 					imageQuality: settings.imageQuality,
-				}
-			);
+				},
+			});
 
 			// Update imageResults with the new data
 			setImageResults((prevImageResults) =>
-				prevImageResults.map((image, idx) => {
-					if (idx === index) {
+				prevImageResults.map((image) => {
+					if (image.id === generatedImage.id) {
 						return {
 							...image,
 							source: generatedImage.source,
 							information: generatedImage.information,
-							progress: 100, // Set progress to 100
+							progress: 100,
 						};
 					}
 					return image;
