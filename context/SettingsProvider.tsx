@@ -22,7 +22,7 @@ type SettingsContextProperties = {
 };
 
 const defaultSettings: Settings = {
-	fileInputId: FileType.heic,
+	fileInputId: FileType.png,
 	fileOutputId: FileType.jpeg,
 	imageQuality: 100,
 };
@@ -88,12 +88,12 @@ const SettingsProvider = ({ ...properties }: Properties) => {
 				localStorage.getItem(SettingsKeys.IMAGE_QUALITY)
 			);
 			updateSettings({
-				fileInputId: input === null ? FileType.heic : input,
-				fileOutputId: output === null ? FileType.jpeg : output,
+				fileInputId: input === null ? defaultSettings.fileInputId : input,
+				fileOutputId: output === null ? defaultSettings.fileOutputId : output,
 				imageQuality: imageQuality === 0 ? 100 : imageQuality,
 			});
 		}
-	}, []);
+	}, [settings]);
 
 	return <SettingsContext.Provider value={returnValue} {...properties} />;
 };

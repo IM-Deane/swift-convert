@@ -227,7 +227,9 @@ function FileUploader({
 													</label>
 													<p className="pl-1">or drag and drop</p>
 												</div>
-												<p className="text-xs text-gray-500">.HEIC up to 2MB</p>
+												<p className="text-xs text-gray-500">
+													Image of up to 2MB
+												</p>
 											</div>
 										)}
 									</div>
