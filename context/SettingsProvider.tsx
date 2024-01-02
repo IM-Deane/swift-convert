@@ -22,9 +22,9 @@ type SettingsContextProperties = {
 };
 
 const defaultSettings: Settings = {
-	fileInputId: FileType.png,
+	fileInputId: FileType.heic,
 	fileOutputId: FileType.jpeg,
-	imageQuality: 100,
+	imageQuality: 85,
 };
 
 const SettingsContext = createContext<SettingsContextProperties>({
@@ -90,7 +90,7 @@ const SettingsProvider = ({ ...properties }: Properties) => {
 			updateSettings({
 				fileInputId: input === null ? defaultSettings.fileInputId : input,
 				fileOutputId: output === null ? defaultSettings.fileOutputId : output,
-				imageQuality: imageQuality === 0 ? 100 : imageQuality,
+				imageQuality: imageQuality === 0 ? 85 : imageQuality,
 			});
 		}
 	}, [settings]);

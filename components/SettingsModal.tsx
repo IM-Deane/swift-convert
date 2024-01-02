@@ -13,7 +13,9 @@ export default function SettingsModal({ isOpen, setIsOpen }) {
 	const [isReady, setIsReady] = useState(false);
 	const [selectedInputType, setSelectedInputType] = useState<Input>(null);
 	const [selectedOutputType, setSelectedOutputType] = useState<Input>(null);
-	const [selectedImageQuality, setSelectedImageQuality] = useState<number>(90);
+	const [selectedImageQuality, setSelectedImageQuality] = useState<number>(85);
+	const [filteredInputTypes, setFilteredInputTypes] = useState<Input[]>([]);
+	const [filteredOutputTypes, setFilteredOutputTypes] = useState<Input[]>([]);
 
 	const cancelButtonRef = useRef(null);
 
@@ -43,6 +45,22 @@ export default function SettingsModal({ isOpen, setIsOpen }) {
 			setIsReady(true);
 		}
 	}, [settings]);
+
+	useEffect(() => {
+		if (selectedOutputType) {
+			setFilteredInputTypes(
+				settingsInputTypes.filter((input) => input.id !== selectedOutputType.id)
+			);
+		}
+	}, [selectedOutputType]);
+
+	useEffect(() => {
+		if (selectedInputType) {
+			setFilteredOutputTypes(
+				fileTypes.filter((fileType) => fileType.id !== selectedInputType.id)
+			);
+		}
+	}, [selectedInputType]);
 
 	return (
 		<Transition.Root show={isOpen} as={Fragment}>
@@ -99,16 +117,15 @@ export default function SettingsModal({ isOpen, setIsOpen }) {
 													<div className="flex-auto w-50 mr-1">
 														<SelectInput
 															inputLabel="Input"
-															inputList={settingsInputTypes}
+															inputList={filteredInputTypes}
 															selectedInput={selectedInputType}
-															isDisabled
 															handleSelectedInput={setSelectedInputType}
 														/>
 													</div>
 													<div className="flex-auto w-50 ml-1">
 														<SelectInput
 															inputLabel="Output"
-															inputList={fileTypes}
+															inputList={filteredOutputTypes}
 															selectedInput={selectedOutputType}
 															handleSelectedInput={setSelectedOutputType}
 														/>

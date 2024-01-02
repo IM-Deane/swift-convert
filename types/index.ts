@@ -23,8 +23,8 @@ export const fileTypes: Input[] = [
 
 export const settingsInputTypes: Input[] = [
 	{ id: "heic", name: ".HEIC", unavailable: false },
-	{ id: "jpeg", name: ".JPEG", unavailable: true },
-	{ id: "png", name: ".PNG", unavailable: true },
+	{ id: "jpeg", name: ".JPEG", unavailable: false },
+	{ id: "png", name: ".PNG", unavailable: false },
 ];
 
 export interface UploadOption {
