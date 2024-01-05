@@ -30,11 +30,10 @@ export default function App({
 		// Record a pageview when route changes
 		router.events.on("routeChangeComplete", onRouteChangeComplete);
 
-		// Unassign event listener
 		return () => {
 			router.events.off("routeChangeComplete", onRouteChangeComplete);
 		};
-	}, []);
+	}, [router.events]);
 
 	return (
 		<>
