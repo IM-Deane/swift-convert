@@ -15,6 +15,7 @@ import { toast } from "react-hot-toast";
 import Alert from "./Alert";
 import SelectUploadMethod from "./SelectUploadMethod";
 import DropboxChooseModal from "./DropboxChooseModal";
+import UppyDashboard from "./UppyDashboard";
 import { convertToBrowserFileObjects } from "@/utils/index";
 
 import type { DropboxChooserFile } from "@/types/api";
@@ -125,6 +126,14 @@ function FileUploader({
 		},
 	];
 
+	if (
+		!settings ||
+		settings.fileInputId === undefined ||
+		settings.imageQuality === undefined
+	) {
+		return <div>Loading...</div>;
+	}
+
 	return (
 		<div className="mt-2">
 			<div className="mt-5 md:col-span-2 md:mt-0">
@@ -170,6 +179,16 @@ function FileUploader({
 									</div>
 								</div>
 							</div>
+							<UppyDashboard
+								restrictions={{
+									maxFileSize: 2000000, // 2MB
+									allowedFileTypes: [`image/${settings.fileInputId}`],
+								}}
+								queryParameters={{
+									convertToFormat: settings.fileOutputId,
+									imageQuality: settings.imageQuality,
+								}}
+							/>
 							<Dropzone
 								ref={dropzoneRef}
 								onDrop={handleFileDrop}
