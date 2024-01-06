@@ -185,7 +185,7 @@ function FileUploader({
 								maxFileSize: MaxFileSize.free,
 								allowedFileTypes: [`image/${settings.fileInputId}`],
 							}}
-							queryParameters={{
+							conversionParams={{
 								convertToFormat: settings.fileOutputId,
 								imageQuality: settings.imageQuality,
 							}}

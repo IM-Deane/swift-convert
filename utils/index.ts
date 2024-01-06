@@ -5,6 +5,12 @@ import { DropboxChooserFile } from "@/types/api";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
 
+export function getServerUrl() {
+	const serverUrl = process.env.NEXT_PUBLIC_SSE_URL;
+	if (!serverUrl) throw new Error("Error: Server url is not set");
+	return serverUrl;
+}
+
 export function classNames(...classes) {
 	return classes.filter(Boolean).join(" ");
 }
