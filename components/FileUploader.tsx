@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React from "react";
 
 import type Uppy from "@uppy/core";
 
@@ -21,17 +21,7 @@ function FileUploader({
 	handleDownloadPhotos: () => void;
 	resetFileData: () => void;
 }) {
-	const dropzoneRef = useRef();
 	const { settings } = useSettingsContext();
-
-	// triggers local device uploader
-	const handleOpenLocalFileDialog = () => {
-		// Note that the ref is set async so it might be null at some point
-		if (dropzoneRef.current) {
-			// @ts-expect-error Property 'open' does not exist on type 'never'.ts(2339)
-			dropzoneRef.current.open();
-		}
-	};
 
 	if (
 		!settings ||
@@ -45,8 +35,8 @@ function FileUploader({
 		<div className="mt-2">
 			<div className="mt-5 md:col-span-2 md:mt-0">
 				<div className="shadow sm:overflow-hidden sm:rounded-md">
-					<div className="space-y-6 bg-white px-4 py-5 sm:p-6">
-						<div className="bg-gray-50 px-4 py-3 mb-8 sm:px-6">
+					<div className="space-y-6 bg-white px-4 py-3 sm:p-6">
+						<div className="bg-gray-50 px-4 py-5 mb-8 sm:px-6">
 							<div className="w-full flex flex-col md:flex-row items-center justify-center md:justify-between mt-4 lg:mt-auto">
 								<div className="grow">
 									{/* <SelectUploadMethod uploadOptions={uploadOptions} /> */}
