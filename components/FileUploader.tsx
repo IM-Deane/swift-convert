@@ -1,13 +1,10 @@
-import React, { useState, useRef } from "react";
+import React, { useRef } from "react";
 
 import type Uppy from "@uppy/core";
 
 import { ArrowDownOnSquareStackIcon } from "@heroicons/react/20/solid";
 
 import { useSettingsContext } from "@/context/SettingsProvider";
-import { toast } from "react-hot-toast";
-import Alert from "./Alert";
-import SelectUploadMethod from "./SelectUploadMethod";
 import UppyDashboard from "./UppyDashboard";
 import { MaxFileSize } from "@/types/index";
 
@@ -24,8 +21,6 @@ function FileUploader({
 	handleDownloadPhotos: () => void;
 	resetFileData: () => void;
 }) {
-	const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-
 	const dropzoneRef = useRef();
 	const { settings } = useSettingsContext();
 
@@ -76,17 +71,17 @@ function FileUploader({
 											/>
 										</span>
 									</button>
-									{/* <button
+									<button
 										type="button"
-										onClick={clearFileData}
+										onClick={resetFileData}
 										className={`${
-											selectedFiles.length > 0
+											!isDownloadDisabled
 												? "cursor-pointer bg-white hover:bg-gray-50"
 												: "cursor-not-allowed bg-gray-200 "
 										} rounded-lg flex-initial ml-3 px-2 py-2.5 text-sm font-medium text-gray-800 shadow-sm ring-1 ring-inset ring-gray-300`}
 									>
 										Clear <span className="hidden md:inline">files</span>
-									</button> */}
+									</button>
 								</div>
 							</div>
 						</div>

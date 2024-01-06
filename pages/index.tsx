@@ -21,7 +21,6 @@ import { useSettingsContext } from "@/context/SettingsProvider";
 import { generateClientImage, compressAndSaveImages } from "@/utils/index";
 
 export default function Home({ uppy }: { uppy: Uppy }) {
-	const fileMap = new Map();
 	const [currentFile, setCurrentFile] = useState<ImageFile>(null);
 	const [imageResults, setImageResults] = useState<ImageFile[]>([]);
 	const [isDownloadDisabled, setIsDownloadDisabled] = useState<boolean>(true);
@@ -34,7 +33,6 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 		setCurrentFile(null);
 		setImageResults([]);
 		setIsDownloadDisabled(true);
-		fileMap.clear();
 	};
 
 	const updateCurrentFile = (file: ImageFile | null) => {
@@ -68,7 +66,6 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 		);
 		setImageResults(newImageResults);
 		setCurrentFile(null);
-		fileMap.delete(currentFile.id);
 		if (imageResults.length === 0) {
 			resetFileData();
 		}
@@ -87,14 +84,10 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 			},
 		});
 
-		const newImageResults = [
-			...imageResults,
-			{
-				...generatedImage,
-			},
-		];
-
-		setImageResults(newImageResults);
+		setImageResults((prevImageResults) => [
+			...prevImageResults,
+			generatedImage,
+		]);
 		setIsDownloadDisabled(false);
 	};
 
