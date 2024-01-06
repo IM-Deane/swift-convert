@@ -17,7 +17,6 @@ import ImageGallery from "@/components/ImageGallery";
 import WaitListModal from "@/components/marketing/WaitListModal";
 
 import { useSettingsContext } from "@/context/SettingsProvider";
-import uploadInstance from "@/services/upload-service";
 
 import {
 	generateClientImage,
@@ -78,108 +77,29 @@ export default function Home() {
 			resetFileData();
 		}
 	};
+	console.log("imageResults", imageResults);
 
-	const updateProgress = (fileId: string, progressValue: number) =>
-		setImageResults((prevImageResults) =>
-			prevImageResults.map((image) => {
-				if (image.id === fileId) {
-					return { ...image, progress: progressValue };
-				}
-				return image;
-			})
-		);
-
-	const setupFileProgressUpdate = (file: any, fileId: string) => {
-		setImageResults([]);
-		const tempClientImages: ImageFile[] = [];
-
-		subscribeToSSE(fileId);
-
-		tempClientImages.push(generateInitialClientImage(file, fileId));
-		setImageResults(tempClientImages);
-	};
-
-	const subscribeToSSE = (fileId: string) => {
-		const eventSourceURL =
-			`${process.env.NEXT_PUBLIC_SSE_URL}/api/events?` +
-			new URLSearchParams({
-				fileId,
-			});
-
-		const eventSource = new EventSource(eventSourceURL);
-
-		eventSource.onmessage = (event) => {
-			const parsedData = JSON.parse(event.data);
-
-			if (parsedData.fileId === fileId) {
-				updateProgress(fileId, parsedData.progress);
-				if (parsedData.progress === 100) {
-					eventSource.close();
-				}
-			}
-		};
-
-		eventSource.onerror = (error) => {
-			console.error("EventSource error:", error);
-		};
-	};
-
-	const handleFileUpload = async (files: File[]) => {
-		const formData = new FormData();
-		files.forEach((file) => {
-			const fileId = uuidv4();
-			fileMap.set(fileId, file);
-			formData.append(`file-${fileId}`, file);
-			setupFileProgressUpdate(file, fileId);
+	const handleFileUpload = (image, elapsedTime) => {
+		const generatedImage = generateClientImage({
+			imageData: image.data,
+			filename: image.filename,
+			fileId: image.fileId,
+			fileType: image.metadata.filetype,
+			elapsedTime,
+			metadata: image.metadata,
+			additionalInfo: {
+				imageQuality: settings.imageQuality,
+			},
 		});
 
-		const response = await uploadInstance.bulkUploadImages({
-			files: formData,
-			convertToFormat: settings.fileOutputId,
-			imageQuality: settings.imageQuality,
-		});
-		const elapsedTime = response.headers.get("server-timing");
-		const data = await response.json();
+		const newImageResults = [
+			...imageResults,
+			{
+				...generatedImage,
+			},
+		];
 
-		const images = data.map((item) => {
-			if (item.error) {
-				console.error("Image conversion error:", item.errorMsg);
-				return null;
-			}
-
-			const rawImageData = Uint8Array.from(atob(item.data), (c) =>
-				c.charCodeAt(0)
-			);
-
-			const generatedImage = generateClientImage({
-				imageData: rawImageData,
-				filename: item.filename,
-				fileId: item.fileId,
-				fileType: settings.fileOutputId,
-				elapsedTime,
-				additionalInfo: {
-					imageQuality: settings.imageQuality,
-				},
-			});
-
-			// Update imageResults with the new data
-			setImageResults((prevImageResults) =>
-				prevImageResults.map((image) => {
-					if (image.id === generatedImage.id) {
-						return {
-							...image,
-							source: generatedImage.source,
-							information: generatedImage.information,
-							progress: 100,
-						};
-					}
-					return image;
-				})
-			);
-
-			return generatedImage;
-		});
-		setImageResults(images.filter((img) => img !== null));
+		setImageResults(newImageResults);
 		setIsDownloadDisabled(false);
 	};
 

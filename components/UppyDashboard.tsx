@@ -23,6 +23,7 @@ export function createUppyWithTusUploader(restrictions) {
 }
 
 interface DashboardProps {
+	onUpload: (imageData, elapsedTime) => void;
 	conversionParams?: {
 		convertToFormat?: string;
 		imageQuality?: number;
@@ -36,6 +37,7 @@ interface DashboardProps {
 }
 
 export default function UppyDashboard({
+	onUpload,
 	restrictions,
 	conversionParams,
 }: DashboardProps): JSX.Element {
@@ -44,30 +46,36 @@ export default function UppyDashboard({
 	useEffect(() => {
 		uppy.on("upload-success", async (file, response) => {
 			const serverUrl = getServerUrl();
-
 			const conversionUrl = `${serverUrl}/api/v2/convert`;
-			const conversionResponse = await fetch(conversionUrl, {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({
-					fileId: response.uploadURL.split("/").pop(),
-					convertToFormat: conversionParams.convertToFormat,
-					imageQuality: conversionParams.imageQuality,
-				}),
-			});
 			try {
+				const conversionResponse = await fetch(conversionUrl, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+						fileId: response.uploadURL.split("/").pop(),
+						convertToFormat: conversionParams.convertToFormat,
+						imageQuality: conversionParams.imageQuality,
+					}),
+				});
+				const elapsedTime = conversionResponse.headers.get("Server-Timing");
 				const data = await conversionResponse.json();
-				// TODO: add file to list of converted files
-				console.log("Conversion successful for", file.name, data);
+				onUpload(data, elapsedTime);
 			} catch (error: any) {
 				console.error("Conversion failed for", file.name, error);
 			}
 		});
 
+		uppy.on("complete", () => {
+			// hack to change the title of the dashboard after conversion is complete
+			document.getElementsByClassName(
+				"uppy-DashboardContent-title"
+			)[0].textContent = "Conversion complete";
+		});
+
 		return () => uppy.close();
-	}, [uppy, conversionParams]);
+	}, [uppy, conversionParams, onUpload]);
 
 	return (
 		<Dashboard
@@ -80,6 +88,43 @@ export default function UppyDashboard({
 			)}`}
 			showProgressDetails={true}
 			proudlyDisplayPoweredByUppy={false}
+			locale={{
+				strings: getUppyStatusBarProps(),
+			}}
 		/>
 	);
+}
+
+/**
+ * Handles the text shown in the status bar of the Uppy dashboard.
+ * @more https://uppy.io/docs/status-bar/#locale
+ */
+function getUppyStatusBarProps() {
+	return {
+		// Shown in the status bar while files are being uploaded.
+		uploading: "Converting",
+		// Shown in the status bar if an upload failed.
+		uploadFailed: "Conversion failed",
+		// When `showProgressDetails` is set, shows the number of files that have been fully uploaded so far.
+		filesUploadedOfTotal: {
+			0: "%{complete} of %{smart_count} file converted",
+			1: "%{complete} of %{smart_count} files converted",
+		},
+		uploadXFiles: {
+			0: "Convert %{smart_count} file",
+			1: "Convert %{smart_count} files",
+		},
+		// Used as the label for the button that starts an upload, if another upload has been started in the past
+		// and new files were added later.
+		uploadXNewFiles: {
+			0: "Convert +%{smart_count} file",
+			1: "Convert +%{smart_count} files",
+		},
+		upload: "Convert",
+		retryUpload: "Retry convert",
+		xMoreFilesAdded: {
+			0: "%{smart_count} more file added",
+			1: "%{smart_count} more files added",
+		},
+	};
 }

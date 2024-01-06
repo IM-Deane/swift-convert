@@ -16,19 +16,20 @@ export function classNames(...classes) {
 }
 
 interface ClientImagePayload {
-	imageData: Uint8Array;
+	imageData: string; // base64 encoded image
 	filename: string;
 	fileId: string;
 	fileType: string;
 	elapsedTime: string;
+	metadata: any;
 	additionalInfo?: AdditionalInfo;
 }
 
 export const generateClientImage = (payload: ClientImagePayload): ImageFile => {
-	const imageType = `image/${payload.fileType}`;
-	const imageBlob = new Blob([payload.imageData], { type: imageType });
+	const arrayBuffer = base64ToArrayBuffer(payload.imageData);
+	const imageBlob = new Blob([arrayBuffer], { type: payload.fileType });
 	const newImageFile = new File([imageBlob], payload.filename, {
-		type: imageType,
+		type: payload.fileType,
 	});
 	const imageURL = URL.createObjectURL(newImageFile);
 
@@ -44,10 +45,10 @@ export const generateClientImage = (payload: ClientImagePayload): ImageFile => {
 		current: false,
 		progress: 100,
 		source: imageURL,
-		type: imageType,
+		type: payload.fileType,
 		information: {
 			Filename: newImageFile.name,
-			Type: imageType,
+			Type: payload.metadata.type,
 			"Elapsed time": payload.elapsedTime,
 			Created: new Date(newImageFile.lastModified).toDateString(),
 			"Last modified": new Date(newImageFile.lastModified).toDateString(),
@@ -126,3 +127,13 @@ export const compressAndSaveImages = async (images: ImageFile[]) => {
 		.replace(/ /g, "-");
 	saveAs(content, `swift-convert-${currentDate}.zip`);
 };
+
+export function base64ToArrayBuffer(base64: string) {
+	const binaryString = window.atob(base64);
+	const len = binaryString.length;
+	const bytes = new Uint8Array(len);
+	for (let i = 0; i < len; i++) {
+		bytes[i] = binaryString.charCodeAt(i);
+	}
+	return bytes.buffer;
+}
