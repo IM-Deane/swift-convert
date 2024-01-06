@@ -2,6 +2,9 @@ import Uppy from "@uppy/core";
 import Tus from "@uppy/tus";
 import { Dashboard } from "@uppy/react";
 import { useState } from "react";
+import prettyBytes from "pretty-bytes";
+
+import { MaxFileSize } from "../types";
 
 import "@uppy/core/dist/style.min.css";
 import "@uppy/dashboard/dist/style.min.css";
@@ -70,5 +73,15 @@ export default function UppyDashboard({
 		createUppyWithTusUploader(restrictions, queryParameters)
 	);
 
-	return <Dashboard id="dashboard" showProgressDetails={true} uppy={uppy} />;
+	return (
+		<Dashboard
+			id="dashboard"
+			uppy={uppy}
+			theme="light"
+			width="100%"
+			note={`Image of up to ${prettyBytes(MaxFileSize.free)}`}
+			showProgressDetails={true}
+			proudlyDisplayPoweredByUppy={false}
+		/>
+	);
 }

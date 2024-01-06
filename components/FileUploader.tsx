@@ -8,6 +8,7 @@ import {
 } from "@heroicons/react/20/solid";
 
 import * as Fathom from "fathom-client";
+import prettyBytes from "pretty-bytes";
 
 import { UploadOption } from "@/types/index";
 import { useSettingsContext } from "@/context/SettingsProvider";
@@ -19,6 +20,7 @@ import UppyDashboard from "./UppyDashboard";
 import { convertToBrowserFileObjects } from "@/utils/index";
 
 import type { DropboxChooserFile } from "@/types/api";
+import { MaxFileSize } from "@/types/index";
 
 function FileUploader({
 	onUpload,
@@ -138,124 +140,57 @@ function FileUploader({
 		<div className="mt-2">
 			<div className="mt-5 md:col-span-2 md:mt-0">
 				<div className="shadow sm:overflow-hidden sm:rounded-md">
-					<ul className="space-y-6 bg-white px-4 py-5 sm:p-6">
-						<li>
-							<div className="bg-gray-50 px-4 py-3 mb-8 sm:px-6">
-								<div className="w-full flex flex-col md:flex-row items-center justify-center md:justify-between mt-4 lg:mt-auto">
-									<div className="grow">
-										<SelectUploadMethod uploadOptions={uploadOptions} />
-									</div>
-									<div className=" mt-4 md:my-auto flex-inline">
-										<button
-											type="button"
-											disabled={isDownloadDisabled}
-											onClick={handleDownloadPhotos}
-											className={`${
-												isDownloadDisabled
-													? "cursor-not-allowed bg-blue-200"
-													: "cursor-pointer bg-blue-700 hover:bg-blue-800"
-											} text-white focus:ring-4 flex-1 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800`}
-										>
-											Download{" "}
-											<span className="hidden md:inline ml-1">photos</span>
-											<span>
-												<ArrowDownOnSquareStackIcon
-													className="h-5 w-5 ml-2"
-													aria-hidden="true"
-												/>
-											</span>
-										</button>
-										<button
-											type="button"
-											onClick={clearFileData}
-											className={`${
-												selectedFiles.length > 0
-													? "cursor-pointer bg-white hover:bg-gray-50"
-													: "cursor-not-allowed bg-gray-200 "
-											} rounded-lg flex-initial ml-3 px-2 py-2.5 text-sm font-medium text-gray-800 shadow-sm ring-1 ring-inset ring-gray-300`}
-										>
-											Clear <span className="hidden md:inline">files</span>
-										</button>
-									</div>
+					<div className="space-y-6 bg-white px-4 py-5 sm:p-6">
+						<div className="bg-gray-50 px-4 py-3 mb-8 sm:px-6">
+							<div className="w-full flex flex-col md:flex-row items-center justify-center md:justify-between mt-4 lg:mt-auto">
+								<div className="grow">
+									<SelectUploadMethod uploadOptions={uploadOptions} />
+								</div>
+								<div className=" mt-4 md:my-auto flex-inline">
+									<button
+										type="button"
+										disabled={isDownloadDisabled}
+										onClick={handleDownloadPhotos}
+										className={`${
+											isDownloadDisabled
+												? "cursor-not-allowed bg-blue-200"
+												: "cursor-pointer bg-blue-700 hover:bg-blue-800"
+										} text-white focus:ring-4 flex-1 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800`}
+									>
+										Download{" "}
+										<span className="hidden md:inline ml-1">photos</span>
+										<span>
+											<ArrowDownOnSquareStackIcon
+												className="h-5 w-5 ml-2"
+												aria-hidden="true"
+											/>
+										</span>
+									</button>
+									<button
+										type="button"
+										onClick={clearFileData}
+										className={`${
+											selectedFiles.length > 0
+												? "cursor-pointer bg-white hover:bg-gray-50"
+												: "cursor-not-allowed bg-gray-200 "
+										} rounded-lg flex-initial ml-3 px-2 py-2.5 text-sm font-medium text-gray-800 shadow-sm ring-1 ring-inset ring-gray-300`}
+									>
+										Clear <span className="hidden md:inline">files</span>
+									</button>
 								</div>
 							</div>
-							<UppyDashboard
-								restrictions={{
-									maxFileSize: 2000000, // 2MB
-									allowedFileTypes: [`image/${settings.fileInputId}`],
-								}}
-								queryParameters={{
-									convertToFormat: settings.fileOutputId,
-									imageQuality: settings.imageQuality,
-								}}
-							/>
-							<Dropzone
-								ref={dropzoneRef}
-								onDrop={handleFileDrop}
-								multiple={true}
-								maxFiles={5}
-							>
-								{({ getRootProps, getInputProps }) => (
-									<div
-										{...getRootProps()}
-										className="mt-1 flex justify-center rounded-md border-2 border-dashed border-gray-300 px-6 pt-5 pb-6"
-									>
-										{/* Show uploaded files  */}
-										{selectedFiles.length > 0 ? (
-											<ul role="list">
-												{selectedFiles.map((file) => (
-													<li key={file.lastModified} className="flex py-2">
-														<div className="ml-3">
-															<p className="text-sm font-medium text-blue-600">
-																{file.name}
-															</p>
-														</div>
-													</li>
-												))}
-											</ul>
-										) : (
-											<div className="space-y-1 text-center">
-												<svg
-													className="mx-auto h-12 w-12 text-gray-400"
-													stroke="currentColor"
-													fill="none"
-													viewBox="0 0 48 48"
-													aria-hidden="true"
-												>
-													<path
-														d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-														strokeWidth={2}
-														strokeLinecap="round"
-														strokeLinejoin="round"
-													/>
-												</svg>
-												<div className="flex text-sm text-gray-600">
-													<label
-														htmlFor="image-file"
-														className="relative cursor-pointer rounded-md bg-white font-medium text-blue-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2 hover:text-blue-500"
-													>
-														<span>Upload photo from device</span>
-														<input
-															{...getInputProps()}
-															id="image-file"
-															name="image-file"
-															type="file"
-															className="sr-only"
-															accept={`image/${settings?.fileInputId}`}
-														/>
-													</label>
-													<p className="pl-1">or drag and drop</p>
-												</div>
-												<p className="text-xs text-gray-500">
-													Image of up to 2MB
-												</p>
-											</div>
-										)}
-									</div>
-								)}
-							</Dropzone>
-						</li>
-					</ul>
+						</div>
+						<UppyDashboard
+							restrictions={{
+								maxFileSize: MaxFileSize.free,
+								allowedFileTypes: [`image/${settings.fileInputId}`],
+							}}
+							queryParameters={{
+								convertToFormat: settings.fileOutputId,
+								imageQuality: settings.imageQuality,
+							}}
+						/>
+					</div>
 				</div>
 			</div>
 			<DropboxChooseModal
