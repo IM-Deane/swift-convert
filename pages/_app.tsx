@@ -1,19 +1,31 @@
 import "@/styles/globals.css";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 
 import * as Fathom from "fathom-client";
 import { Toaster } from "react-hot-toast";
 import { SessionProvider } from "next-auth/react";
 
-import { SettingsProvider } from "@/context/SettingsProvider";
+import {
+	SettingsProvider,
+	useSettingsContext,
+} from "@/context/SettingsProvider";
+import { createUppyWithTusUploader } from "@/components/UppyDashboard";
+import { MaxFileSize } from "../types";
 
 export default function App({
 	Component,
 	pageProps: { session, ...pageProps },
 }) {
 	const router = useRouter();
+	const { settings } = useSettingsContext();
+
+	const [uppy] = useState(
+		createUppyWithTusUploader({
+			maxTotalFileSize: MaxFileSize.free,
+		})
+	);
 
 	useEffect(() => {
 		// Initialize Fathom when the app loads
@@ -30,18 +42,25 @@ export default function App({
 		// Record a pageview when route changes
 		router.events.on("routeChangeComplete", onRouteChangeComplete);
 
-		// Unassign event listener
 		return () => {
 			router.events.off("routeChangeComplete", onRouteChangeComplete);
 		};
-	}, []);
+	}, [router.events]);
+
+	if (
+		!settings ||
+		settings.fileInputId === undefined ||
+		settings.imageQuality === undefined
+	) {
+		return <div>Loading...</div>;
+	}
 
 	return (
 		<>
 			<SessionProvider session={session}>
 				<SettingsProvider>
 					<Toaster />
-					<Component {...pageProps} />
+					<Component {...pageProps} uppy={uppy} />
 				</SettingsProvider>
 			</SessionProvider>
 		</>

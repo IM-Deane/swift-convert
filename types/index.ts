@@ -10,6 +10,12 @@ export enum SettingsKeys {
 	IMAGE_QUALITY = "imageQuality",
 }
 
+export enum MaxFileSize {
+	free = 5000000, // 5MB
+	standard = 1000000, // 10MB
+	pro = 2500000, // 25MB
+}
+
 export enum FileType {
 	heic = "heic",
 	jpeg = "jpeg",
