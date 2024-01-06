@@ -1,6 +1,5 @@
 import { useState } from "react";
 import Image from "next/image";
-import Script from "next/script";
 
 import { toast } from "react-hot-toast";
 import type Uppy from "@uppy/core";
