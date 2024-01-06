@@ -1,7 +1,7 @@
 import Uppy from "@uppy/core";
 import Tus from "@uppy/tus";
 import { Dashboard } from "@uppy/react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import prettyBytes from "pretty-bytes";
 
 import { MaxFileSize } from "../types";
@@ -23,6 +23,7 @@ export function createUppyWithTusUploader(restrictions) {
 }
 
 interface DashboardProps {
+	uppy: Uppy;
 	onUpload: (imageData, elapsedTime) => void;
 	conversionParams?: {
 		convertToFormat?: string;
@@ -37,13 +38,14 @@ interface DashboardProps {
 }
 
 export default function UppyDashboard({
+	uppy,
 	onUpload,
 	restrictions,
 	conversionParams,
 }: DashboardProps): JSX.Element {
-	const [uppy] = useState(createUppyWithTusUploader(restrictions));
-
 	useEffect(() => {
+		uppy.setOptions({ restrictions: { ...restrictions } });
+
 		uppy.on("upload-success", async (file, response) => {
 			const serverUrl = getServerUrl();
 			const conversionUrl = `${serverUrl}/api/v2/convert`;
@@ -73,9 +75,7 @@ export default function UppyDashboard({
 				"uppy-DashboardContent-title"
 			)[0].textContent = "Conversion complete";
 		});
-
-		return () => uppy.close();
-	}, [uppy, conversionParams, onUpload]);
+	}, [uppy, restrictions, conversionParams, onUpload]);
 
 	return (
 		<Dashboard

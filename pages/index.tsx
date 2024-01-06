@@ -3,7 +3,7 @@ import Image from "next/image";
 import Script from "next/script";
 
 import { toast } from "react-hot-toast";
-import { v4 as uuidv4 } from "uuid";
+import type Uppy from "@uppy/core";
 
 import siteConfig from "site.config";
 import { XMarkIcon, PaperAirplaneIcon } from "@heroicons/react/24/outline";
@@ -18,13 +18,9 @@ import WaitListModal from "@/components/marketing/WaitListModal";
 
 import { useSettingsContext } from "@/context/SettingsProvider";
 
-import {
-	generateClientImage,
-	generateInitialClientImage,
-	compressAndSaveImages,
-} from "@/utils/index";
+import { generateClientImage, compressAndSaveImages } from "@/utils/index";
 
-export default function Home() {
+export default function Home({ uppy }: { uppy: Uppy }) {
 	const fileMap = new Map();
 	const [currentFile, setCurrentFile] = useState<ImageFile>(null);
 	const [imageResults, setImageResults] = useState<ImageFile[]>([]);
@@ -176,6 +172,7 @@ export default function Home() {
 									Converting photos
 								</h2>
 								<FileUploader
+									uppy={uppy}
 									onUpload={handleFileUpload}
 									resetFileData={resetFileData}
 									isDownloadDisabled={isDownloadDisabled}

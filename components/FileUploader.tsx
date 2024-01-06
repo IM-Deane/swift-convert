@@ -1,5 +1,7 @@
 import React, { useState, useRef } from "react";
 
+import type Uppy from "@uppy/core";
+
 import { ArrowDownOnSquareStackIcon } from "@heroicons/react/20/solid";
 
 import { useSettingsContext } from "@/context/SettingsProvider";
@@ -10,11 +12,13 @@ import UppyDashboard from "./UppyDashboard";
 import { MaxFileSize } from "@/types/index";
 
 function FileUploader({
+	uppy,
 	onUpload,
 	resetFileData,
 	isDownloadDisabled,
 	handleDownloadPhotos,
 }: {
+	uppy: Uppy;
 	isDownloadDisabled: boolean;
 	onUpload: (imageData, elapsedTime) => void;
 	handleDownloadPhotos: () => void;
@@ -87,9 +91,11 @@ function FileUploader({
 							</div>
 						</div>
 						<UppyDashboard
+							uppy={uppy}
 							onUpload={onUpload}
 							restrictions={{
-								maxFileSize: MaxFileSize.free,
+								maxTotalFileSize: MaxFileSize.free,
+								maxNumberOfFiles: 10,
 								allowedFileTypes: [`image/${settings.fileInputId}`],
 							}}
 							conversionParams={{
