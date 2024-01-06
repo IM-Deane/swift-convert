@@ -84,23 +84,29 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 			},
 		});
 
-		setImageResults((prevImageResults) => {
-			const existingImageIndex = prevImageResults.findIndex(
-				(image) => image.id === generatedImage.id
-			);
-			if (existingImageIndex !== -1) {
-				return prevImageResults.map((image, index) => {
-					if (index === existingImageIndex) {
-						return { ...generatedImage, current: false };
-					} else {
-						return image;
-					}
-				});
-			} else {
-				return [...prevImageResults, { ...generatedImage, current: false }];
-			}
-		});
+		handleUpdateImageResults(generatedImage);
 		setIsDownloadDisabled(false);
+	};
+
+	const handleUpdateImageResults = (newImage: ImageFile) => {
+		setImageResults((prevImageResults) => {
+			let found = false;
+
+			// update the existing image if it exists
+			const updatedImageResults = prevImageResults.reduce((acc, image) => {
+				if (image.id === newImage.id) {
+					found = true;
+					acc.push({ ...newImage, current: false });
+				} else {
+					acc.push(image);
+				}
+				return acc;
+			}, []);
+
+			if (!found) updatedImageResults.push({ ...newImage, current: false });
+
+			return updatedImageResults;
+		});
 	};
 
 	const handleDownloadPhotos = async () => {
