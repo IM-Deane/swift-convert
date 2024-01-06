@@ -84,10 +84,22 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 			},
 		});
 
-		setImageResults((prevImageResults) => [
-			...prevImageResults,
-			generatedImage,
-		]);
+		setImageResults((prevImageResults) => {
+			const existingImageIndex = prevImageResults.findIndex(
+				(image) => image.id === generatedImage.id
+			);
+			if (existingImageIndex !== -1) {
+				return prevImageResults.map((image, index) => {
+					if (index === existingImageIndex) {
+						return { ...generatedImage, current: false };
+					} else {
+						return image;
+					}
+				});
+			} else {
+				return [...prevImageResults, { ...generatedImage, current: false }];
+			}
+		});
 		setIsDownloadDisabled(false);
 	};
 
@@ -160,21 +172,18 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 								className="mt-2 pb-12 overflow-y-auto"
 								aria-labelledby="main-heading"
 							>
-								<h2 id="main-heading" className="sr-only">
-									Converting photos
-								</h2>
+								<section className="mt-8 pb-16">
+									<ImageGallery
+										imageFiles={imageResults}
+										setCurrentFile={updateCurrentFile}
+									/>
+								</section>
 								<FileUploader
 									uppy={uppy}
 									onUpload={handleFileUpload}
 									resetFileData={resetFileData}
 									isDownloadDisabled={isDownloadDisabled}
 									handleDownloadPhotos={handleDownloadPhotos}
-								/>
-							</section>
-							<section className="mt-8 pb-16">
-								<ImageGallery
-									imageFiles={imageResults}
-									setCurrentFile={updateCurrentFile}
 								/>
 							</section>
 						</div>

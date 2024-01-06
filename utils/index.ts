@@ -49,7 +49,7 @@ export const generateClientImage = (payload: ClientImagePayload): ImageFile => {
 		information: {
 			Filename: newImageFile.name,
 			Type: payload.metadata.type,
-			"Elapsed time": payload.elapsedTime,
+			"Conversion time": `${payload.elapsedTime}ms`,
 			Created: new Date(newImageFile.lastModified).toDateString(),
 			"Last modified": new Date(newImageFile.lastModified).toDateString(),
 			"Uploaded from": uploadedFrom,
