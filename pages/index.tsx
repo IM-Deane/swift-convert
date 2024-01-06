@@ -254,7 +254,13 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 												className="flex justify-between py-3 text-sm font-medium"
 											>
 												<dt className="text-gray-500">{key}</dt>
-												<dd className="whitespace-nowrap text-gray-900">
+												<dd
+													className={`${
+														key === "Filename"
+															? "pl-4 truncate"
+															: "whitespace-nowrap"
+													} text-gray-900"`}
+												>
 													{currentFile.information[key]}
 												</dd>
 											</div>
