@@ -73,7 +73,6 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 			resetFileData();
 		}
 	};
-	console.log("imageResults", imageResults);
 
 	const handleFileUpload = (image, elapsedTime) => {
 		const generatedImage = generateClientImage({
