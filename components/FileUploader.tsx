@@ -1,11 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
 
 import type Uppy from "@uppy/core";
+import { Bars3BottomLeftIcon } from "@heroicons/react/24/outline";
+import { AdjustmentsHorizontalIcon } from "@heroicons/react/20/solid";
 
 import { ArrowDownOnSquareStackIcon } from "@heroicons/react/20/solid";
 
 import { useSettingsContext } from "@/context/SettingsProvider";
 import UppyDashboard from "./UppyDashboard";
+import SettingsModal from "./SettingsModal";
+
 import { MaxFileSize } from "@/types/index";
 
 function FileUploader({
@@ -21,7 +25,13 @@ function FileUploader({
 	handleDownloadPhotos: () => void;
 	resetFileData: () => void;
 }) {
+	const [settingsModalOpen, setSettingsModalOpen] = useState(false);
+
 	const { settings } = useSettingsContext();
+
+	const handleSettingsModalOpen = () => {
+		setSettingsModalOpen(true);
+	};
 
 	if (
 		!settings ||
@@ -39,9 +49,25 @@ function FileUploader({
 						<div className="bg-gray-50 px-4 py-5 mb-8 sm:px-6">
 							<div className="w-full flex flex-col md:flex-row items-center justify-center md:justify-between mt-4 lg:mt-auto">
 								<div className="grow">
-									{/* <SelectUploadMethod uploadOptions={uploadOptions} /> */}
+									<div className="flex flex-1 justify-start">
+										<div className="flex items-center space-x-4 sm:ml-6 sm:space-x-6">
+											<button
+												type="button"
+												onClick={handleSettingsModalOpen}
+												className="flex items-center space-x-2"
+											>
+												<div className="rounded-full bg-blue-600 p-1.5 text-white hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
+													<AdjustmentsHorizontalIcon
+														className="h-5 w-5"
+														aria-hidden="true"
+													/>
+												</div>
+												<span>Edit settings</span>
+											</button>
+										</div>
+									</div>
 								</div>
-								<div className=" mt-4 md:my-auto flex-inline">
+								<div className="mt-4 md:my-auto flex-inline">
 									<button
 										type="button"
 										disabled={isDownloadDisabled}
@@ -91,6 +117,10 @@ function FileUploader({
 					</div>
 				</div>
 			</div>
+			<SettingsModal
+				isOpen={settingsModalOpen}
+				setIsOpen={setSettingsModalOpen}
+			/>
 		</div>
 	);
 }

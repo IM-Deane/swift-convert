@@ -5,13 +5,10 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 
 import { Dialog, Transition } from "@headlessui/react";
-import { Bars3BottomLeftIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import { AdjustmentsHorizontalIcon } from "@heroicons/react/20/solid";
-import * as Fathom from "fathom-client";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 
 import siteConfig from "site.config";
 
-import SettingsModal from "@/components/SettingsModal";
 import { classNames } from "@/utils/index";
 
 import Footer from "./Footer";
@@ -20,15 +17,8 @@ const navigation = siteConfig.mainNavTabs;
 
 export default function Layout({ title = siteConfig.slogan, children }) {
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-	const [settingsModalOpen, setSettingsModalOpen] = useState(false);
 
 	const router = useRouter();
-
-	const handleSettingsModalOpen = () => {
-		setSettingsModalOpen(true);
-		// we want to know when the modal is opened to learn about its visiblity
-		Fathom.trackGoal("7GQ5PUN6", 0);
-	};
 
 	navigation.forEach((item) => {
 		if (item.href === router.pathname) {
@@ -186,40 +176,10 @@ export default function Layout({ title = siteConfig.slogan, children }) {
 				</Transition.Root>
 				{/* Content area */}
 				<div className="flex flex-1 flex-col overflow-y-auto">
-					<header className="w-full">
-						<div className="relative z-10 flex h-16 flex-shrink-0 border-b border-gray-200 bg-white shadow-sm">
-							<button
-								type="button"
-								className="border-r border-gray-200 px-4 text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 md:hidden"
-								onClick={handleSettingsModalOpen}
-							>
-								<span className="sr-only">Open sidebar</span>
-								<Bars3BottomLeftIcon className="h-6 w-6" aria-hidden="true" />
-							</button>
-							<div className="flex flex-1 justify-end px-4 sm:px-6">
-								<div className="flex items-center space-x-4 sm:ml-6 sm:space-x-6">
-									<button
-										type="button"
-										onClick={handleSettingsModalOpen}
-										className="rounded-full bg-blue-600 p-1.5 text-white hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-									>
-										<AdjustmentsHorizontalIcon
-											className="h-5 w-5"
-											aria-hidden="true"
-										/>
-										<span className="sr-only">Open settings modal</span>
-									</button>
-								</div>
-							</div>
-						</div>
-					</header>
+					<header className="w-full"></header>
 					{children}
 					<Footer />
 				</div>
-				<SettingsModal
-					isOpen={settingsModalOpen}
-					setIsOpen={setSettingsModalOpen}
-				/>
 			</div>
 		</>
 	);
