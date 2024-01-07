@@ -1,15 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import type Uppy from "@uppy/core";
-import { AdjustmentsHorizontalIcon } from "@heroicons/react/20/solid";
 
 import { ArrowDownOnSquareStackIcon } from "@heroicons/react/20/solid";
 
 import { useSettingsContext } from "@/context/SettingsProvider";
 import UppyDashboard from "./UppyDashboard";
 import SettingsModal from "./SettingsModal";
+import ConvertToDropdown from "./ConvertToDropdown";
 
-import { MaxFileSize } from "@/types/index";
+import { Input, MaxFileSize, fileTypes } from "@/types/index";
 import prettyBytes from "pretty-bytes";
 
 function FileUploader({
@@ -26,12 +26,46 @@ function FileUploader({
 	resetFileData: () => void;
 }) {
 	const [settingsModalOpen, setSettingsModalOpen] = useState(false);
+	const [selectedOutputType, setSelectedOutputType] = useState<Input>(
+		fileTypes[0]
+	);
+	const [knownUploadedFileTypes, setKnownUploadedFileTypes] = useState<any>({});
+	const [filteredOutputTypes, setFilteredOutputTypes] = useState<Input[]>([]);
 
 	const { settings } = useSettingsContext();
 
-	const handleSettingsModalOpen = () => {
-		setSettingsModalOpen(true);
+	const handleknownUploadedFileTypes = (fileExt: string) => {
+		if (!knownUploadedFileTypes[fileExt]) {
+			console.log("adding file type", fileExt);
+			setKnownUploadedFileTypes({
+				...knownUploadedFileTypes,
+				[fileExt]: `.${fileExt}`,
+			});
+		}
 	};
+
+	const handleResetFileData = () => {
+		resetFileData();
+		setKnownUploadedFileTypes({});
+	};
+	console.log("uploaded file types", knownUploadedFileTypes);
+
+	useEffect(() => {
+		setFilteredOutputTypes(
+			fileTypes.map((fileType) => {
+				if (knownUploadedFileTypes[fileType.id]) {
+					return {
+						...fileType,
+						unavailable: true,
+					};
+				} else {
+					return fileType;
+				}
+			})
+		);
+	}, [knownUploadedFileTypes]);
+
+	console.log("filteredOutputTypes", filteredOutputTypes);
 
 	if (
 		!settings ||
@@ -46,24 +80,14 @@ function FileUploader({
 			<div className="mt-5 md:col-span-2 md:mt-0">
 				<div className="shadow sm:overflow-hidden sm:rounded-md">
 					<div className="space-y-6 bg-white px-4 py-3 sm:p-6">
-						<div className="bg-gray-50 px-4 py-5 mb-8 sm:px-6">
+						<div className="bg-gray-50 px-0 py-5 mb-8 md:mb-24 sm:px-6">
 							<div className="w-full flex flex-col md:flex-row md:items-center justify-center md:justify-between mt-4 lg:mt-auto">
-								<div className="grow">
-									<button
-										type="button"
-										onClick={handleSettingsModalOpen}
-										className="flex items-center space-x-2"
-									>
-										<div className="rounded-full bg-blue-600 p-1.5 text-white hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
-											<AdjustmentsHorizontalIcon
-												className="h-5 w-5"
-												aria-hidden="true"
-											/>
-										</div>
-										<span className="hidden md:inline">Edit settings</span>
-									</button>
-								</div>
-								<div className="mt-4 md:my-auto flex-inline">
+								<div className="mt-4 md:my-auto flex-inline space-x-2">
+									<ConvertToDropdown
+										inputList={filteredOutputTypes}
+										selectedInput={selectedOutputType}
+										handleSelectedInput={setSelectedOutputType}
+									/>
 									<button
 										type="button"
 										disabled={isDownloadDisabled}
@@ -85,7 +109,7 @@ function FileUploader({
 									</button>
 									<button
 										type="button"
-										onClick={resetFileData}
+										onClick={handleResetFileData}
 										className={`${
 											!isDownloadDisabled
 												? "cursor-pointer bg-white hover:bg-gray-200"
@@ -97,13 +121,15 @@ function FileUploader({
 								</div>
 							</div>
 						</div>
+
 						<UppyDashboard
 							uppy={uppy}
 							onUpload={onUpload}
+							updateKnownUploadedFileTypes={handleknownUploadedFileTypes}
 							restrictions={{
 								maxTotalFileSize: MaxFileSize.free,
 								maxNumberOfFiles: 10,
-								allowedFileTypes: [`image/${settings.fileInputId}`],
+								allowedFileTypes: ["image/*"],
 							}}
 							conversionParams={{
 								convertToFormat: settings.fileOutputId,

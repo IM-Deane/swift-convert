@@ -19,6 +19,7 @@ export enum MaxFileSize {
 export enum FileType {
 	heic = "heic",
 	jpeg = "jpeg",
+	jpg = "jpg",
 	png = "png",
 }
 

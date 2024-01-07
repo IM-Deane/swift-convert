@@ -2,9 +2,8 @@ import Uppy from "@uppy/core";
 import Tus from "@uppy/tus";
 import { Dashboard } from "@uppy/react";
 import { useEffect } from "react";
-import prettyBytes from "pretty-bytes";
 
-import { MaxFileSize } from "../types";
+import { FileType } from "../types";
 import { getServerUrl } from "../utils";
 
 import "@uppy/core/dist/style.min.css";
@@ -25,6 +24,7 @@ export function createUppyWithTusUploader(restrictions) {
 interface DashboardProps {
 	uppy: Uppy;
 	onUpload: (imageData, elapsedTime) => void;
+	updateKnownUploadedFileTypes: (fileExt: string) => void;
 	conversionParams?: {
 		convertToFormat?: string;
 		imageQuality?: number;
@@ -40,11 +40,31 @@ interface DashboardProps {
 export default function UppyDashboard({
 	uppy,
 	onUpload,
+	updateKnownUploadedFileTypes,
 	restrictions,
 	conversionParams,
 }: DashboardProps): JSX.Element {
 	useEffect(() => {
 		uppy.setOptions({ restrictions: { ...restrictions } });
+
+		uppy.on("files-added", (files) => {
+			files.forEach((file) => {
+				if (!Object.values(FileType).includes(file.extension as any)) {
+					console.log("Invalid file type");
+					uppy.info(
+						{
+							message: "Error: Unsupported file type",
+							details: `${file.name} couldn’t be uploaded because it’s not a supported file type`,
+						},
+						"error",
+						5000
+					);
+					uppy.removeFile(file.id);
+					return;
+				}
+				updateKnownUploadedFileTypes(file.extension);
+			});
+		});
 
 		uppy.on("upload-success", async (file, response) => {
 			const serverUrl = getServerUrl();
@@ -75,7 +95,13 @@ export default function UppyDashboard({
 				"uppy-DashboardContent-title"
 			)[0].textContent = "Conversion complete";
 		});
-	}, [uppy, restrictions, conversionParams, onUpload]);
+	}, [
+		uppy,
+		restrictions,
+		updateKnownUploadedFileTypes,
+		conversionParams,
+		onUpload,
+	]);
 
 	return (
 		<Dashboard

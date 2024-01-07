@@ -167,7 +167,7 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 							className="flex flex-col md:flex-row space-x-4 mt-2 pb-12 overflow-y-auto"
 							aria-labelledby="main-heading"
 						>
-							<div className="flex-1 flex-">
+							<div className="flex-auto w-64">
 								<FileUploader
 									uppy={uppy}
 									onUpload={handleFileUpload}
