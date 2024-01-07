@@ -32,6 +32,7 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 		setCurrentFile(null);
 		setImageResults([]);
 		setIsDownloadDisabled(true);
+		uppy.cancelAll({ reason: "user" });
 	};
 
 	const updateCurrentFile = (file: ImageFile | null) => {
@@ -163,22 +164,24 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 							</p>
 						</div>
 						<section
-							className="mt-2 pb-12 overflow-y-auto"
+							className="flex flex-col md:flex-row space-x-4 mt-2 pb-12 overflow-y-auto"
 							aria-labelledby="main-heading"
 						>
-							<section className="mt-8 pb-16">
+							<div className="flex-1 flex-">
+								<FileUploader
+									uppy={uppy}
+									onUpload={handleFileUpload}
+									resetFileData={resetFileData}
+									isDownloadDisabled={isDownloadDisabled}
+									handleDownloadPhotos={handleDownloadPhotos}
+								/>
+							</div>
+							<div className="flex-1 mt-8 md:mt-0 p-4">
 								<ImageGallery
 									imageFiles={imageResults}
 									setCurrentFile={updateCurrentFile}
 								/>
-							</section>
-							<FileUploader
-								uppy={uppy}
-								onUpload={handleFileUpload}
-								resetFileData={resetFileData}
-								isDownloadDisabled={isDownloadDisabled}
-								handleDownloadPhotos={handleDownloadPhotos}
-							/>
+							</div>
 						</section>
 					</div>
 				</main>
