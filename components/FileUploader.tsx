@@ -47,25 +47,21 @@ function FileUploader({
 				<div className="shadow sm:overflow-hidden sm:rounded-md">
 					<div className="space-y-6 bg-white px-4 py-3 sm:p-6">
 						<div className="bg-gray-50 px-4 py-5 mb-8 sm:px-6">
-							<div className="w-full flex flex-col md:flex-row items-center justify-center md:justify-between mt-4 lg:mt-auto">
+							<div className="w-full flex flex-col md:flex-row md:items-center justify-center md:justify-between mt-4 lg:mt-auto">
 								<div className="grow">
-									<div className="flex flex-1 justify-start">
-										<div className="flex items-center space-x-4 sm:ml-6 sm:space-x-6">
-											<button
-												type="button"
-												onClick={handleSettingsModalOpen}
-												className="flex items-center space-x-2"
-											>
-												<div className="rounded-full bg-blue-600 p-1.5 text-white hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
-													<AdjustmentsHorizontalIcon
-														className="h-5 w-5"
-														aria-hidden="true"
-													/>
-												</div>
-												<span>Edit settings</span>
-											</button>
+									<button
+										type="button"
+										onClick={handleSettingsModalOpen}
+										className="flex items-center space-x-2"
+									>
+										<div className="rounded-full bg-blue-600 p-1.5 text-white hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
+											<AdjustmentsHorizontalIcon
+												className="h-5 w-5"
+												aria-hidden="true"
+											/>
 										</div>
-									</div>
+										<span className="hidden md:inline">Edit settings</span>
+									</button>
 								</div>
 								<div className="mt-4 md:my-auto flex-inline">
 									<button
@@ -92,11 +88,11 @@ function FileUploader({
 										onClick={resetFileData}
 										className={`${
 											!isDownloadDisabled
-												? "cursor-pointer bg-white hover:bg-gray-50"
+												? "cursor-pointer bg-white hover:bg-gray-200"
 												: "cursor-not-allowed bg-gray-200 "
 										} rounded-lg flex-initial ml-3 px-2 py-2.5 text-sm font-medium text-gray-800 shadow-sm ring-1 ring-inset ring-gray-300`}
 									>
-										Clear <span className="hidden md:inline">files</span>
+										Clear <span className="hidden md:inline">photos</span>
 									</button>
 								</div>
 							</div>
