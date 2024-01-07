@@ -83,9 +83,7 @@ export default function UppyDashboard({
 			uppy={uppy}
 			theme="light"
 			width="100%"
-			note={`Each image size should be a maximum of ${prettyBytes(
-				MaxFileSize.free
-			)}`}
+			height="200px"
 			showProgressDetails={true}
 			proudlyDisplayPoweredByUppy={false}
 			locale={{

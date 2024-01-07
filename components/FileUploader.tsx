@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 
 import type Uppy from "@uppy/core";
-import { Bars3BottomLeftIcon } from "@heroicons/react/24/outline";
 import { AdjustmentsHorizontalIcon } from "@heroicons/react/20/solid";
 
 import { ArrowDownOnSquareStackIcon } from "@heroicons/react/20/solid";
@@ -11,6 +10,7 @@ import UppyDashboard from "./UppyDashboard";
 import SettingsModal from "./SettingsModal";
 
 import { MaxFileSize } from "@/types/index";
+import prettyBytes from "pretty-bytes";
 
 function FileUploader({
 	uppy,
@@ -115,6 +115,10 @@ function FileUploader({
 							}}
 						/>
 					</div>
+					<p className="py-2 text-center text-sm text-grey-500 bg-white">
+						Total image upload size limited to max of{" "}
+						{prettyBytes(MaxFileSize.free)}
+					</p>
 				</div>
 			</div>
 			<SettingsModal
