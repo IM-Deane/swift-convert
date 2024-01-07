@@ -49,8 +49,10 @@ export default function UppyDashboard({
 
 		uppy.on("files-added", (files) => {
 			files.forEach((file) => {
-				if (!Object.values(FileType).includes(file.extension as any)) {
-					console.log("Invalid file type");
+				const fileExt = file.extension.toLowerCase();
+
+				if (!Object.values(FileType).includes(fileExt as any)) {
+					console.log("Invalid file type", fileExt);
 					uppy.info(
 						{
 							message: "Error: Unsupported file type",
@@ -62,7 +64,7 @@ export default function UppyDashboard({
 					uppy.removeFile(file.id);
 					return;
 				}
-				updateKnownUploadedFileTypes(file.extension);
+				updateKnownUploadedFileTypes(fileExt);
 			});
 		});
 
@@ -95,6 +97,27 @@ export default function UppyDashboard({
 				"uppy-DashboardContent-title"
 			)[0].textContent = "Conversion complete";
 		});
+
+		// hack to change the z-index of the uppy header dashboard
+		const handleMutations = (mutations, observer) => {
+			for (const mutation of mutations) {
+				if (mutation.addedNodes.length) {
+					const uppyContentBar = document.querySelector(
+						"div.uppy-DashboardContent-bar"
+					) as HTMLElement;
+					if (uppyContentBar) {
+						uppyContentBar.style.zIndex = "10";
+						observer.disconnect(); // Stop observing after the element is found
+						break;
+					}
+				}
+			}
+		};
+		const observer = new MutationObserver(handleMutations);
+		const config = { childList: true, subtree: true };
+		observer.observe(document.body, config);
+
+		return () => observer.disconnect();
 	}, [
 		uppy,
 		restrictions,
@@ -109,7 +132,7 @@ export default function UppyDashboard({
 			uppy={uppy}
 			theme="light"
 			width="100%"
-			height="200px"
+			height="420px"
 			showProgressDetails={true}
 			proudlyDisplayPoweredByUppy={false}
 			locale={{

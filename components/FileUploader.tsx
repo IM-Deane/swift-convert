@@ -36,7 +36,6 @@ function FileUploader({
 
 	const handleknownUploadedFileTypes = (fileExt: string) => {
 		if (!knownUploadedFileTypes[fileExt]) {
-			console.log("adding file type", fileExt);
 			setKnownUploadedFileTypes({
 				...knownUploadedFileTypes,
 				[fileExt]: `.${fileExt}`,
@@ -48,7 +47,6 @@ function FileUploader({
 		resetFileData();
 		setKnownUploadedFileTypes({});
 	};
-	console.log("uploaded file types", knownUploadedFileTypes);
 
 	useEffect(() => {
 		setFilteredOutputTypes(
@@ -65,8 +63,6 @@ function FileUploader({
 		);
 	}, [knownUploadedFileTypes]);
 
-	console.log("filteredOutputTypes", filteredOutputTypes);
-
 	if (
 		!settings ||
 		settings.fileInputId === undefined ||
@@ -78,9 +74,9 @@ function FileUploader({
 	return (
 		<div className="mt-2">
 			<div className="mt-5 md:col-span-2 md:mt-0">
-				<div className="shadow sm:overflow-hidden sm:rounded-md">
+				<div className="shadow sm:rounded-md">
 					<div className="space-y-6 bg-white px-4 py-3 sm:p-6">
-						<div className="bg-gray-50 px-0 py-5 mb-8 md:mb-24 sm:px-6">
+						<div className="bg-gray-50 px-0 py-5 mb-8 sm:px-6">
 							<div className="w-full flex flex-col md:flex-row md:items-center justify-center md:justify-between mt-4 lg:mt-auto">
 								<div className="mt-4 md:my-auto flex-inline space-x-2">
 									<ConvertToDropdown
@@ -129,10 +125,10 @@ function FileUploader({
 							restrictions={{
 								maxTotalFileSize: MaxFileSize.free,
 								maxNumberOfFiles: 10,
-								allowedFileTypes: ["image/*"],
+								allowedFileTypes: ["image/*", ".heif", ".heic"],
 							}}
 							conversionParams={{
-								convertToFormat: settings.fileOutputId,
+								convertToFormat: selectedOutputType.id as string,
 								imageQuality: settings.imageQuality,
 							}}
 						/>

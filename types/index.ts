@@ -21,11 +21,16 @@ export enum FileType {
 	jpeg = "jpeg",
 	jpg = "jpg",
 	png = "png",
+	webp = "webp",
+	heif = "heif",
 }
 
 export const fileTypes: Input[] = [
 	{ id: "jpeg", name: ".JPEG", unavailable: false },
 	{ id: "png", name: ".PNG", unavailable: false },
+	{ id: "heic", name: ".HEIC", unavailable: false },
+	{ id: "jpg", name: ".JPG", unavailable: false },
+	{ id: "webp", name: ".WEBP", unavailable: false },
 ];
 
 export const settingsInputTypes: Input[] = [

@@ -164,10 +164,10 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 							</p>
 						</div>
 						<section
-							className="flex flex-col md:flex-row space-x-4 mt-2 pb-12 overflow-y-auto"
+							className="flex flex-col md:flex-row space-x-4 mt-2 pb-12"
 							aria-labelledby="main-heading"
 						>
-							<div className="flex-auto w-64">
+							<div className="flex-auto w-48">
 								<FileUploader
 									uppy={uppy}
 									onUpload={handleFileUpload}
