@@ -100,6 +100,8 @@ export default function UppyDashboard({
  * @more https://uppy.io/docs/status-bar/#locale
  */
 function getUppyStatusBarProps() {
+	const isDeviceWidthSmall = window.innerWidth < 640;
+
 	return {
 		// Shown in the status bar while files are being uploaded.
 		uploading: "Converting",
@@ -128,8 +130,12 @@ function getUppyStatusBarProps() {
 		},
 		// Text to show on the droppable area.
 		// `%{browse}` is replaced with a link that opens the system file selection dialog.
-		dropPasteFiles: "Drag and drop photos here or %{browseFiles}",
+		dropPasteFiles: `${
+			isDeviceWidthSmall
+				? "%{browseFiles}"
+				: "Drag and drop photos here or %{browseFiles}"
+		}`,
 		// Used as the label for the link that opens the system file selection dialog.
-		browseFiles: "upload from device",
+		browseFiles: `${isDeviceWidthSmall ? "Upload" : "upload"} from device`,
 	};
 }
