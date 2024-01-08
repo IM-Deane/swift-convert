@@ -1,22 +1,33 @@
 import Uppy from "@uppy/core";
 import Tus from "@uppy/tus";
+import ImageEditor from "@uppy/image-editor";
 import { Dashboard } from "@uppy/react";
 import { useEffect } from "react";
 
-import { FileType } from "../types";
+import { FileType, fileTypes } from "../types";
 import { getServerUrl } from "../utils";
+
+import UppyFileConversionPlugin from "./UppyFileConversionPlugin";
 
 import "@uppy/core/dist/style.min.css";
 import "@uppy/dashboard/dist/style.min.css";
+import "@uppy/image-editor/dist/style.min.css";
 
 export function createUppyWithTusUploader(restrictions) {
 	const serverUrl = getServerUrl();
 
 	const uppy = new Uppy({
 		restrictions,
-	}).use(Tus, {
-		endpoint: `${serverUrl}/api/uploads`,
-	});
+	})
+		.use(Tus, {
+			endpoint: `${serverUrl}/api/uploads`,
+		})
+		.use(UppyFileConversionPlugin, {
+			formats: fileTypes,
+			target: ".uppy-Dashboard-Item-actionWrapper",
+		});
+
+	// .use(ImageEditor);
 
 	return uppy;
 }
@@ -133,6 +144,7 @@ export default function UppyDashboard({
 			theme="light"
 			width="100%"
 			height="420px"
+			disableThumbnailGenerator={true}
 			showProgressDetails={true}
 			proudlyDisplayPoweredByUppy={false}
 			locale={{
