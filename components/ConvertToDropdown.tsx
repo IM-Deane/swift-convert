@@ -20,8 +20,8 @@ export default function ConvertToDropdown({
 	handleSelectedInput,
 }: SelectInputProps) {
 	return (
-		<Menu as="div" className="relative inline-block text-left">
-			<div className="flex items-center space-x-2">
+		<Menu as="div" className="relative inline-block text-left w-48">
+			<div className="flex items-center space-x-2 max-w-32">
 				<span className="flex-none text-sm">{inputLabel}</span>{" "}
 				<Menu.Button
 					className="inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-blue-50"

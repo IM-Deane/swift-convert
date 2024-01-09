@@ -175,13 +175,13 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 							className="flex flex-col md:flex-row space-x-4 mt-2 pb-12"
 							aria-labelledby="main-heading"
 						>
-							<div className="flex-auto w-48">
+							<div className="flex-auto lg:w-48 order-last md:order-first">
 								<FileUploader uppy={uppy} onUpload={handleFileUpload} />
 							</div>
 							<div className="flex-1 mt-8 md:mt-0 p-4">
 								<div className="border-b border-gray-200 pb-5 mb-8 sm:flex sm:items-center sm:justify-between">
 									<h2 className="text-base font-semibold leading-5 text-gray-900">
-										Converted Images
+										Results
 									</h2>
 									<div className="mt-3 flex sm:ml-4 sm:mt-0">
 										<button
@@ -195,7 +195,9 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 											} text-white font-medium rounded-lg inline-flex items-center text-sm px-5 py-2.5 text-center`}
 										>
 											Download{" "}
-											<span className="hidden md:inline ml-1">photos</span>
+											<span className="inline ml-1 md:hidden lg:inline">
+												photos
+											</span>
 											<span>
 												<ArrowDownOnSquareStackIcon
 													className="h-5 w-5 ml-2"

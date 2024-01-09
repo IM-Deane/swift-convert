@@ -18,7 +18,6 @@ const ImageSlider: React.FC<ImageSliderProps> = ({ onQualityChange }) => {
 		event: React.ChangeEvent<HTMLInputElement>
 	) => {
 		const quality = parseInt(event.target.value, 10);
-		console.log("quality", quality);
 		setSelectedImageQuality(quality);
 		onQualityChange(quality);
 		updateSettings({ ...settings, imageQuality: quality });
@@ -31,7 +30,7 @@ const ImageSlider: React.FC<ImageSliderProps> = ({ onQualityChange }) => {
 				<li key={i} className="flex justify-center relative">
 					<span
 						className={`absolute ${
-							selectedImageQuality === i ? "text-md font-bold" : "text-sm"
+							selectedImageQuality === i ? "font-bold" : "text-sm"
 						}`}
 					>
 						{i}
@@ -43,7 +42,7 @@ const ImageSlider: React.FC<ImageSliderProps> = ({ onQualityChange }) => {
 	};
 
 	return (
-		<div>
+		<div className="w-48">
 			<label
 				htmlFor="image-quality"
 				className="mb-2 text-sm font-medium text-gray-900"
