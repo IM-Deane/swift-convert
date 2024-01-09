@@ -20,7 +20,7 @@ type SettingsContextProperties = {
 };
 
 export const defaultSettings: Settings = {
-	fileOutputId: FileType.jpeg,
+	fileOutputId: FileType.webp,
 	imageQuality: 70,
 	fileTypes: ["image/*", ".heif", ".heic"],
 };
