@@ -19,6 +19,8 @@ export default function ConvertToDropdown({
 	isDisabled = false,
 	handleSelectedInput,
 }: SelectInputProps) {
+	console.log("inputList", inputList);
+	console.log("selectedInput", selectedInput);
 	return (
 		<Menu as="div" className="relative inline-block text-left w-48">
 			<div className="flex items-center space-x-2 max-w-32">
@@ -54,7 +56,7 @@ export default function ConvertToDropdown({
 										input.unavailable
 											? "cursor-not-allowed text-gray-200 bg-gray-50"
 											: "cursor-pointer hover:bg-blue-300 hover:text-white",
-										selectedInput.name === input.name
+										selectedInput.id === input.id
 											? "bg-blue-500 text-white"
 											: "text-gray-700",
 										"block w-full px-4 py-2 text-sm uppercase text-center"
