@@ -109,7 +109,7 @@ function FileUploader({
 										className={`${
 											!isDownloadDisabled
 												? "cursor-pointer bg-white hover:bg-gray-200"
-												: "cursor-not-allowed bg-gray-200 "
+												: "text-white cursor-not-allowed bg-gray-200"
 										} rounded-lg flex-initial ml-3 px-2 py-2.5 text-sm font-medium text-gray-800 shadow-sm ring-1 ring-inset ring-gray-300`}
 									>
 										Clear <span className="hidden md:inline">photos</span>

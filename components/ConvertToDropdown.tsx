@@ -13,7 +13,7 @@ interface SelectInputProps {
 }
 
 export default function ConvertToDropdown({
-	inputLabel = "Convert all to",
+	inputLabel = "Convert to",
 	inputList,
 	selectedInput,
 	isDisabled = false,
@@ -24,7 +24,7 @@ export default function ConvertToDropdown({
 			<div className="flex items-center space-x-2">
 				<span className="flex-none text-sm">{inputLabel}</span>{" "}
 				<Menu.Button
-					className="inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+					className="inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-blue-50"
 					disabled={isDisabled}
 				>
 					{selectedInput ? selectedInput.name : inputLabel}
@@ -48,21 +48,21 @@ export default function ConvertToDropdown({
 					<div className="py-1">
 						{inputList.map((input) => (
 							<Menu.Item key={input.id} disabled={input.unavailable}>
-								{({ active }) => (
-									<button
-										disabled={input.unavailable}
-										className={classNames(
-											input.unavailable
-												? "cursor-not-allowed text-gray-400"
-												: "cursor-pointer",
-											active ? "bg-gray-100 text-gray-900" : "text-gray-700",
-											"block w-full px-4 py-2 text-sm text-center"
-										)}
-										onClick={() => handleSelectedInput(input)}
-									>
-										{input.name}
-									</button>
-								)}
+								<button
+									disabled={input.unavailable}
+									className={classNames(
+										input.unavailable
+											? "cursor-not-allowed text-gray-400"
+											: "cursor-pointer hover:bg-blue-300 hover:text-white",
+										selectedInput.name === input.name
+											? "bg-blue-500 text-white"
+											: "text-gray-700",
+										"block w-full px-4 py-2 text-sm text-center"
+									)}
+									onClick={() => handleSelectedInput(input)}
+								>
+									{input.name}
+								</button>
 							</Menu.Item>
 						))}
 					</div>
