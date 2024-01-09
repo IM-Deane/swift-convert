@@ -162,7 +162,7 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 							</h1>
 							<p className="mt-2 max-w-4xl text-sm text-gray-500">
 								Convert your photos in seconds with SwiftConvert - the fast and
-								free online tool.
+								flawless online photo editor.
 							</p>
 							<p className="mt-4 max-w-4xl text-sm text-gray-500">
 								Currently supported output formats:{" "}
