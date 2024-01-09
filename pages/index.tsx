@@ -8,7 +8,7 @@ import siteConfig from "site.config";
 import { XMarkIcon, PaperAirplaneIcon } from "@heroicons/react/24/outline";
 import { ArrowDownOnSquareStackIcon } from "@heroicons/react/20/solid";
 
-import { fileTypes, type ImageFile } from "@/types/index";
+import { FileType, fileTypes, type ImageFile } from "@/types/index";
 
 import Alert from "@/components/Alert";
 import Layout from "@/components/Layout";
@@ -167,7 +167,13 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 							<p className="mt-4 max-w-4xl text-sm text-gray-500">
 								Currently supported output formats:{" "}
 								<span className="text-blue-800">
-									{fileTypes.map((type) => type.name.toLowerCase()).join(" | ")}
+									{fileTypes
+										.filter(
+											(type) =>
+												type.id !== FileType.heic && type.id !== FileType.heif
+										)
+										.map((type) => type.name.toLowerCase())
+										.join(" | ")}
 								</span>
 							</p>
 						</div>
