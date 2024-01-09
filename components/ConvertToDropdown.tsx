@@ -52,7 +52,7 @@ export default function ConvertToDropdown({
 									disabled={input.unavailable}
 									className={classNames(
 										input.unavailable
-											? "cursor-not-allowed text-gray-400"
+											? "cursor-not-allowed text-gray-200 bg-gray-50"
 											: "cursor-pointer hover:bg-blue-300 hover:text-white",
 										selectedInput.name === input.name
 											? "bg-blue-500 text-white"
