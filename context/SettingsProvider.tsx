@@ -5,7 +5,6 @@ import { FeatureDiscoveryItem } from "@/types/site-config";
 import siteConfig from "site.config";
 
 type Settings = {
-	fileInputId: string;
 	fileOutputId: string;
 	imageQuality: number;
 	fileTypes?: string[];
@@ -15,17 +14,12 @@ type SettingsContextProperties = {
 	settings: Settings | null;
 	selectedFeature: FeatureDiscoveryItem;
 	knownUploadedFileTypes: { [key: string]: string };
-	updateSettings: ({
-		fileInputId,
-		fileOutputId,
-		imageQuality,
-	}: Settings) => void;
+	updateSettings: ({ fileOutputId, imageQuality }: Settings) => void;
 	handleSelectFeature: (featureId: string) => void;
 	handleknownUploadedFileTypes: (fileExt: string) => void;
 };
 
 export const defaultSettings: Settings = {
-	fileInputId: FileType.heic,
 	fileOutputId: FileType.jpeg,
 	imageQuality: 70,
 	fileTypes: ["image/*", ".heif", ".heic"],
@@ -53,17 +47,11 @@ const SettingsProvider = ({ ...properties }: Properties) => {
 	/**
 	 * Handles changes regarding custom file settings.
 	 */
-	const updateSettings = ({
-		fileInputId,
-		fileOutputId,
-		imageQuality,
-	}: Settings) => {
-		localStorage.setItem(SettingsKeys.FILE_INPUT_TYPE, fileInputId);
+	const updateSettings = ({ fileOutputId, imageQuality }: Settings) => {
 		localStorage.setItem(SettingsKeys.FILE_OUTPUT_TYPE, fileOutputId);
 		localStorage.setItem(SettingsKeys.IMAGE_QUALITY, imageQuality.toString());
 
 		setSettings({
-			fileInputId: fileInputId,
 			fileOutputId: fileOutputId,
 			imageQuality: imageQuality,
 		});
@@ -102,13 +90,11 @@ const SettingsProvider = ({ ...properties }: Properties) => {
 
 	useEffect(() => {
 		if (!settings) {
-			const input = localStorage.getItem(SettingsKeys.FILE_INPUT_TYPE);
 			const output = localStorage.getItem(SettingsKeys.FILE_OUTPUT_TYPE);
 			const imageQuality = Number(
 				localStorage.getItem(SettingsKeys.IMAGE_QUALITY)
 			);
 			updateSettings({
-				fileInputId: input === null ? defaultSettings.fileInputId : input,
 				fileOutputId: output === null ? defaultSettings.fileOutputId : output,
 				imageQuality:
 					imageQuality === 0 ? defaultSettings.imageQuality : imageQuality,

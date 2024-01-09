@@ -8,12 +8,10 @@ import {
 	useSettingsContext,
 } from "@/context/SettingsProvider";
 import UppyDashboard from "./UppyDashboard";
-import SettingsModal from "./SettingsModal";
 import ConvertToDropdown from "./ConvertToDropdown";
 import ImageSlider from "./ImageSilder";
 
 import { FileType, Input, MaxFileSize, fileTypes } from "@/types/index";
-import { file } from "jszip";
 
 function FileUploader({
 	uppy,
@@ -28,7 +26,6 @@ function FileUploader({
 		knownUploadedFileTypes,
 		handleknownUploadedFileTypes,
 	} = useSettingsContext();
-	const [settingsModalOpen, setSettingsModalOpen] = useState(false);
 	const [selectedOutputType, setSelectedOutputType] = useState<Input>(
 		fileTypes[0]
 	);
@@ -94,11 +91,7 @@ function FileUploader({
 		setFilteredOutputTypes(newFileTypes);
 	}, [knownUploadedFileTypes]);
 
-	if (
-		!settings ||
-		settings.fileInputId === undefined ||
-		settings.imageQuality === undefined
-	) {
+	if (!settings || settings.imageQuality === undefined) {
 		return <div>Loading...</div>;
 	}
 
