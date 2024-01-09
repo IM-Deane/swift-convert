@@ -12,7 +12,8 @@ import SettingsModal from "./SettingsModal";
 import ConvertToDropdown from "./ConvertToDropdown";
 import ImageSlider from "./ImageSilder";
 
-import { Input, MaxFileSize, fileTypes } from "@/types/index";
+import { FileType, Input, MaxFileSize, fileTypes } from "@/types/index";
+import { file } from "jszip";
 
 function FileUploader({
 	uppy,
@@ -71,18 +72,22 @@ function FileUploader({
 	}, [filteredOutputTypes, selectedOutputType]);
 
 	useEffect(() => {
-		setFilteredOutputTypes(
-			fileTypes.map((fileType) => {
-				if (knownUploadedFileTypes[fileType.id]) {
-					return {
-						...fileType,
-						unavailable: true,
-					};
-				} else {
-					return fileType;
-				}
-			})
-		);
+		const newFileTypes = fileTypes.reduce((acc, fileType) => {
+			if (knownUploadedFileTypes[fileType.id]) {
+				acc.push({
+					...fileType,
+					unavailable: true,
+				});
+			} else if (
+				fileType.id !== FileType.heic &&
+				fileType.id !== FileType.heif
+			) {
+				acc.push(fileType);
+			}
+			return acc;
+		}, []);
+
+		setFilteredOutputTypes(newFileTypes);
 	}, [knownUploadedFileTypes]);
 
 	if (

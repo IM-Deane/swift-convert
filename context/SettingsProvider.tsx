@@ -110,7 +110,8 @@ const SettingsProvider = ({ ...properties }: Properties) => {
 			updateSettings({
 				fileInputId: input === null ? defaultSettings.fileInputId : input,
 				fileOutputId: output === null ? defaultSettings.fileOutputId : output,
-				imageQuality: imageQuality === 0 ? 85 : imageQuality,
+				imageQuality:
+					imageQuality === 0 ? defaultSettings.imageQuality : imageQuality,
 			});
 		}
 	}, [settings]);

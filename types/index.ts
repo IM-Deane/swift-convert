@@ -29,6 +29,7 @@ export const fileTypes: Input[] = [
 	{ id: "jpeg", name: ".JPEG", unavailable: false },
 	{ id: "png", name: ".PNG", unavailable: false },
 	{ id: "heic", name: ".HEIC", unavailable: false },
+	{ id: "heif", name: ".HEIF", unavailable: false },
 	{ id: "jpg", name: ".JPG", unavailable: false },
 	{ id: "webp", name: ".WEBP", unavailable: false },
 ];
