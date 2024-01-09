@@ -47,11 +47,7 @@ export default function App({
 		};
 	}, [router.events]);
 
-	if (
-		!settings ||
-		settings.fileInputId === undefined ||
-		settings.imageQuality === undefined
-	) {
+	if (!settings || settings.imageQuality === undefined) {
 		return <div>Loading...</div>;
 	}
 
