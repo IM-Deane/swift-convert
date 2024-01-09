@@ -192,11 +192,11 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 												isDownloadDisabled
 													? "cursor-not-allowed bg-gray-200"
 													: "cursor-pointer bg-blue-700 hover:bg-blue-800 focus:ring-4 flex-1 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-											} text-white font-medium rounded-lg inline-flex items-center text-sm px-5 py-2.5 text-center`}
+											} text-white font-medium rounded-lg inline-flex max-w-36 items-center text-sm px-5 py-2.5 text-center`}
 										>
 											Download{" "}
 											<span className="inline ml-1 md:hidden lg:inline">
-												photos
+												all
 											</span>
 											<span>
 												<ArrowDownOnSquareStackIcon

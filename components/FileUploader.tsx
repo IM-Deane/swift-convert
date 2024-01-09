@@ -100,7 +100,7 @@ function FileUploader({
 					<div className="space-y-6 bg-white px-4 py-3 sm:p-6">
 						<div className="bg-gray-50 px-0 py-5 mb-8 sm:px-6">
 							<div className="w-full flex flex-col md:flex-row md:items-center justify-center md:justify-between mt-4 lg:mt-auto">
-								<div className="w-full flex flex-col space-between lg:flex-row md:items-end md:justify-around space-y-4 md:space-y-0 md:space-x-2 mt-4 md:my-auto">
+								<div className="w-full flex flex-col items-start md:items-center md:flex-row md:justify-around space-y-4 md:space-y-0 md:space-x-2 mt-4 md:my-auto">
 									<ConvertToDropdown
 										inputList={filteredOutputTypes}
 										selectedInput={selectedOutputType}
@@ -110,7 +110,6 @@ function FileUploader({
 								</div>
 							</div>
 						</div>
-
 						<UppyDashboard
 							uppy={uppy}
 							onUpload={onUpload}
@@ -132,10 +131,6 @@ function FileUploader({
 					</p>
 				</div>
 			</div>
-			<SettingsModal
-				isOpen={settingsModalOpen}
-				setIsOpen={setSettingsModalOpen}
-			/>
 		</div>
 	);
 }
