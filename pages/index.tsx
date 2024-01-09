@@ -6,6 +6,7 @@ import type Uppy from "@uppy/core";
 
 import siteConfig from "site.config";
 import { XMarkIcon, PaperAirplaneIcon } from "@heroicons/react/24/outline";
+import { ArrowDownOnSquareStackIcon } from "@heroicons/react/20/solid";
 
 import { fileTypes, type ImageFile } from "@/types/index";
 
@@ -25,13 +26,18 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 	const [isDownloadDisabled, setIsDownloadDisabled] = useState<boolean>(true);
 	const [showWaitListModal, setShowWaitListModal] = useState<boolean>(false);
 
-	const { settings, selectedFeature, handleSelectFeature } =
-		useSettingsContext();
+	const {
+		settings,
+		selectedFeature,
+		handleSelectFeature,
+		handleknownUploadedFileTypes,
+	} = useSettingsContext();
 
 	const resetFileData = () => {
 		setCurrentFile(null);
 		setImageResults([]);
 		setIsDownloadDisabled(true);
+		handleknownUploadedFileTypes(null);
 		uppy.cancelAll({ reason: "user" });
 	};
 
@@ -170,15 +176,46 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 							aria-labelledby="main-heading"
 						>
 							<div className="flex-auto w-48">
-								<FileUploader
-									uppy={uppy}
-									onUpload={handleFileUpload}
-									resetFileData={resetFileData}
-									isDownloadDisabled={isDownloadDisabled}
-									handleDownloadPhotos={handleDownloadPhotos}
-								/>
+								<FileUploader uppy={uppy} onUpload={handleFileUpload} />
 							</div>
 							<div className="flex-1 mt-8 md:mt-0 p-4">
+								<div className="border-b border-gray-200 pb-5 mb-8 sm:flex sm:items-center sm:justify-between">
+									<h2 className="text-base font-semibold leading-5 text-gray-900">
+										Converted Images
+									</h2>
+									<div className="mt-3 flex sm:ml-4 sm:mt-0">
+										<button
+											type="button"
+											disabled={isDownloadDisabled}
+											onClick={handleDownloadPhotos}
+											className={`${
+												isDownloadDisabled
+													? "cursor-not-allowed bg-gray-200"
+													: "cursor-pointer bg-blue-700 hover:bg-blue-800 focus:ring-4 flex-1 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+											} text-white font-medium rounded-lg inline-flex items-center text-sm px-5 py-2.5 text-center`}
+										>
+											Download{" "}
+											<span className="hidden md:inline ml-1">photos</span>
+											<span>
+												<ArrowDownOnSquareStackIcon
+													className="h-5 w-5 ml-2"
+													aria-hidden="true"
+												/>
+											</span>
+										</button>
+										<button
+											type="button"
+											onClick={resetFileData}
+											className={`${
+												!isDownloadDisabled
+													? "cursor-pointer bg-white hover:bg-gray-200"
+													: "text-white cursor-not-allowed bg-gray-200"
+											} rounded-lg inline-flex items-center ml-3 px-2 py-2.5 text-sm font-medium text-gray-800 shadow-sm ring-1 ring-inset ring-gray-300`}
+										>
+											Reset
+										</button>
+									</div>
+								</div>
 								<ImageGallery
 									imageFiles={imageResults}
 									setCurrentFile={updateCurrentFile}

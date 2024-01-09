@@ -2,8 +2,6 @@ import React, { useEffect, useState } from "react";
 
 import type Uppy from "@uppy/core";
 
-import { ArrowDownOnSquareStackIcon } from "@heroicons/react/20/solid";
-
 import { useSettingsContext } from "@/context/SettingsProvider";
 import UppyDashboard from "./UppyDashboard";
 import SettingsModal from "./SettingsModal";
@@ -15,38 +13,19 @@ import prettyBytes from "pretty-bytes";
 function FileUploader({
 	uppy,
 	onUpload,
-	resetFileData,
-	isDownloadDisabled,
-	handleDownloadPhotos,
 }: {
 	uppy: Uppy;
-	isDownloadDisabled: boolean;
 	onUpload: (imageData, elapsedTime) => void;
-	handleDownloadPhotos: () => void;
-	resetFileData: () => void;
 }) {
 	const [settingsModalOpen, setSettingsModalOpen] = useState(false);
 	const [selectedOutputType, setSelectedOutputType] = useState<Input>(
 		fileTypes[0]
 	);
-	const [knownUploadedFileTypes, setKnownUploadedFileTypes] = useState<any>({});
+
 	const [filteredOutputTypes, setFilteredOutputTypes] = useState<Input[]>([]);
 
-	const { settings } = useSettingsContext();
-
-	const handleknownUploadedFileTypes = (fileExt: string) => {
-		if (!knownUploadedFileTypes[fileExt]) {
-			setKnownUploadedFileTypes({
-				...knownUploadedFileTypes,
-				[fileExt]: `.${fileExt}`,
-			});
-		}
-	};
-
-	const handleResetFileData = () => {
-		resetFileData();
-		setKnownUploadedFileTypes({});
-	};
+	const { settings, knownUploadedFileTypes, handleknownUploadedFileTypes } =
+		useSettingsContext();
 
 	useEffect(() => {
 		setFilteredOutputTypes(
@@ -84,36 +63,6 @@ function FileUploader({
 										selectedInput={selectedOutputType}
 										handleSelectedInput={setSelectedOutputType}
 									/>
-									<button
-										type="button"
-										disabled={isDownloadDisabled}
-										onClick={handleDownloadPhotos}
-										className={`text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center ${
-											isDownloadDisabled
-												? "cursor-not-allowed bg-gray-200"
-												: "cursor-pointer bg-blue-700 hover:bg-blue-800 focus:ring-4 flex-1 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-										}`}
-									>
-										Download{" "}
-										<span className="hidden md:inline ml-1">photos</span>
-										<span>
-											<ArrowDownOnSquareStackIcon
-												className="h-5 w-5 ml-2"
-												aria-hidden="true"
-											/>
-										</span>
-									</button>
-									<button
-										type="button"
-										onClick={handleResetFileData}
-										className={`${
-											!isDownloadDisabled
-												? "cursor-pointer bg-white hover:bg-gray-200"
-												: "text-white cursor-not-allowed bg-gray-200"
-										} rounded-lg flex-initial ml-3 px-2 py-2.5 text-sm font-medium text-gray-800 shadow-sm ring-1 ring-inset ring-gray-300`}
-									>
-										Clear <span className="hidden md:inline">photos</span>
-									</button>
 								</div>
 							</div>
 						</div>

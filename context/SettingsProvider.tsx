@@ -13,12 +13,14 @@ type Settings = {
 type SettingsContextProperties = {
 	settings: Settings | null;
 	selectedFeature: FeatureDiscoveryItem;
+	knownUploadedFileTypes: { [key: string]: string };
 	updateSettings: ({
 		fileInputId,
 		fileOutputId,
 		imageQuality,
 	}: Settings) => void;
 	handleSelectFeature: (featureId: string) => void;
+	handleknownUploadedFileTypes: (fileExt: string) => void;
 };
 
 const defaultSettings: Settings = {
@@ -30,8 +32,10 @@ const defaultSettings: Settings = {
 const SettingsContext = createContext<SettingsContextProperties>({
 	settings: defaultSettings,
 	selectedFeature: null,
+	knownUploadedFileTypes: {},
 	updateSettings: () => undefined,
 	handleSelectFeature: () => undefined,
+	handleknownUploadedFileTypes: () => undefined,
 });
 
 interface Properties {
@@ -42,6 +46,7 @@ const SettingsProvider = ({ ...properties }: Properties) => {
 	const [settings, setSettings] = useState<Settings>(null);
 	const [selectedFeature, setSelectedFeature] =
 		useState<FeatureDiscoveryItem>(null);
+	const [knownUploadedFileTypes, setKnownUploadedFileTypes] = useState<any>({});
 
 	/**
 	 * Handles changes regarding custom file settings.
@@ -73,11 +78,24 @@ const SettingsProvider = ({ ...properties }: Properties) => {
 		}
 	};
 
+	const handleknownUploadedFileTypes = (fileExt: string) => {
+		if (!fileExt) {
+			setKnownUploadedFileTypes({});
+		} else if (!knownUploadedFileTypes[fileExt]) {
+			setKnownUploadedFileTypes({
+				...knownUploadedFileTypes,
+				[fileExt]: `.${fileExt}`,
+			});
+		}
+	};
+
 	const returnValue = {
 		settings,
 		selectedFeature,
+		knownUploadedFileTypes,
 		updateSettings,
 		handleSelectFeature,
+		handleknownUploadedFileTypes,
 	};
 
 	useEffect(() => {
