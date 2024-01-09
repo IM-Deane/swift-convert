@@ -47,7 +47,7 @@ export default function App({
 		};
 	}, [router.events]);
 
-	if (!settings || settings.imageQuality === undefined) {
+	if (!settings) {
 		return <div>Loading...</div>;
 	}
 
