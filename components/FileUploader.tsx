@@ -6,6 +6,7 @@ import { useSettingsContext } from "@/context/SettingsProvider";
 import UppyDashboard from "./UppyDashboard";
 import SettingsModal from "./SettingsModal";
 import ConvertToDropdown from "./ConvertToDropdown";
+import ImageSlider from "./ImageSilder";
 
 import { Input, MaxFileSize, fileTypes } from "@/types/index";
 import prettyBytes from "pretty-bytes";
@@ -21,11 +22,15 @@ function FileUploader({
 	const [selectedOutputType, setSelectedOutputType] = useState<Input>(
 		fileTypes[0]
 	);
-
 	const [filteredOutputTypes, setFilteredOutputTypes] = useState<Input[]>([]);
+	const [selectedImageQuality, setSelectedImageQuality] = useState(30);
 
 	const { settings, knownUploadedFileTypes, handleknownUploadedFileTypes } =
 		useSettingsContext();
+
+	const handleImageQualityChange = (quality: number) => {
+		setSelectedImageQuality(quality);
+	};
 
 	useEffect(() => {
 		setFilteredOutputTypes(
@@ -57,12 +62,13 @@ function FileUploader({
 					<div className="space-y-6 bg-white px-4 py-3 sm:p-6">
 						<div className="bg-gray-50 px-0 py-5 mb-8 sm:px-6">
 							<div className="w-full flex flex-col md:flex-row md:items-center justify-center md:justify-between mt-4 lg:mt-auto">
-								<div className="mt-4 md:my-auto flex-inline space-x-2">
+								<div className="w-full flex flex-col items-end justify-around md:flex-row space-y-4 md:space-y-0 md:space-x-2 mt-4 md:my-auto">
 									<ConvertToDropdown
 										inputList={filteredOutputTypes}
 										selectedInput={selectedOutputType}
 										handleSelectedInput={setSelectedOutputType}
 									/>
+									<ImageSlider onQualityChange={handleImageQualityChange} />
 								</div>
 							</div>
 						</div>
@@ -78,7 +84,7 @@ function FileUploader({
 							}}
 							conversionParams={{
 								convertToFormat: selectedOutputType.id as string,
-								imageQuality: settings.imageQuality,
+								imageQuality: selectedImageQuality,
 							}}
 						/>
 					</div>
