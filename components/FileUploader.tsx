@@ -73,7 +73,11 @@ function FileUploader({
 
 	useEffect(() => {
 		const newFileTypes = fileTypes.reduce((acc, fileType) => {
-			if (knownUploadedFileTypes[fileType.id]) {
+			if (
+				fileType.id !== FileType.heic &&
+				fileType.id !== FileType.heif &&
+				knownUploadedFileTypes[fileType.id]
+			) {
 				acc.push({
 					...fileType,
 					unavailable: true,
@@ -122,7 +126,8 @@ function FileUploader({
 							restrictions={{
 								maxTotalFileSize: MaxFileSize.free,
 								maxNumberOfFiles: 5,
-								allowedFileTypes: allowedFileTypes,
+								// TODO: hardcode heic/heic until backend supports outputting to these formats
+								allowedFileTypes: [...allowedFileTypes, ".heic", ".heif"],
 							}}
 							conversionParams={{
 								convertToFormat: selectedOutputType.id as string,
