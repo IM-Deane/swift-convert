@@ -8,30 +8,36 @@ type Settings = {
 	fileInputId: string;
 	fileOutputId: string;
 	imageQuality: number;
+	fileTypes?: string[];
 };
 
 type SettingsContextProperties = {
 	settings: Settings | null;
 	selectedFeature: FeatureDiscoveryItem;
+	knownUploadedFileTypes: { [key: string]: string };
 	updateSettings: ({
 		fileInputId,
 		fileOutputId,
 		imageQuality,
 	}: Settings) => void;
 	handleSelectFeature: (featureId: string) => void;
+	handleknownUploadedFileTypes: (fileExt: string) => void;
 };
 
-const defaultSettings: Settings = {
+export const defaultSettings: Settings = {
 	fileInputId: FileType.heic,
 	fileOutputId: FileType.jpeg,
-	imageQuality: 85,
+	imageQuality: 70,
+	fileTypes: ["image/*", ".heif", ".heic"],
 };
 
 const SettingsContext = createContext<SettingsContextProperties>({
 	settings: defaultSettings,
 	selectedFeature: null,
+	knownUploadedFileTypes: {},
 	updateSettings: () => undefined,
 	handleSelectFeature: () => undefined,
+	handleknownUploadedFileTypes: () => undefined,
 });
 
 interface Properties {
@@ -42,6 +48,7 @@ const SettingsProvider = ({ ...properties }: Properties) => {
 	const [settings, setSettings] = useState<Settings>(null);
 	const [selectedFeature, setSelectedFeature] =
 		useState<FeatureDiscoveryItem>(null);
+	const [knownUploadedFileTypes, setKnownUploadedFileTypes] = useState<any>({});
 
 	/**
 	 * Handles changes regarding custom file settings.
@@ -73,11 +80,24 @@ const SettingsProvider = ({ ...properties }: Properties) => {
 		}
 	};
 
+	const handleknownUploadedFileTypes = (fileExt: string) => {
+		if (!fileExt) {
+			setKnownUploadedFileTypes({});
+		} else if (!knownUploadedFileTypes[fileExt]) {
+			setKnownUploadedFileTypes({
+				...knownUploadedFileTypes,
+				[fileExt]: `.${fileExt}`,
+			});
+		}
+	};
+
 	const returnValue = {
 		settings,
 		selectedFeature,
+		knownUploadedFileTypes,
 		updateSettings,
 		handleSelectFeature,
+		handleknownUploadedFileTypes,
 	};
 
 	useEffect(() => {
@@ -90,7 +110,8 @@ const SettingsProvider = ({ ...properties }: Properties) => {
 			updateSettings({
 				fileInputId: input === null ? defaultSettings.fileInputId : input,
 				fileOutputId: output === null ? defaultSettings.fileOutputId : output,
-				imageQuality: imageQuality === 0 ? 85 : imageQuality,
+				imageQuality:
+					imageQuality === 0 ? defaultSettings.imageQuality : imageQuality,
 			});
 		}
 	}, [settings]);

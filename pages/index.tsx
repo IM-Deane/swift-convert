@@ -6,8 +6,9 @@ import type Uppy from "@uppy/core";
 
 import siteConfig from "site.config";
 import { XMarkIcon, PaperAirplaneIcon } from "@heroicons/react/24/outline";
+import { ArrowDownOnSquareStackIcon } from "@heroicons/react/20/solid";
 
-import type { ImageFile } from "@/types/index";
+import { FileType, fileTypes, type ImageFile } from "@/types/index";
 
 import Alert from "@/components/Alert";
 import Layout from "@/components/Layout";
@@ -25,13 +26,19 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 	const [isDownloadDisabled, setIsDownloadDisabled] = useState<boolean>(true);
 	const [showWaitListModal, setShowWaitListModal] = useState<boolean>(false);
 
-	const { settings, selectedFeature, handleSelectFeature } =
-		useSettingsContext();
+	const {
+		settings,
+		selectedFeature,
+		handleSelectFeature,
+		handleknownUploadedFileTypes,
+	} = useSettingsContext();
 
 	const resetFileData = () => {
 		setCurrentFile(null);
 		setImageResults([]);
 		setIsDownloadDisabled(true);
+		handleknownUploadedFileTypes(null);
+		uppy.cancelAll({ reason: "user" });
 	};
 
 	const updateCurrentFile = (file: ImageFile | null) => {
@@ -154,31 +161,74 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 								{siteConfig.slogan}
 							</h1>
 							<p className="mt-2 max-w-4xl text-sm text-gray-500">
-								Convert your HEIC photos in seconds with SwiftConvert - the fast
-								and free online tool.
+								Convert your photos in seconds with SwiftConvert - the fast and
+								flawless online photo editor.
 							</p>
 							<p className="mt-4 max-w-4xl text-sm text-gray-500">
 								Currently supported output formats:{" "}
-								<span className="text-blue-800">.png | .jpeg</span>
+								<span className="text-blue-800">
+									{fileTypes
+										.filter(
+											(type) =>
+												type.id !== FileType.heic && type.id !== FileType.heif
+										)
+										.map((type) => type.name.toLowerCase())
+										.join(" | ")}
+								</span>
 							</p>
 						</div>
 						<section
-							className="mt-2 pb-12 overflow-y-auto"
+							className="flex flex-col md:flex-row space-x-4 mt-2 pb-12"
 							aria-labelledby="main-heading"
 						>
-							<section className="mt-8 pb-16">
+							<div className="flex-auto lg:w-48 order-last md:order-first">
+								<FileUploader uppy={uppy} onUpload={handleFileUpload} />
+							</div>
+							<div className="flex-1 mt-8 md:mt-0 p-4">
+								<div className="border-b border-gray-200 pb-5 mb-8 sm:flex sm:items-center sm:justify-between">
+									<h2 className="text-base font-semibold leading-5 text-gray-900">
+										Results
+									</h2>
+									<div className="mt-3 flex sm:ml-4 sm:mt-0">
+										<button
+											type="button"
+											disabled={isDownloadDisabled}
+											onClick={handleDownloadPhotos}
+											className={`${
+												isDownloadDisabled
+													? "cursor-not-allowed bg-gray-200"
+													: "cursor-pointer bg-blue-700 hover:bg-blue-800 focus:ring-4 flex-1 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+											} text-white font-medium rounded-lg inline-flex max-w-36 items-center text-sm px-5 py-2.5 text-center`}
+										>
+											Download{" "}
+											<span className="inline ml-1 md:hidden lg:inline">
+												all
+											</span>
+											<span>
+												<ArrowDownOnSquareStackIcon
+													className="h-5 w-5 ml-2"
+													aria-hidden="true"
+												/>
+											</span>
+										</button>
+										<button
+											type="button"
+											onClick={resetFileData}
+											className={`${
+												!isDownloadDisabled
+													? "cursor-pointer bg-white hover:bg-gray-200"
+													: "text-white cursor-not-allowed bg-gray-200"
+											} rounded-lg inline-flex items-center ml-3 px-2 py-2.5 text-sm font-medium text-gray-800 shadow-sm ring-1 ring-inset ring-gray-300`}
+										>
+											Reset
+										</button>
+									</div>
+								</div>
 								<ImageGallery
 									imageFiles={imageResults}
 									setCurrentFile={updateCurrentFile}
 								/>
-							</section>
-							<FileUploader
-								uppy={uppy}
-								onUpload={handleFileUpload}
-								resetFileData={resetFileData}
-								isDownloadDisabled={isDownloadDisabled}
-								handleDownloadPhotos={handleDownloadPhotos}
-							/>
+							</div>
 						</section>
 					</div>
 				</main>

@@ -2,9 +2,8 @@ import Uppy from "@uppy/core";
 import Tus from "@uppy/tus";
 import { Dashboard } from "@uppy/react";
 import { useEffect } from "react";
-import prettyBytes from "pretty-bytes";
 
-import { MaxFileSize } from "../types";
+import { FileType } from "../types";
 import { getServerUrl } from "../utils";
 
 import "@uppy/core/dist/style.min.css";
@@ -25,6 +24,7 @@ export function createUppyWithTusUploader(restrictions) {
 interface DashboardProps {
 	uppy: Uppy;
 	onUpload: (imageData, elapsedTime) => void;
+	updateKnownUploadedFileTypes: (fileExt: string) => void;
 	conversionParams?: {
 		convertToFormat?: string;
 		imageQuality?: number;
@@ -40,11 +40,33 @@ interface DashboardProps {
 export default function UppyDashboard({
 	uppy,
 	onUpload,
+	updateKnownUploadedFileTypes,
 	restrictions,
 	conversionParams,
 }: DashboardProps): JSX.Element {
 	useEffect(() => {
 		uppy.setOptions({ restrictions: { ...restrictions } });
+
+		uppy.on("files-added", (files) => {
+			files.forEach((file) => {
+				const fileExt = file.extension.toLowerCase();
+
+				if (!Object.values(FileType).includes(fileExt as any)) {
+					console.log("Invalid file type", fileExt);
+					uppy.info(
+						{
+							message: "Error: Unsupported file type",
+							details: `${file.name} couldn’t be uploaded because it’s not a supported file type`,
+						},
+						"error",
+						5000
+					);
+					uppy.removeFile(file.id);
+					return;
+				}
+				updateKnownUploadedFileTypes(fileExt);
+			});
+		});
 
 		uppy.on("upload-success", async (file, response) => {
 			const serverUrl = getServerUrl();
@@ -75,7 +97,34 @@ export default function UppyDashboard({
 				"uppy-DashboardContent-title"
 			)[0].textContent = "Conversion complete";
 		});
-	}, [uppy, restrictions, conversionParams, onUpload]);
+
+		// hack to change the z-index of the uppy header dashboard
+		const handleMutations = (mutations, observer) => {
+			for (const mutation of mutations) {
+				if (mutation.addedNodes.length) {
+					const uppyContentBar = document.querySelector(
+						"div.uppy-DashboardContent-bar"
+					) as HTMLElement;
+					if (uppyContentBar) {
+						uppyContentBar.style.zIndex = "10";
+						observer.disconnect(); // Stop observing after the element is found
+						break;
+					}
+				}
+			}
+		};
+		const observer = new MutationObserver(handleMutations);
+		const config = { childList: true, subtree: true };
+		observer.observe(document.body, config);
+
+		return () => observer.disconnect();
+	}, [
+		uppy,
+		restrictions,
+		updateKnownUploadedFileTypes,
+		conversionParams,
+		onUpload,
+	]);
 
 	return (
 		<Dashboard
@@ -83,9 +132,7 @@ export default function UppyDashboard({
 			uppy={uppy}
 			theme="light"
 			width="100%"
-			note={`Each image size should be a maximum of ${prettyBytes(
-				MaxFileSize.free
-			)}`}
+			height="420px"
 			showProgressDetails={true}
 			proudlyDisplayPoweredByUppy={false}
 			locale={{
@@ -100,6 +147,8 @@ export default function UppyDashboard({
  * @more https://uppy.io/docs/status-bar/#locale
  */
 function getUppyStatusBarProps() {
+	const isDeviceWidthSmall = window.innerWidth < 640;
+
 	return {
 		// Shown in the status bar while files are being uploaded.
 		uploading: "Converting",
@@ -128,8 +177,12 @@ function getUppyStatusBarProps() {
 		},
 		// Text to show on the droppable area.
 		// `%{browse}` is replaced with a link that opens the system file selection dialog.
-		dropPasteFiles: "Drag and drop photos here or %{browseFiles}",
+		dropPasteFiles: `${
+			isDeviceWidthSmall
+				? "%{browseFiles}"
+				: "Drag and drop photos here or %{browseFiles}"
+		}`,
 		// Used as the label for the link that opens the system file selection dialog.
-		browseFiles: "upload from device",
+		browseFiles: `${isDeviceWidthSmall ? "Upload" : "upload"} from device`,
 	};
 }

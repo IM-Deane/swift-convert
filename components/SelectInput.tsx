@@ -5,7 +5,7 @@ import { classNames } from "@/utils/index";
 import { Input } from "@/types/index";
 
 interface SelectInputProps {
-	inputLabel: string;
+	inputLabel?: string;
 	inputList: Input[];
 	selectedInput: Input;
 	isDisabled?: boolean;
@@ -13,7 +13,7 @@ interface SelectInputProps {
 }
 
 export default function SelectInput({
-	inputLabel,
+	inputLabel = "",
 	inputList,
 	selectedInput,
 	isDisabled = false,

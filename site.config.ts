@@ -12,9 +12,9 @@ export default siteConfig({
 	developer: "Alchemized Software Ltd.",
 	contactEmail: "hello@alchemizedsoftware.com",
 
-	slogan: "SwiftConvert: Free, fast, and flawless HEIC conversions",
+	slogan: "SwiftConvert: Fast, and flawless photo conversions",
 	description:
-		"SwiftConvert is the free and fast solution for converting HEIC photos without sacrificing quality. Our tool ensures flawless and lightning-speed conversions, so you can easily share your photos without any hassle. Try SwiftConvert today and experience the convenience of hassle-free photo conversions.",
+		"SwiftConvert is the best solution for converting photos without sacrificing quality. Our tool ensures flawless and lightning-speed conversions, so you can easily share your photos without any hassle. Try SwiftConvert today and experience the convenience of hassle-free photo conversions.",
 
 	mainNavTabs: [{ name: "Photos", href: "/", icon: PhotoIcon, current: true }],
 	redirectUrls: {
