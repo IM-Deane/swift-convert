@@ -19,8 +19,6 @@ export default function ConvertToDropdown({
 	isDisabled = false,
 	handleSelectedInput,
 }: SelectInputProps) {
-	console.log("inputList", inputList);
-	console.log("selectedInput", selectedInput);
 	return (
 		<Menu as="div" className="relative inline-block text-left w-48">
 			<div className="flex items-center space-x-2 max-w-32">
