@@ -11,6 +11,8 @@ import ImageSlider from "./ImageSilder";
 import { Input, MaxFileSize, fileTypes } from "@/types/index";
 import prettyBytes from "pretty-bytes";
 
+const DEFAULT_FILE_TYPES = ["image/*", ".heif", ".heic"];
+
 function FileUploader({
 	uppy,
 	onUpload,
@@ -24,6 +26,7 @@ function FileUploader({
 	);
 	const [filteredOutputTypes, setFilteredOutputTypes] = useState<Input[]>([]);
 	const [selectedImageQuality, setSelectedImageQuality] = useState(30);
+	const [allowedFileTypes, setAllowedFileTypes] = useState(DEFAULT_FILE_TYPES);
 
 	const { settings, knownUploadedFileTypes, handleknownUploadedFileTypes } =
 		useSettingsContext();
@@ -31,6 +34,18 @@ function FileUploader({
 	const handleImageQualityChange = (quality: number) => {
 		setSelectedImageQuality(quality);
 	};
+
+	useEffect(() => {
+		const newFileTypes = filteredOutputTypes.reduce((acc, { name }) => {
+			const lowerCaseName = name.toLowerCase();
+			if (lowerCaseName !== selectedOutputType.name.toLowerCase()) {
+				acc.push(lowerCaseName);
+			}
+			return acc;
+		}, []);
+
+		setAllowedFileTypes(newFileTypes);
+	}, [filteredOutputTypes, selectedOutputType]);
 
 	useEffect(() => {
 		setFilteredOutputTypes(
@@ -79,8 +94,8 @@ function FileUploader({
 							updateKnownUploadedFileTypes={handleknownUploadedFileTypes}
 							restrictions={{
 								maxTotalFileSize: MaxFileSize.free,
-								maxNumberOfFiles: 10,
-								allowedFileTypes: ["image/*", ".heif", ".heic"],
+								maxNumberOfFiles: 5,
+								allowedFileTypes: allowedFileTypes,
 							}}
 							conversionParams={{
 								convertToFormat: selectedOutputType.id as string,

@@ -10,7 +10,7 @@ interface ImageSliderProps {
 }
 
 const ImageSlider: React.FC<ImageSliderProps> = ({ onQualityChange }) => {
-	const [selectedImageQuality, setSelectedImageQuality] = useState(30);
+	const [selectedImageQuality, setSelectedImageQuality] = useState<number>(75);
 
 	const { settings, updateSettings } = useSettingsContext();
 
