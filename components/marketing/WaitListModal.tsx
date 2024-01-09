@@ -1,7 +1,6 @@
 import { Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 
-import axios from "axios";
 import type { WaitListBodyContents } from "types/api";
 import { FeatureDiscoveryItem } from "@/types/site-config";
 import LoadingButton from "../LoadingButton";
@@ -44,7 +43,13 @@ export default function WaitListModal({
 		event.preventDefault();
 		setIsLoading(true);
 		try {
-			await axios.post("/api/waitlist", userData);
+			await fetch("/api/waitlist", {
+				method: "POST",
+				body: JSON.stringify(userData),
+				headers: {
+					"Content-Type": "application/json",
+				},
+			});
 			handleResult(true);
 			handleCloseModal();
 		} catch (error) {
