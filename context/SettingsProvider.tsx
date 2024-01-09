@@ -8,6 +8,7 @@ type Settings = {
 	fileInputId: string;
 	fileOutputId: string;
 	imageQuality: number;
+	fileTypes?: string[];
 };
 
 type SettingsContextProperties = {
@@ -23,10 +24,11 @@ type SettingsContextProperties = {
 	handleknownUploadedFileTypes: (fileExt: string) => void;
 };
 
-const defaultSettings: Settings = {
+export const defaultSettings: Settings = {
 	fileInputId: FileType.heic,
 	fileOutputId: FileType.jpeg,
-	imageQuality: 85,
+	imageQuality: 70,
+	fileTypes: ["image/*", ".heif", ".heic"],
 };
 
 const SettingsContext = createContext<SettingsContextProperties>({

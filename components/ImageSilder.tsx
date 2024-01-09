@@ -1,5 +1,9 @@
-import { useSettingsContext } from "@/context/SettingsProvider";
 import React, { useState } from "react";
+
+import {
+	useSettingsContext,
+	defaultSettings,
+} from "@/context/SettingsProvider";
 
 const MIN_QUALITY = 30;
 const MAX_QUALITY = 100;
@@ -10,9 +14,10 @@ interface ImageSliderProps {
 }
 
 const ImageSlider: React.FC<ImageSliderProps> = ({ onQualityChange }) => {
-	const [selectedImageQuality, setSelectedImageQuality] = useState<number>(70);
-
 	const { settings, updateSettings } = useSettingsContext();
+	const [selectedImageQuality, setSelectedImageQuality] = useState<number>(
+		settings.imageQuality || defaultSettings.imageQuality
+	);
 
 	const handleImageQualityChange = (
 		event: React.ChangeEvent<HTMLInputElement>

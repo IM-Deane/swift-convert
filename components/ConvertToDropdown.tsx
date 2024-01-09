@@ -24,7 +24,7 @@ export default function ConvertToDropdown({
 			<div className="flex items-center space-x-2 max-w-32">
 				<span className="flex-none text-sm">{inputLabel}</span>{" "}
 				<Menu.Button
-					className="inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-blue-50"
+					className="inline-flex w-full justify-center rounded-md bg-white px-3 py-2 uppercase text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-blue-50"
 					disabled={isDisabled}
 				>
 					{selectedInput ? selectedInput.name : inputLabel}
@@ -57,7 +57,7 @@ export default function ConvertToDropdown({
 										selectedInput.name === input.name
 											? "bg-blue-500 text-white"
 											: "text-gray-700",
-										"block w-full px-4 py-2 text-sm text-center"
+										"block w-full px-4 py-2 text-sm uppercase text-center"
 									)}
 									onClick={() => handleSelectedInput(input)}
 								>

@@ -1,5 +1,5 @@
 export interface Input {
-	id: string | number | FileType;
+	id: string;
 	name: string;
 	unavailable?: boolean;
 }

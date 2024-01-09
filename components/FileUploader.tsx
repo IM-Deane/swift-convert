@@ -1,17 +1,18 @@
 import React, { useEffect, useState } from "react";
 
 import type Uppy from "@uppy/core";
+import prettyBytes from "pretty-bytes";
 
-import { useSettingsContext } from "@/context/SettingsProvider";
+import {
+	defaultSettings,
+	useSettingsContext,
+} from "@/context/SettingsProvider";
 import UppyDashboard from "./UppyDashboard";
 import SettingsModal from "./SettingsModal";
 import ConvertToDropdown from "./ConvertToDropdown";
 import ImageSlider from "./ImageSilder";
 
 import { Input, MaxFileSize, fileTypes } from "@/types/index";
-import prettyBytes from "pretty-bytes";
-
-const DEFAULT_FILE_TYPES = ["image/*", ".heif", ".heic"];
 
 function FileUploader({
 	uppy,
@@ -20,20 +21,42 @@ function FileUploader({
 	uppy: Uppy;
 	onUpload: (imageData, elapsedTime) => void;
 }) {
+	const {
+		settings,
+		updateSettings,
+		knownUploadedFileTypes,
+		handleknownUploadedFileTypes,
+	} = useSettingsContext();
 	const [settingsModalOpen, setSettingsModalOpen] = useState(false);
 	const [selectedOutputType, setSelectedOutputType] = useState<Input>(
 		fileTypes[0]
 	);
 	const [filteredOutputTypes, setFilteredOutputTypes] = useState<Input[]>([]);
-	const [selectedImageQuality, setSelectedImageQuality] = useState(30);
-	const [allowedFileTypes, setAllowedFileTypes] = useState(DEFAULT_FILE_TYPES);
-
-	const { settings, knownUploadedFileTypes, handleknownUploadedFileTypes } =
-		useSettingsContext();
+	const [selectedImageQuality, setSelectedImageQuality] = useState(
+		settings?.imageQuality || defaultSettings.imageQuality
+	);
+	const [allowedFileTypes, setAllowedFileTypes] = useState(
+		defaultSettings.fileTypes
+	);
 
 	const handleImageQualityChange = (quality: number) => {
 		setSelectedImageQuality(quality);
 	};
+
+	const handleOutputTypeChange = (outputType: Input) => {
+		setSelectedOutputType(outputType);
+		updateSettings({ ...settings, fileOutputId: outputType.id });
+	};
+
+	useEffect(() => {
+		if (settings?.fileOutputId) {
+			setSelectedOutputType({
+				name: "." + settings.fileOutputId,
+				id: settings.fileOutputId,
+				unavailable: true,
+			});
+		}
+	}, [settings]);
 
 	useEffect(() => {
 		const newFileTypes = filteredOutputTypes.reduce((acc, { name }) => {
@@ -81,7 +104,7 @@ function FileUploader({
 									<ConvertToDropdown
 										inputList={filteredOutputTypes}
 										selectedInput={selectedOutputType}
-										handleSelectedInput={setSelectedOutputType}
+										handleSelectedInput={handleOutputTypeChange}
 									/>
 									<ImageSlider onQualityChange={handleImageQualityChange} />
 								</div>
