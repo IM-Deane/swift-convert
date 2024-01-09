@@ -7,7 +7,7 @@ import type Uppy from "@uppy/core";
 import siteConfig from "site.config";
 import { XMarkIcon, PaperAirplaneIcon } from "@heroicons/react/24/outline";
 
-import type { ImageFile } from "@/types/index";
+import { fileTypes, type ImageFile } from "@/types/index";
 
 import Alert from "@/components/Alert";
 import Layout from "@/components/Layout";
@@ -155,12 +155,14 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 								{siteConfig.slogan}
 							</h1>
 							<p className="mt-2 max-w-4xl text-sm text-gray-500">
-								Convert your HEIC photos in seconds with SwiftConvert - the fast
-								and free online tool.
+								Convert your photos in seconds with SwiftConvert - the fast and
+								free online tool.
 							</p>
 							<p className="mt-4 max-w-4xl text-sm text-gray-500">
 								Currently supported output formats:{" "}
-								<span className="text-blue-800">.png | .jpeg</span>
+								<span className="text-blue-800">
+									{fileTypes.map((type) => type.name.toLowerCase()).join(" | ")}
+								</span>
 							</p>
 						</div>
 						<section
