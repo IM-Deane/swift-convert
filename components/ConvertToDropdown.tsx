@@ -47,18 +47,15 @@ export default function ConvertToDropdown({
 				leaveTo="transform opacity-0 scale-95"
 			>
 				<Menu.Items className="absolute right-0 z-50 mt-2 w-56 origin-bottom-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-					<div className="py-1">
+					<div>
 						{inputList.map((input) => (
 							<Menu.Item key={input.id} disabled={input.unavailable}>
 								<button
 									disabled={input.unavailable}
 									className={classNames(
 										input.unavailable
-											? "cursor-not-allowed text-gray-200 bg-gray-50"
-											: "cursor-pointer hover:bg-blue-300 hover:text-white",
-										selectedInput.id === input.id
-											? "bg-blue-500 text-white"
-											: "text-gray-700",
+											? "cursor-not-allowed text-gray-500 bg-slate-700"
+											: "cursor-pointer text-white bg-slate-600 hover:bg-blue-500",
 										"block w-full px-4 py-2 text-sm uppercase text-center"
 									)}
 									onClick={() => handleSelectedInput(input)}
