@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { usePostHog } from "posthog-js/react";
 
 import type Uppy from "@uppy/core";
 import prettyBytes from "pretty-bytes";
@@ -22,6 +23,8 @@ function FileUploader({
 	uppy: Uppy;
 	onUpload: (imageData, elapsedTime) => void;
 }) {
+	const posthog = usePostHog();
+
 	const {
 		settings,
 		updateSettings,
@@ -40,12 +43,24 @@ function FileUploader({
 	);
 
 	const handleImageQualityChange = (quality: number) => {
+		const currentQuality = selectedImageQuality;
+
 		setSelectedImageQuality(quality);
+		posthog.capture("quality_changed", {
+			previousQuality: currentQuality,
+			newQuality: quality,
+		});
 	};
 
 	const handleOutputTypeChange = (outputType: Input) => {
+		const currentFileType = selectedOutputType.id;
+
 		setSelectedOutputType(outputType);
 		updateSettings({ ...settings, fileOutputId: outputType.id });
+		posthog.capture("output_format_changed", {
+			previousFormat: currentFileType,
+			newFormat: outputType.id,
+		});
 	};
 
 	useEffect(() => {
