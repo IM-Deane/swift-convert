@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Image from "next/image";
 
+import { usePostHog } from "posthog-js/react";
 import { toast } from "react-hot-toast";
 import type Uppy from "@uppy/core";
 
@@ -21,6 +22,8 @@ import { useSettingsContext } from "@/context/SettingsProvider";
 import { generateClientImage, compressAndSaveImages } from "@/utils/index";
 
 export default function Home({ uppy }: { uppy: Uppy }) {
+	const posthog = usePostHog();
+
 	const [currentFile, setCurrentFile] = useState<ImageFile>(null);
 	const [imageResults, setImageResults] = useState<ImageFile[]>([]);
 	const [isDownloadDisabled, setIsDownloadDisabled] = useState<boolean>(true);
@@ -39,6 +42,8 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 		setIsDownloadDisabled(true);
 		handleknownUploadedFileTypes(null);
 		uppy.cancelAll({ reason: "user" });
+
+		posthog.capture("reset_results");
 	};
 
 	const updateCurrentFile = (file: ImageFile | null) => {
@@ -48,6 +53,9 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 				current: false,
 			}));
 			setImageResults(resetImages);
+			posthog.capture("close_image_details", {
+				imageName: "none",
+			});
 		} else {
 			const newImageResults = imageResults.map((image) => {
 				if (image.name === file.name) {
@@ -62,6 +70,9 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 				};
 			});
 			setImageResults(newImageResults);
+			posthog.capture("view_image_details", {
+				imageName: file?.name,
+			});
 		}
 		setCurrentFile(file);
 	};
@@ -72,6 +83,11 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 		);
 		setImageResults(newImageResults);
 		setCurrentFile(null);
+
+		posthog.capture("delete_current_image", {
+			imageName: currentFile.name,
+		});
+
 		if (imageResults.length === 0) {
 			resetFileData();
 		}
@@ -118,6 +134,10 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 	const handleDownloadPhotos = async () => {
 		try {
 			await compressAndSaveImages(imageResults);
+
+			posthog.capture("download_all_images", {
+				imageCount: imageResults.length,
+			});
 		} catch (error) {
 			console.error(error);
 		}
@@ -126,6 +146,10 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 	const handleOpenWaitListModal = (featureId: string) => {
 		handleSelectFeature(featureId);
 		setShowWaitListModal(true);
+
+		posthog.capture("open_waitlist_modal", {
+			featureId,
+		});
 	};
 	const handleCloseWaitListModal = () => setShowWaitListModal(false);
 
@@ -139,6 +163,10 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 					message="Check your email to learn more."
 				/>
 			));
+
+			posthog.capture("waitlist_success", {
+				featureId: selectedFeature.id,
+			});
 		} else {
 			toast.custom(({ visible }) => (
 				<Alert
@@ -306,6 +334,11 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 								<a
 									type="button"
 									download={currentFile.name}
+									onClick={() =>
+										posthog.capture("download_current_image", {
+											imageName: currentFile.name,
+										})
+									}
 									href={currentFile.source}
 									title={currentFile.name}
 									className="flex-1 rounded-md bg-blue-600 px-3 py-2 text-sm text-center font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
