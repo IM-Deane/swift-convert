@@ -13,6 +13,8 @@ import ImageSlider from "./ImageSilder";
 
 import { FileType, Input, MaxFileSize, fileTypes } from "@/types/index";
 
+const MAX_FILE_SIZE = MaxFileSize.standard;
+
 function FileUploader({
 	uppy,
 	onUpload,
@@ -100,9 +102,12 @@ function FileUploader({
 			<div className="mt-5 md:col-span-2 md:mt-0">
 				<div className="shadow sm:rounded-md">
 					<div className="space-y-6 bg-white px-4 py-3 sm:p-6">
-						<div className="bg-gray-50 px-0 py-5 mb-8 sm:px-6">
+						<div className="bg-gray-50 px-3 py-5 mb-8 sm:px-6">
+							<h2 className="text-base font-semibold leading-6 text-gray-900 mb-4">
+								Output Settings
+							</h2>
 							<div className="w-full flex flex-col md:flex-row md:items-center justify-center md:justify-between mt-4 lg:mt-auto">
-								<div className="w-full flex flex-col items-start md:items-center md:flex-row md:justify-around space-y-4 md:space-y-0 md:space-x-2 mt-4 md:my-auto">
+								<div className="w-full flex flex-col items-start justify-around md:items-center md:flex-row md:justify-start space-y-4 md:space-y-0 md:space-x-2 mt-4 md:my-auto">
 									<ConvertToDropdown
 										inputList={filteredOutputTypes}
 										selectedInput={selectedOutputType}
@@ -117,7 +122,7 @@ function FileUploader({
 							onUpload={onUpload}
 							updateKnownUploadedFileTypes={handleknownUploadedFileTypes}
 							restrictions={{
-								maxTotalFileSize: MaxFileSize.free,
+								maxTotalFileSize: MAX_FILE_SIZE,
 								maxNumberOfFiles: 5,
 								// TODO: hardcode heic/heic until backend supports outputting to these formats
 								allowedFileTypes: [...allowedFileTypes, ".heic", ".heif"],
@@ -130,7 +135,7 @@ function FileUploader({
 					</div>
 					<p className="py-2 text-center text-sm text-grey-500 bg-white">
 						Total image upload size limited to max of{" "}
-						{prettyBytes(MaxFileSize.free)}
+						{prettyBytes(MAX_FILE_SIZE)}
 					</p>
 				</div>
 			</div>

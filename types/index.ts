@@ -12,8 +12,8 @@ export enum SettingsKeys {
 
 export enum MaxFileSize {
 	free = 5000000, // 5MB
-	standard = 1000000, // 10MB
-	pro = 2500000, // 25MB
+	standard = 10000000, // 10MB
+	pro = 25000000, // 25MB
 }
 
 export enum FileType {
