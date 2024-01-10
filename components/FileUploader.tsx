@@ -100,9 +100,12 @@ function FileUploader({
 			<div className="mt-5 md:col-span-2 md:mt-0">
 				<div className="shadow sm:rounded-md">
 					<div className="space-y-6 bg-white px-4 py-3 sm:p-6">
-						<div className="bg-gray-50 px-0 py-5 mb-8 sm:px-6">
+						<div className="bg-gray-50 px-3 py-5 mb-8 sm:px-6">
+							<h2 className="text-base font-semibold leading-6 text-gray-900 mb-4">
+								Output Settings
+							</h2>
 							<div className="w-full flex flex-col md:flex-row md:items-center justify-center md:justify-between mt-4 lg:mt-auto">
-								<div className="w-full flex flex-col items-start md:items-center md:flex-row md:justify-around space-y-4 md:space-y-0 md:space-x-2 mt-4 md:my-auto">
+								<div className="w-full flex flex-col items-start md:items-center md:flex-row justify-around space-y-4 md:space-y-0 md:space-x-2 mt-4 md:my-auto">
 									<ConvertToDropdown
 										inputList={filteredOutputTypes}
 										selectedInput={selectedOutputType}
@@ -117,8 +120,8 @@ function FileUploader({
 							onUpload={onUpload}
 							updateKnownUploadedFileTypes={handleknownUploadedFileTypes}
 							restrictions={{
-								maxTotalFileSize: MaxFileSize.free,
-								maxNumberOfFiles: 5,
+								// maxTotalFileSize: MaxFileSize.free,
+								// maxNumberOfFiles: 5,
 								// TODO: hardcode heic/heic until backend supports outputting to these formats
 								allowedFileTypes: [...allowedFileTypes, ".heic", ".heif"],
 							}}

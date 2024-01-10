@@ -52,7 +52,7 @@ const ImageSlider: React.FC<ImageSliderProps> = ({ onQualityChange }) => {
 				htmlFor="image-quality"
 				className="mb-2 text-sm font-medium text-gray-900"
 			>
-				Output quality
+				Image quality
 			</label>
 			<input
 				id="image-quality"
