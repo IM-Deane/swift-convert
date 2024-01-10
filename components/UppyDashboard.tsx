@@ -105,9 +105,28 @@ export default function UppyDashboard({
 					const uppyContentBar = document.querySelector(
 						"div.uppy-DashboardContent-bar"
 					) as HTMLElement;
+					const progressIndiactor = document.querySelector(
+						"div.uppy-Dashboard-Item-progressIndicator"
+					) as HTMLElement;
+					const progressIndicatorStatusBar = document.querySelector(
+						"div.uppy-Dashboard-progressindicators"
+					) as HTMLElement;
+
 					if (uppyContentBar) {
 						uppyContentBar.style.zIndex = "10";
-						observer.disconnect(); // Stop observing after the element is found
+						observer.disconnect();
+						break;
+					}
+
+					if (progressIndiactor) {
+						progressIndiactor.style.zIndex = "0";
+						observer.disconnect();
+						break;
+					}
+
+					if (progressIndicatorStatusBar) {
+						progressIndicatorStatusBar.style.zIndex = "0";
+						observer.disconnect();
 						break;
 					}
 				}
