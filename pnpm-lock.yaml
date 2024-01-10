@@ -92,6 +92,9 @@ dependencies:
   postcss:
     specifier: ^8.4.21
     version: 8.4.32
+  posthog-js:
+    specifier: ^1.97.1
+    version: 1.97.1
   pretty-bytes:
     specifier: ^6.1.1
     version: 6.1.1
@@ -3133,6 +3136,10 @@ packages:
       reusify: 1.0.4
     dev: false
 
+  /fflate@0.4.8:
+    resolution: {integrity: sha512-FJqqoDBR00Mdj9ppamLa/Y7vxm+PRmNWA67N846RvsoYVMKB4q3y/de5PA7gUmRMYK/8CMz2GDZQmCRN1wBcWA==}
+    dev: false
+
   /file-entry-cache@6.0.1:
     resolution: {integrity: sha512-7Gps/XWymbLk2QLYK4NzpMOrYjMhdIxXuIvy2QBsLE6ljuodKvdkWs/cpyJJ3CVIVpH0Oi1Hvg1ovbMzLdFBBg==}
     engines: {node: ^10.12.0 || >=12.0.0}
@@ -4427,6 +4434,12 @@ packages:
       nanoid: 3.3.7
       picocolors: 1.0.0
       source-map-js: 1.0.2
+    dev: false
+
+  /posthog-js@1.97.1:
+    resolution: {integrity: sha512-N5r7sm4EiSxBgFTZuReR7wvHgzK/UkPbIsy/nZuIexLD+oa94ZQFNY/i1o8utDNmXHFWVKv4rwFmzRmPZYc8Zw==}
+    dependencies:
+      fflate: 0.4.8
     dev: false
 
   /preact-render-to-string@5.2.6(preact@10.19.3):
