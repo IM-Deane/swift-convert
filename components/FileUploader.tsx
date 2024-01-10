@@ -13,6 +13,8 @@ import ImageSlider from "./ImageSilder";
 
 import { FileType, Input, MaxFileSize, fileTypes } from "@/types/index";
 
+const MAX_FILE_SIZE = MaxFileSize.standard;
+
 function FileUploader({
 	uppy,
 	onUpload,
@@ -120,7 +122,7 @@ function FileUploader({
 							onUpload={onUpload}
 							updateKnownUploadedFileTypes={handleknownUploadedFileTypes}
 							restrictions={{
-								maxTotalFileSize: MaxFileSize.free,
+								maxTotalFileSize: MAX_FILE_SIZE,
 								maxNumberOfFiles: 5,
 								// TODO: hardcode heic/heic until backend supports outputting to these formats
 								allowedFileTypes: [...allowedFileTypes, ".heic", ".heif"],
@@ -133,7 +135,7 @@ function FileUploader({
 					</div>
 					<p className="py-2 text-center text-sm text-grey-500 bg-white">
 						Total image upload size limited to max of{" "}
-						{prettyBytes(MaxFileSize.free)}
+						{prettyBytes(MAX_FILE_SIZE)}
 					</p>
 				</div>
 			</div>
