@@ -1,5 +1,6 @@
 import Uppy from "@uppy/core";
 import Tus from "@uppy/tus";
+import ImageEditor from "@uppy/image-editor";
 import { Dashboard } from "@uppy/react";
 import { useEffect } from "react";
 
@@ -8,15 +9,18 @@ import { getServerUrl } from "../utils";
 
 import "@uppy/core/dist/style.min.css";
 import "@uppy/dashboard/dist/style.min.css";
+import "@uppy/image-editor/dist/style.min.css";
 
 export function createUppyWithTusUploader(restrictions) {
 	const serverUrl = getServerUrl();
 
 	const uppy = new Uppy({
 		restrictions,
-	}).use(Tus, {
-		endpoint: `${serverUrl}/api/uploads`,
-	});
+	})
+		.use(Tus, {
+			endpoint: `${serverUrl}/api/uploads`,
+		})
+		.use(ImageEditor);
 
 	return uppy;
 }

@@ -47,6 +47,9 @@ dependencies:
   '@uppy/file-input':
     specifier: ^3.0.4
     version: 3.0.4(@uppy/core@3.8.0)
+  '@uppy/image-editor':
+    specifier: ^2.4.0
+    version: 2.4.0(@uppy/core@3.8.0)
   '@uppy/progress-bar':
     specifier: ^3.0.4
     version: 3.0.4(@uppy/core@3.8.0)
@@ -2042,6 +2045,17 @@ packages:
       preact: 10.19.3
     dev: false
 
+  /@uppy/image-editor@2.4.0(@uppy/core@3.8.0):
+    resolution: {integrity: sha512-X6isSLmtZEHhWgeK/juD1TG5D3Z0DdZ2AwdOZNGQQbznVL8y1bH10J9MVnnkmwYyWhsaUopE2tAcYCqZAVCZ+w==}
+    peerDependencies:
+      '@uppy/core': ^3.8.0
+    dependencies:
+      '@uppy/core': 3.8.0
+      '@uppy/utils': 5.7.0
+      cropperjs: 1.5.7
+      preact: 10.19.3
+    dev: false
+
   /@uppy/informer@3.0.4(@uppy/core@3.8.0):
     resolution: {integrity: sha512-gzocdxn8qAFsW2EryehwjghladaBgv6Isjte53FTBV7o/vjaHPP6huKGbYpljyuQi8i9V+KrmvNGslofssgJ4g==}
     peerDependencies:
@@ -2574,6 +2588,10 @@ packages:
 
   /core-util-is@1.0.3:
     resolution: {integrity: sha512-ZQBvi1DcpJ4GDqanjucZ2Hj3wEO5pZDS89BWbkcrvdxksJorwUDDZamX9ldFkp9aw2lmBDLgkObEA4DWNJ9FYQ==}
+    dev: false
+
+  /cropperjs@1.5.7:
+    resolution: {integrity: sha512-sGj+G/ofKh+f6A4BtXLJwtcKJgMUsXYVUubfTo9grERiDGXncttefmue/fyQFvn8wfdyoD1KhDRYLfjkJFl0yw==}
     dev: false
 
   /cross-spawn@7.0.3:
