@@ -185,14 +185,10 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 				<main className="flex-1 overflow-y-auto">
 					<div className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8">
 						<div className="border-b border-gray-200 pb-5">
-							<h1 className="text-base text-xl font-semibold leading-6 text-gray-900">
+							<h1 className="text-2xl font-semibold leading-6 text-gray-900">
 								{siteConfig.slogan}
 							</h1>
-							<p className="mt-2 max-w-4xl text-sm text-gray-500">
-								Convert your photos in seconds with SwiftConvert - the fast and
-								flawless online photo editor.
-							</p>
-							<p className="mt-4 max-w-4xl text-sm text-gray-500">
+							<p className="mt-4 max-w-4xl text-sm text-gray-800">
 								Currently supported output formats:{" "}
 								<span className="text-blue-800">
 									{fileTypes
