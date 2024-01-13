@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 
+import { usePostHog } from "posthog-js/react";
 import type Uppy from "@uppy/core";
 import prettyBytes from "pretty-bytes";
 
@@ -19,6 +20,7 @@ function FileUploader({ uppy }: { uppy: Uppy }) {
 		knownUploadedFileTypes,
 		handleknownUploadedFileTypes,
 	} = useSettingsContext();
+	const posthog = usePostHog();
 
 	const initialOutputType =
 		fileTypes.find((ft) => ft.id === settings.fileOutputId) || fileTypes[0];
@@ -26,8 +28,14 @@ function FileUploader({ uppy }: { uppy: Uppy }) {
 		useState<Input>(initialOutputType);
 
 	const handleOutputTypeChange = (outputType: Input) => {
+		const currentFileType = selectedOutputType.id;
+
 		setSelectedOutputType(outputType);
 		updateSettings({ ...settings, fileOutputId: outputType.id });
+		posthog.capture("output_format_changed", {
+			previousFormat: currentFileType,
+			newFormat: outputType.id,
+		});
 	};
 
 	const { computedFilteredOutputTypes, allowedFileTypes } = useMemo(() => {

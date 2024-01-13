@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 
+import { usePostHog } from "posthog-js/react";
 import { toast } from "react-hot-toast";
 import type Uppy from "@uppy/core";
 
@@ -25,6 +26,8 @@ import {
 import FileDetails from "@/components/FileDetails";
 
 export default function Home({ uppy }: { uppy: Uppy }) {
+	const posthog = usePostHog();
+
 	const [currentFile, setCurrentFile] = useState<ImageFile>(null);
 	const [imageResults, setImageResults] = useState<ImageFile[]>([]);
 	const [isDownloadDisabled, setIsDownloadDisabled] = useState<boolean>(true);
@@ -43,6 +46,8 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 		setIsDownloadDisabled(true);
 		handleknownUploadedFileTypes(null);
 		uppy.cancelAll({ reason: "user" });
+
+		posthog.capture("reset_results");
 	};
 
 	const updateCurrentFile = (file: ImageFile | null) => {
@@ -52,6 +57,9 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 				current: false,
 			}));
 			setImageResults(resetImages);
+			posthog.capture("close_image_details", {
+				imageName: "none",
+			});
 		} else {
 			const newImageResults = imageResults.map((image) => {
 				if (image.name === file.name) {
@@ -66,6 +74,9 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 				};
 			});
 			setImageResults(newImageResults);
+			posthog.capture("view_image_details", {
+				imageName: file?.name,
+			});
 		}
 		setCurrentFile(file);
 	};
@@ -76,6 +87,11 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 		);
 		setImageResults(newImageResults);
 		setCurrentFile(null);
+
+		posthog.capture("delete_current_image", {
+			imageName: currentFile.name,
+		});
+
 		if (imageResults.length === 0) {
 			resetFileData();
 		}
@@ -195,6 +211,10 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 	const handleDownloadPhotos = async () => {
 		try {
 			await compressAndSaveImages(imageResults);
+
+			posthog.capture("download_all_images", {
+				imageCount: imageResults.length,
+			});
 		} catch (error) {
 			console.error(error);
 		}
@@ -203,6 +223,10 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 	const handleOpenWaitListModal = (featureId: string) => {
 		handleSelectFeature(featureId);
 		setShowWaitListModal(true);
+
+		posthog.capture("open_waitlist_modal", {
+			featureId,
+		});
 	};
 	const handleCloseWaitListModal = () => setShowWaitListModal(false);
 
@@ -216,6 +240,10 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 					message="Check your email to learn more."
 				/>
 			));
+
+			posthog.capture("waitlist_success", {
+				featureId: selectedFeature.id,
+			});
 		} else {
 			toast.custom(({ visible }) => (
 				<Alert
@@ -270,14 +298,10 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 				<main className="flex-1 overflow-y-auto">
 					<div className="mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8">
 						<div className="border-b border-gray-200 pb-5">
-							<h1 className="text-base text-xl font-semibold leading-6 text-gray-900">
+							<h1 className="text-2xl font-semibold leading-6 text-gray-900">
 								{siteConfig.slogan}
 							</h1>
-							<p className="mt-2 max-w-4xl text-sm text-gray-500">
-								Convert your photos in seconds with SwiftConvert - the fast and
-								flawless online photo editor.
-							</p>
-							<p className="mt-4 max-w-4xl text-sm text-gray-500">
+							<p className="mt-4 max-w-4xl text-sm text-gray-800">
 								Currently supported output formats:{" "}
 								<span className="text-blue-800">
 									{fileTypes

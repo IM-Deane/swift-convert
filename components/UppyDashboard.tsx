@@ -1,6 +1,8 @@
 import Uppy from "@uppy/core";
 import Tus from "@uppy/tus";
 import { Dashboard } from "@uppy/react";
+import ImageEditor from "@uppy/image-editor";
+
 import { useEffect } from "react";
 
 import { v4 as uuidv4 } from "uuid";
@@ -10,6 +12,7 @@ import { getServerUrl } from "../utils";
 
 import "@uppy/core/dist/style.min.css";
 import "@uppy/dashboard/dist/style.min.css";
+import "@uppy/image-editor/dist/style.min.css";
 
 export function createUppyWithTusUploader(restrictions) {
 	const serverUrl = getServerUrl();
@@ -23,13 +26,15 @@ export function createUppyWithTusUploader(restrictions) {
 			};
 			return modifiedFile;
 		},
-	}).use(Tus, {
-		endpoint: `${serverUrl}/api/uploads`,
-		onBeforeRequest: async (req, file) => {
-			// this ensures uppy id is passed to the server via header
-			req.setHeader("X-File-ID", file.id);
-		},
-	});
+	})
+		.use(Tus, {
+			endpoint: `${serverUrl}/api/uploads`,
+			onBeforeRequest: async (req, file) => {
+				// this ensures uppy id is passed to the server via header
+				req.setHeader("X-File-ID", file.id);
+			},
+		})
+		.use(ImageEditor);
 
 	return uppy;
 }
@@ -88,9 +93,28 @@ export default function UppyDashboard({
 					const uppyContentBar = document.querySelector(
 						"div.uppy-DashboardContent-bar"
 					) as HTMLElement;
+					const progressIndiactor = document.querySelector(
+						"div.uppy-Dashboard-Item-progressIndicator"
+					) as HTMLElement;
+					const progressIndicatorStatusBar = document.querySelector(
+						"div.uppy-Dashboard-progressindicators"
+					) as HTMLElement;
+
 					if (uppyContentBar) {
 						uppyContentBar.style.zIndex = "10";
-						observer.disconnect(); // Stop observing after the element is found
+						observer.disconnect();
+						break;
+					}
+
+					if (progressIndiactor) {
+						progressIndiactor.style.zIndex = "0";
+						observer.disconnect();
+						break;
+					}
+
+					if (progressIndicatorStatusBar) {
+						progressIndicatorStatusBar.style.zIndex = "0";
+						observer.disconnect();
 						break;
 					}
 				}

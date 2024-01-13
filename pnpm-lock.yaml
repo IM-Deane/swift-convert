@@ -47,6 +47,9 @@ dependencies:
   '@uppy/file-input':
     specifier: ^3.0.4
     version: 3.0.4(@uppy/core@3.8.0)
+  '@uppy/image-editor':
+    specifier: ^2.4.0
+    version: 2.4.0(@uppy/core@3.8.0)
   '@uppy/progress-bar':
     specifier: ^3.0.4
     version: 3.0.4(@uppy/core@3.8.0)
@@ -92,6 +95,9 @@ dependencies:
   postcss:
     specifier: ^8.4.21
     version: 8.4.32
+  posthog-js:
+    specifier: ^1.97.1
+    version: 1.97.1
   pretty-bytes:
     specifier: ^6.1.1
     version: 6.1.1
@@ -2042,6 +2048,17 @@ packages:
       preact: 10.19.3
     dev: false
 
+  /@uppy/image-editor@2.4.0(@uppy/core@3.8.0):
+    resolution: {integrity: sha512-X6isSLmtZEHhWgeK/juD1TG5D3Z0DdZ2AwdOZNGQQbznVL8y1bH10J9MVnnkmwYyWhsaUopE2tAcYCqZAVCZ+w==}
+    peerDependencies:
+      '@uppy/core': ^3.8.0
+    dependencies:
+      '@uppy/core': 3.8.0
+      '@uppy/utils': 5.7.0
+      cropperjs: 1.5.7
+      preact: 10.19.3
+    dev: false
+
   /@uppy/informer@3.0.4(@uppy/core@3.8.0):
     resolution: {integrity: sha512-gzocdxn8qAFsW2EryehwjghladaBgv6Isjte53FTBV7o/vjaHPP6huKGbYpljyuQi8i9V+KrmvNGslofssgJ4g==}
     peerDependencies:
@@ -2574,6 +2591,10 @@ packages:
 
   /core-util-is@1.0.3:
     resolution: {integrity: sha512-ZQBvi1DcpJ4GDqanjucZ2Hj3wEO5pZDS89BWbkcrvdxksJorwUDDZamX9ldFkp9aw2lmBDLgkObEA4DWNJ9FYQ==}
+    dev: false
+
+  /cropperjs@1.5.7:
+    resolution: {integrity: sha512-sGj+G/ofKh+f6A4BtXLJwtcKJgMUsXYVUubfTo9grERiDGXncttefmue/fyQFvn8wfdyoD1KhDRYLfjkJFl0yw==}
     dev: false
 
   /cross-spawn@7.0.3:
@@ -3134,6 +3155,10 @@ packages:
     resolution: {integrity: sha512-ifCoaXsDrsdkWTtiNJX5uzHDsrck5TzfKKDcuFFTIrrc/BS076qgEIfoIy1VeZqViznfKiysPYTh/QeHtnIsYA==}
     dependencies:
       reusify: 1.0.4
+    dev: false
+
+  /fflate@0.4.8:
+    resolution: {integrity: sha512-FJqqoDBR00Mdj9ppamLa/Y7vxm+PRmNWA67N846RvsoYVMKB4q3y/de5PA7gUmRMYK/8CMz2GDZQmCRN1wBcWA==}
     dev: false
 
   /file-entry-cache@6.0.1:
@@ -4430,6 +4455,12 @@ packages:
       nanoid: 3.3.7
       picocolors: 1.0.0
       source-map-js: 1.0.2
+    dev: false
+
+  /posthog-js@1.97.1:
+    resolution: {integrity: sha512-N5r7sm4EiSxBgFTZuReR7wvHgzK/UkPbIsy/nZuIexLD+oa94ZQFNY/i1o8utDNmXHFWVKv4rwFmzRmPZYc8Zw==}
+    dependencies:
+      fflate: 0.4.8
     dev: false
 
   /preact-render-to-string@5.2.6(preact@10.19.3):
