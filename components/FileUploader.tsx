@@ -15,13 +15,7 @@ import { FileType, Input, MaxFileSize, fileTypes } from "@/types/index";
 
 const MAX_FILE_SIZE = MaxFileSize.standard;
 
-function FileUploader({
-	uppy,
-	onUpload,
-}: {
-	uppy: Uppy;
-	onUpload: (imageData, elapsedTime) => void;
-}) {
+function FileUploader({ uppy }: { uppy: Uppy }) {
 	const {
 		settings,
 		updateSettings,
@@ -119,7 +113,6 @@ function FileUploader({
 						</div>
 						<UppyDashboard
 							uppy={uppy}
-							onUpload={onUpload}
 							updateKnownUploadedFileTypes={handleknownUploadedFileTypes}
 							restrictions={{
 								maxTotalFileSize: MAX_FILE_SIZE,

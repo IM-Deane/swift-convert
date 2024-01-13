@@ -1,6 +1,6 @@
 import "@/styles/globals.css";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Toaster } from "react-hot-toast";
 import { SessionProvider } from "next-auth/react";
 
@@ -22,6 +22,12 @@ export default function App({
 			maxTotalFileSize: MaxFileSize.free,
 		})
 	);
+
+	useEffect(() => {
+		return () => {
+			if (uppy) uppy.close();
+		};
+	}, [uppy]);
 
 	if (!settings) {
 		return <div>Loading...</div>;

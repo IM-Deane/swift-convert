@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 
 import { toast } from "react-hot-toast";
@@ -18,7 +18,12 @@ import WaitListModal from "@/components/marketing/WaitListModal";
 
 import { useSettingsContext } from "@/context/SettingsProvider";
 
-import { generateClientImage, compressAndSaveImages } from "@/utils/index";
+import {
+	generateClientImage,
+	compressAndSaveImages,
+	getServerUrl,
+	generateInitialClientImage,
+} from "@/utils/index";
 
 export default function Home({ uppy }: { uppy: Uppy }) {
 	const [currentFile, setCurrentFile] = useState<ImageFile>(null);
@@ -77,7 +82,73 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 		}
 	};
 
-	const handleFileUpload = (image, elapsedTime) => {
+	const subscribeToSSE = (fileId: string) => {
+		const BASE_API_URL = getServerUrl();
+		const eventSource = new EventSource(
+			`${BASE_API_URL}/api/events?fileId=${fileId}`
+		);
+
+		eventSource.onmessage = function (event) {
+			const data = JSON.parse(event.data);
+			console.log("SSE message:", data, data.progress);
+			updateProgress(fileId, data.progress);
+			if (data.progress === 100) eventSource.close();
+		};
+
+		eventSource.onerror = function (err) {
+			console.error("SSE error:", err);
+			eventSource.close();
+		};
+	};
+
+	const updateProgress = (fileId: string, progressValue: number) =>
+		setImageResults((prevImageResults) =>
+			prevImageResults.map((image) => {
+				if (image.id === fileId) {
+					return {
+						...image,
+						progress: progressValue,
+					};
+				}
+				return image;
+			})
+		);
+
+	const setUpConversionProgressUpdates = (file: any, fileId: string) => {
+		subscribeToSSE(fileId);
+		setImageResults([generateInitialClientImage(file, fileId)]);
+	};
+
+	const convertUploadedImage = async (
+		file: any,
+		fileId: string,
+		conversionParams
+	) => {
+		const serverUrl = getServerUrl();
+		const conversionUrl = `${serverUrl}/api/v2/convert`;
+		try {
+			setUpConversionProgressUpdates(file, fileId);
+			const conversionResponse = await fetch(conversionUrl, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					fileId: fileId,
+					convertToFormat: conversionParams.convertToFormat,
+					imageQuality: conversionParams.imageQuality,
+				}),
+			});
+			const elapsedTime = conversionResponse.headers.get("Server-Timing");
+			const data = await conversionResponse.json();
+
+			handleFileConversion(data, elapsedTime);
+		} catch (error: any) {
+			console.error("Conversion failed for", file.name, error);
+		}
+	};
+
+	const handleFileConversion = (image, elapsedTime) => {
 		const generatedImage = generateClientImage({
 			imageData: image.data,
 			filename: image.filename,
@@ -98,7 +169,6 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 		setImageResults((prevImageResults) => {
 			let found = false;
 
-			// update the existing image if it exists
 			const updatedImageResults = prevImageResults.reduce((acc, image) => {
 				if (image.id === newImage.id) {
 					found = true;
@@ -151,6 +221,46 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 		}
 	};
 
+	useEffect(() => {
+		const handleBulkFileConversions = async (fileIds: string[]) => {
+			const conversionParams = {
+				convertToFormat: settings.fileOutputId,
+				imageQuality: settings.imageQuality,
+			};
+
+			const conversionPromises = fileIds.map((fileId) => {
+				const file = uppy.getFile(fileId);
+				return convertUploadedImage(file, fileId, conversionParams);
+			});
+
+			try {
+				await Promise.all(conversionPromises);
+				toast.custom(({ visible }) => (
+					<Alert
+						type="success"
+						isOpen={visible}
+						title="Conversions Complete! 🎉"
+						message="Your files are ready for download."
+					/>
+				));
+			} catch (error) {
+				console.error("An error occurred during file conversions", error);
+			}
+		};
+
+		if (uppy && settings?.fileOutputId && settings?.imageQuality) {
+			uppy.addPostProcessor(async (uploadedFileIds) => {
+				await handleBulkFileConversions(uploadedFileIds);
+			});
+		}
+
+		return () => {
+			if (uppy) {
+				uppy.removePostProcessor(handleBulkFileConversions);
+			}
+		};
+	});
+
 	return (
 		<Layout>
 			<div className="flex flex-1 items-stretch">
@@ -178,11 +288,11 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 							</p>
 						</div>
 						<section
-							className="flex flex-col md:flex-row space-x-4 mt-2 pb-12"
+							className="flex flex-col lg:flex-row space-x-4 mt-2 pb-12"
 							aria-labelledby="main-heading"
 						>
-							<div className="flex-auto lg:w-48 order-last md:order-first">
-								<FileUploader uppy={uppy} onUpload={handleFileUpload} />
+							<div className="flex-auto lg:w-48 order-last lg:order-first">
+								<FileUploader uppy={uppy} />
 							</div>
 							<div className="flex-1 mt-8 md:mt-0 p-4">
 								<div className="border-b border-gray-200 pb-5 mb-8 sm:flex sm:items-center sm:justify-between">

@@ -3,6 +3,8 @@ import Tus from "@uppy/tus";
 import { Dashboard } from "@uppy/react";
 import { useEffect } from "react";
 
+import { v4 as uuidv4 } from "uuid";
+
 import { FileType } from "../types";
 import { getServerUrl } from "../utils";
 
@@ -14,8 +16,19 @@ export function createUppyWithTusUploader(restrictions) {
 
 	const uppy = new Uppy({
 		restrictions,
+		onBeforeFileAdded: (currentFile) => {
+			const modifiedFile = {
+				...currentFile,
+				id: `swift-convert-${uuidv4()}`,
+			};
+			return modifiedFile;
+		},
 	}).use(Tus, {
 		endpoint: `${serverUrl}/api/uploads`,
+		onBeforeRequest: async (req, file) => {
+			// this ensures uppy id is passed to the server via header
+			req.setHeader("X-File-ID", file.id);
+		},
 	});
 
 	return uppy;
@@ -23,7 +36,6 @@ export function createUppyWithTusUploader(restrictions) {
 
 interface DashboardProps {
 	uppy: Uppy;
-	onUpload: (imageData, elapsedTime) => void;
 	updateKnownUploadedFileTypes: (fileExt: string) => void;
 	conversionParams?: {
 		convertToFormat?: string;
@@ -39,7 +51,6 @@ interface DashboardProps {
 
 export default function UppyDashboard({
 	uppy,
-	onUpload,
 	updateKnownUploadedFileTypes,
 	restrictions,
 	conversionParams,
@@ -68,30 +79,7 @@ export default function UppyDashboard({
 			});
 		});
 
-		uppy.on("upload-success", async (file, response) => {
-			const serverUrl = getServerUrl();
-			const conversionUrl = `${serverUrl}/api/v2/convert`;
-			try {
-				const conversionResponse = await fetch(conversionUrl, {
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-					},
-					body: JSON.stringify({
-						fileId: response.uploadURL.split("/").pop(),
-						convertToFormat: conversionParams.convertToFormat,
-						imageQuality: conversionParams.imageQuality,
-					}),
-				});
-				const elapsedTime = conversionResponse.headers.get("Server-Timing");
-				const data = await conversionResponse.json();
-				onUpload(data, elapsedTime);
-			} catch (error: any) {
-				console.error("Conversion failed for", file.name, error);
-			}
-		});
-
-		uppy.on("complete", () => {
+		uppy.on("complete", (files) => {
 			// hack to change the title of the dashboard after conversion is complete
 			document.getElementsByClassName(
 				"uppy-DashboardContent-title"
@@ -118,13 +106,7 @@ export default function UppyDashboard({
 		observer.observe(document.body, config);
 
 		return () => observer.disconnect();
-	}, [
-		uppy,
-		restrictions,
-		updateKnownUploadedFileTypes,
-		conversionParams,
-		onUpload,
-	]);
+	}, [uppy, restrictions, updateKnownUploadedFileTypes, conversionParams]);
 
 	return (
 		<Dashboard
