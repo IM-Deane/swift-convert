@@ -22,13 +22,15 @@ function FileUploader({ uppy }: { uppy: Uppy }) {
 		knownUploadedFileTypes,
 		handleknownUploadedFileTypes,
 	} = useSettingsContext();
-	const [selectedOutputType, setSelectedOutputType] = useState<Input>(
-		fileTypes[0]
+
+	const initialOutputType =
+		fileTypes.find((ft) => ft.id === settings.fileOutputId) || fileTypes[0];
+	const [selectedOutputType, setSelectedOutputType] =
+		useState<Input>(initialOutputType);
+	const [selectedImageQuality, setSelectedImageQuality] = useState(
+		settings.imageQuality
 	);
 	const [filteredOutputTypes, setFilteredOutputTypes] = useState<Input[]>([]);
-	const [selectedImageQuality, setSelectedImageQuality] = useState(
-		settings?.imageQuality || defaultSettings.imageQuality
-	);
 	const [allowedFileTypes, setAllowedFileTypes] = useState(
 		defaultSettings.fileTypes
 	);
@@ -41,16 +43,6 @@ function FileUploader({ uppy }: { uppy: Uppy }) {
 		setSelectedOutputType(outputType);
 		updateSettings({ ...settings, fileOutputId: outputType.id });
 	};
-
-	useEffect(() => {
-		if (settings?.fileOutputId) {
-			setSelectedOutputType({
-				name: "." + settings.fileOutputId,
-				id: settings.fileOutputId,
-				unavailable: true,
-			});
-		}
-	}, [settings]);
 
 	useEffect(() => {
 		const newFileTypes = filteredOutputTypes.reduce((acc, { name }) => {
