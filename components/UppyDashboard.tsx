@@ -37,10 +37,6 @@ export function createUppyWithTusUploader(restrictions) {
 interface DashboardProps {
 	uppy: Uppy;
 	updateKnownUploadedFileTypes: (fileExt: string) => void;
-	conversionParams?: {
-		convertToFormat?: string;
-		imageQuality?: number;
-	};
 	restrictions?: {
 		maxNumberOfFiles?: number;
 		maxFileSize?: number;
@@ -53,12 +49,9 @@ export default function UppyDashboard({
 	uppy,
 	updateKnownUploadedFileTypes,
 	restrictions,
-	conversionParams,
 }: DashboardProps): JSX.Element {
 	useEffect(() => {
-		uppy.setOptions({ restrictions: { ...restrictions } });
-
-		uppy.on("files-added", (files) => {
+		const handleFilesAdded = (files) => {
 			files.forEach((file) => {
 				const fileExt = file.extension.toLowerCase();
 
@@ -77,9 +70,11 @@ export default function UppyDashboard({
 				}
 				updateKnownUploadedFileTypes(fileExt);
 			});
-		});
+		};
+		uppy.setOptions({ restrictions: { ...restrictions } });
+		uppy.on("files-added", handleFilesAdded);
 
-		uppy.on("complete", (files) => {
+		uppy.on("complete", () => {
 			// hack to change the title of the dashboard after conversion is complete
 			document.getElementsByClassName(
 				"uppy-DashboardContent-title"
@@ -105,8 +100,11 @@ export default function UppyDashboard({
 		const config = { childList: true, subtree: true };
 		observer.observe(document.body, config);
 
-		return () => observer.disconnect();
-	}, [uppy, restrictions, updateKnownUploadedFileTypes, conversionParams]);
+		return () => {
+			observer.disconnect();
+			uppy.off("files-added", handleFilesAdded);
+		};
+	}, [uppy, restrictions, updateKnownUploadedFileTypes]);
 
 	return (
 		<Dashboard
@@ -129,6 +127,8 @@ export default function UppyDashboard({
  * @more https://uppy.io/docs/status-bar/#locale
  */
 function getUppyStatusBarProps() {
+	if (typeof window === "undefined") return {};
+
 	const isDeviceWidthSmall = window.innerWidth < 640;
 
 	return {

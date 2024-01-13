@@ -122,13 +122,9 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 		fileId: string,
 		conversionParams
 	) => {
-		console.log("convertUploadedImage called for fileId:", fileId);
 		const serverUrl = getServerUrl();
 		const conversionUrl = `${serverUrl}/api/v2/convert`;
 		try {
-			console.log(
-				`Starting conversion for file: ${file.name} with ID: ${fileId}`
-			);
 			setUpConversionProgressUpdates(file, fileId);
 			const conversionResponse = await fetch(conversionUrl, {
 				method: "POST",
@@ -149,10 +145,6 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 
 			const elapsedTime = conversionResponse.headers.get("Server-Timing");
 			const data = await conversionResponse.json();
-
-			console.log(
-				`Conversion completed for file: ${file.name} with ID: ${fileId}`
-			);
 			handleFileConversion(data, elapsedTime);
 		} catch (error: any) {
 			console.error("Conversion failed for", file.name, error);
@@ -259,18 +251,14 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 			}
 		};
 
-		if (uppy && settings?.fileOutputId && settings?.imageQuality) {
-			uppy.addPostProcessor(async (uploadedFileIds) => {
-				await handleBulkFileConversions(uploadedFileIds);
-			});
-		}
+		uppy.addPostProcessor(async (uploadedFileIds) => {
+			await handleBulkFileConversions(uploadedFileIds);
+		});
 
 		return () => {
-			if (uppy) {
-				uppy.removePostProcessor(handleBulkFileConversions);
-			}
+			uppy.removePostProcessor(handleBulkFileConversions);
 		};
-	});
+	}, [uppy, settings.fileOutputId, settings.imageQuality]);
 
 	return (
 		<Layout>

@@ -55,6 +55,7 @@ const SettingsProvider = ({ ...properties }: Properties) => {
 		return {
 			fileOutputId: output,
 			imageQuality: imageQuality,
+			fileTypes: defaultSettings.fileTypes,
 		};
 	};
 
