@@ -114,7 +114,11 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 
 	const setUpConversionProgressUpdates = (file: any, fileId: string) => {
 		subscribeToSSE(fileId);
-		setImageResults([generateInitialClientImage(file, fileId)]);
+		const newImage = generateInitialClientImage(file, fileId);
+
+		setImageResults((prevImageResults) =>
+			prevImageResults.map((image) => (image.id === fileId ? newImage : image))
+		);
 	};
 
 	const convertUploadedImage = async (
