@@ -27,17 +27,10 @@ function FileUploader({ uppy }: { uppy: Uppy }) {
 		fileTypes.find((ft) => ft.id === settings.fileOutputId) || fileTypes[0];
 	const [selectedOutputType, setSelectedOutputType] =
 		useState<Input>(initialOutputType);
-	const [selectedImageQuality, setSelectedImageQuality] = useState(
-		settings.imageQuality
-	);
 	const [filteredOutputTypes, setFilteredOutputTypes] = useState<Input[]>([]);
 	const [allowedFileTypes, setAllowedFileTypes] = useState(
 		defaultSettings.fileTypes
 	);
-
-	const handleImageQualityChange = (quality: number) => {
-		setSelectedImageQuality(quality);
-	};
 
 	const handleOutputTypeChange = (outputType: Input) => {
 		setSelectedOutputType(outputType);
@@ -99,7 +92,7 @@ function FileUploader({ uppy }: { uppy: Uppy }) {
 										selectedInput={selectedOutputType}
 										handleSelectedInput={handleOutputTypeChange}
 									/>
-									<ImageSlider onQualityChange={handleImageQualityChange} />
+									<ImageSlider />
 								</div>
 							</div>
 						</div>
@@ -111,10 +104,6 @@ function FileUploader({ uppy }: { uppy: Uppy }) {
 								maxNumberOfFiles: 5,
 								// TODO: hardcode heic/heic until backend supports outputting to these formats
 								allowedFileTypes: [...allowedFileTypes, ".heic", ".heif"],
-							}}
-							conversionParams={{
-								convertToFormat: selectedOutputType.id as string,
-								imageQuality: selectedImageQuality,
 							}}
 						/>
 					</div>

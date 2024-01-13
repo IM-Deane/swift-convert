@@ -9,11 +9,9 @@ const MIN_QUALITY = 30;
 const MAX_QUALITY = 100;
 const STEP = 10;
 
-interface ImageSliderProps {
-	onQualityChange: (value: number) => void;
-}
 
-const ImageSlider: React.FC<ImageSliderProps> = ({ onQualityChange }) => {
+
+function ImageSlider() {
 	const { settings, updateSettings } = useSettingsContext();
 	const [selectedImageQuality, setSelectedImageQuality] = useState<number>(
 		settings.imageQuality || defaultSettings.imageQuality
@@ -24,7 +22,6 @@ const ImageSlider: React.FC<ImageSliderProps> = ({ onQualityChange }) => {
 	) => {
 		const quality = parseInt(event.target.value, 10);
 		setSelectedImageQuality(quality);
-		onQualityChange(quality);
 		updateSettings({ ...settings, imageQuality: quality });
 	};
 
