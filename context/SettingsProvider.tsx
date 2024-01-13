@@ -14,6 +14,7 @@ type SettingsContextProperties = {
 	settings: Settings | null;
 	selectedFeature: FeatureDiscoveryItem;
 	knownUploadedFileTypes: { [key: string]: string };
+	initialSettings: () => Settings;
 	updateSettings: ({ fileOutputId, imageQuality }: Settings) => void;
 	handleSelectFeature: (featureId: string) => void;
 	handleknownUploadedFileTypes: (fileExt: string) => void;
@@ -29,6 +30,7 @@ const SettingsContext = createContext<SettingsContextProperties>({
 	settings: defaultSettings,
 	selectedFeature: null,
 	knownUploadedFileTypes: {},
+	initialSettings: () => defaultSettings,
 	updateSettings: () => undefined,
 	handleSelectFeature: () => undefined,
 	handleknownUploadedFileTypes: () => undefined,
@@ -39,7 +41,25 @@ interface Properties {
 }
 
 const SettingsProvider = ({ ...properties }: Properties) => {
-	const [settings, setSettings] = useState<Settings>(null);
+	const initialSettings = () => {
+		if (typeof window === "undefined") {
+			return defaultSettings;
+		}
+
+		const output =
+			localStorage.getItem(SettingsKeys.FILE_OUTPUT_TYPE) ||
+			defaultSettings.fileOutputId;
+		const imageQuality =
+			Number(localStorage.getItem(SettingsKeys.IMAGE_QUALITY)) ||
+			defaultSettings.imageQuality;
+		return {
+			fileOutputId: output,
+			imageQuality: imageQuality,
+			fileTypes: defaultSettings.fileTypes,
+		};
+	};
+
+	const [settings, setSettings] = useState<Settings>(initialSettings());
 	const [selectedFeature, setSelectedFeature] =
 		useState<FeatureDiscoveryItem>(null);
 	const [knownUploadedFileTypes, setKnownUploadedFileTypes] = useState<any>({});
@@ -69,7 +89,9 @@ const SettingsProvider = ({ ...properties }: Properties) => {
 	};
 
 	const handleknownUploadedFileTypes = (fileExt: string) => {
-		if (!fileExt) {
+		if (!fileExt && Object.keys(knownUploadedFileTypes).length === 0) {
+			return;
+		} else if (!fileExt) {
 			setKnownUploadedFileTypes({});
 		} else if (!knownUploadedFileTypes[fileExt]) {
 			setKnownUploadedFileTypes({
@@ -83,24 +105,11 @@ const SettingsProvider = ({ ...properties }: Properties) => {
 		settings,
 		selectedFeature,
 		knownUploadedFileTypes,
+		initialSettings,
 		updateSettings,
 		handleSelectFeature,
 		handleknownUploadedFileTypes,
 	};
-
-	useEffect(() => {
-		if (!settings) {
-			const output = localStorage.getItem(SettingsKeys.FILE_OUTPUT_TYPE);
-			const imageQuality = Number(
-				localStorage.getItem(SettingsKeys.IMAGE_QUALITY)
-			);
-			updateSettings({
-				fileOutputId: output === null ? defaultSettings.fileOutputId : output,
-				imageQuality:
-					imageQuality === 0 ? defaultSettings.imageQuality : imageQuality,
-			});
-		}
-	}, [settings]);
 
 	return <SettingsContext.Provider value={returnValue} {...properties} />;
 };

@@ -1,13 +1,10 @@
-import React, { useEffect, useState } from "react";
-import { usePostHog } from "posthog-js/react";
+import React, { useMemo, useState } from "react";
 
+import { usePostHog } from "posthog-js/react";
 import type Uppy from "@uppy/core";
 import prettyBytes from "pretty-bytes";
 
-import {
-	defaultSettings,
-	useSettingsContext,
-} from "@/context/SettingsProvider";
+import { useSettingsContext } from "@/context/SettingsProvider";
 import UppyDashboard from "./UppyDashboard";
 import ConvertToDropdown from "./ConvertToDropdown";
 import ImageSlider from "./ImageSilder";
@@ -16,41 +13,19 @@ import { FileType, Input, MaxFileSize, fileTypes } from "@/types/index";
 
 const MAX_FILE_SIZE = MaxFileSize.standard;
 
-function FileUploader({
-	uppy,
-	onUpload,
-}: {
-	uppy: Uppy;
-	onUpload: (imageData, elapsedTime) => void;
-}) {
-	const posthog = usePostHog();
-
+function FileUploader({ uppy }: { uppy: Uppy }) {
 	const {
 		settings,
 		updateSettings,
 		knownUploadedFileTypes,
 		handleknownUploadedFileTypes,
 	} = useSettingsContext();
-	const [selectedOutputType, setSelectedOutputType] = useState<Input>(
-		fileTypes[0]
-	);
-	const [filteredOutputTypes, setFilteredOutputTypes] = useState<Input[]>([]);
-	const [selectedImageQuality, setSelectedImageQuality] = useState(
-		settings?.imageQuality || defaultSettings.imageQuality
-	);
-	const [allowedFileTypes, setAllowedFileTypes] = useState(
-		defaultSettings.fileTypes
-	);
+	const posthog = usePostHog();
 
-	const handleImageQualityChange = (quality: number) => {
-		const currentQuality = selectedImageQuality;
-
-		setSelectedImageQuality(quality);
-		posthog.capture("quality_changed", {
-			previousQuality: currentQuality,
-			newQuality: quality,
-		});
-	};
+	const initialOutputType =
+		fileTypes.find((ft) => ft.id === settings.fileOutputId) || fileTypes[0];
+	const [selectedOutputType, setSelectedOutputType] =
+		useState<Input>(initialOutputType);
 
 	const handleOutputTypeChange = (outputType: Input) => {
 		const currentFileType = selectedOutputType.id;
@@ -63,50 +38,35 @@ function FileUploader({
 		});
 	};
 
-	useEffect(() => {
-		if (settings?.fileOutputId) {
-			setSelectedOutputType({
-				name: "." + settings.fileOutputId,
-				id: settings.fileOutputId,
-				unavailable: true,
-			});
-		}
-	}, [settings]);
-
-	useEffect(() => {
-		const newFileTypes = filteredOutputTypes.reduce((acc, { name }) => {
-			const lowerCaseName = name.toLowerCase();
-			if (lowerCaseName !== selectedOutputType.name.toLowerCase()) {
-				acc.push(lowerCaseName);
-			}
-			return acc;
-		}, []);
-
-		setAllowedFileTypes(newFileTypes);
-	}, [filteredOutputTypes, selectedOutputType]);
-
-	useEffect(() => {
-		const newFileTypes = fileTypes.reduce((acc, fileType) => {
-			if (
-				fileType.id !== FileType.heic &&
-				fileType.id !== FileType.heif &&
-				knownUploadedFileTypes[fileType.id]
-			) {
+	const { computedFilteredOutputTypes, allowedFileTypes } = useMemo(() => {
+		const outputTypes = fileTypes.reduce((acc, fileType) => {
+			if (fileType.id !== FileType.heic && fileType.id !== FileType.heif) {
 				acc.push({
 					...fileType,
-					unavailable: true,
+					unavailable: knownUploadedFileTypes.hasOwnProperty(fileType.id),
 				});
-			} else if (
-				fileType.id !== FileType.heic &&
-				fileType.id !== FileType.heif
-			) {
-				acc.push(fileType);
 			}
 			return acc;
 		}, []);
 
-		setFilteredOutputTypes(newFileTypes);
-	}, [knownUploadedFileTypes]);
+		const allowedTypes = outputTypes.reduce((acc, { name }) => {
+			if (name.toLowerCase() !== selectedOutputType.name.toLowerCase()) {
+				acc.push(name.toLowerCase());
+			}
+			return acc;
+		}, []);
+
+		return {
+			computedFilteredOutputTypes: outputTypes,
+			allowedFileTypes: allowedTypes,
+		};
+	}, [knownUploadedFileTypes, selectedOutputType]);
+
+	const restrictions = {
+		maxTotalFileSize: MAX_FILE_SIZE,
+		maxNumberOfFiles: 5,
+		allowedFileTypes: [...allowedFileTypes, ".heic", ".heif"],
+	};
 
 	if (!settings || settings.imageQuality === undefined) {
 		return <div>Loading...</div>;
@@ -124,28 +84,18 @@ function FileUploader({
 							<div className="w-full flex flex-col md:flex-row md:items-center justify-center md:justify-between mt-4 lg:mt-auto">
 								<div className="w-full flex flex-col items-start justify-around md:items-center md:flex-row md:justify-start space-y-4 md:space-y-0 md:space-x-2 mt-4 md:my-auto">
 									<ConvertToDropdown
-										inputList={filteredOutputTypes}
+										inputList={computedFilteredOutputTypes}
 										selectedInput={selectedOutputType}
 										handleSelectedInput={handleOutputTypeChange}
 									/>
-									<ImageSlider onQualityChange={handleImageQualityChange} />
+									<ImageSlider />
 								</div>
 							</div>
 						</div>
 						<UppyDashboard
 							uppy={uppy}
-							onUpload={onUpload}
 							updateKnownUploadedFileTypes={handleknownUploadedFileTypes}
-							restrictions={{
-								maxTotalFileSize: MAX_FILE_SIZE,
-								maxNumberOfFiles: 5,
-								// TODO: hardcode heic/heic until backend supports outputting to these formats
-								allowedFileTypes: [...allowedFileTypes, ".heic", ".heif"],
-							}}
-							conversionParams={{
-								convertToFormat: selectedOutputType.id as string,
-								imageQuality: selectedImageQuality,
-							}}
+							restrictions={restrictions}
 						/>
 					</div>
 					<p className="py-2 text-center text-sm text-grey-500 bg-white">

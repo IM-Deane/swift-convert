@@ -17,7 +17,7 @@ function ProgressBarSmall({
 	return (
 		<div className="mt-4">
 			<div className="flex justify-between mb-1">
-				<span className="text-base font-medium text-sky-700 dark:text-sky">
+				<span className="text-base font-medium text-sky-700 truncate dark:text-sky">
 					{title}
 				</span>
 				<span className="text-sm font-medium text-sky-700 dark:text-sky">

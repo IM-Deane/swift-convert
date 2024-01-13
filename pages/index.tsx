@@ -1,12 +1,10 @@
-import { useState } from "react";
-import Image from "next/image";
+import { useState, useEffect } from "react";
 
 import { usePostHog } from "posthog-js/react";
 import { toast } from "react-hot-toast";
 import type Uppy from "@uppy/core";
 
 import siteConfig from "site.config";
-import { XMarkIcon, PaperAirplaneIcon } from "@heroicons/react/24/outline";
 import { ArrowDownOnSquareStackIcon } from "@heroicons/react/20/solid";
 
 import { FileType, fileTypes, type ImageFile } from "@/types/index";
@@ -19,7 +17,13 @@ import WaitListModal from "@/components/marketing/WaitListModal";
 
 import { useSettingsContext } from "@/context/SettingsProvider";
 
-import { generateClientImage, compressAndSaveImages } from "@/utils/index";
+import {
+	generateClientImage,
+	compressAndSaveImages,
+	getServerUrl,
+	generateInitialClientImage,
+} from "@/utils/index";
+import FileDetails from "@/components/FileDetails";
 
 export default function Home({ uppy }: { uppy: Uppy }) {
 	const posthog = usePostHog();
@@ -93,7 +97,81 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 		}
 	};
 
-	const handleFileUpload = (image, elapsedTime) => {
+	const subscribeToSSE = (fileId: string) => {
+		const BASE_API_URL = getServerUrl();
+		const eventSource = new EventSource(
+			`${BASE_API_URL}/api/events?fileId=${fileId}`
+		);
+
+		eventSource.onmessage = function (event) {
+			const data = JSON.parse(event.data);
+			updateProgress(fileId, data.progress);
+			if (data.progress === 100) eventSource.close();
+		};
+
+		eventSource.onerror = function (err) {
+			console.error("SSE error:", err);
+			eventSource.close();
+		};
+	};
+
+	const updateProgress = (fileId: string, progressValue: number) =>
+		setImageResults((prevImageResults) =>
+			prevImageResults.map((image) => {
+				if (image.id === fileId) {
+					return {
+						...image,
+						progress: progressValue,
+					};
+				}
+				return image;
+			})
+		);
+
+	const setUpConversionProgressUpdates = (file: any, fileId: string) => {
+		subscribeToSSE(fileId);
+		const newImage = generateInitialClientImage(file, fileId);
+
+		setImageResults((prevImageResults) =>
+			prevImageResults.map((image) => (image.id === fileId ? newImage : image))
+		);
+	};
+
+	const convertUploadedImage = async (
+		file: any,
+		fileId: string,
+		conversionParams
+	) => {
+		const serverUrl = getServerUrl();
+		const conversionUrl = `${serverUrl}/api/v2/convert`;
+		try {
+			setUpConversionProgressUpdates(file, fileId);
+			const conversionResponse = await fetch(conversionUrl, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					fileId: fileId,
+					convertToFormat: conversionParams.convertToFormat,
+					imageQuality: conversionParams.imageQuality,
+				}),
+			});
+
+			if (!conversionResponse.ok) {
+				console.error("Conversion request failed for fileId:", fileId);
+				throw new Error(`HTTP error! status: ${conversionResponse.status}`);
+			}
+
+			const elapsedTime = conversionResponse.headers.get("Server-Timing");
+			const data = await conversionResponse.json();
+			handleFileConversion(data, elapsedTime);
+		} catch (error: any) {
+			console.error("Conversion failed for", file.name, error);
+		}
+	};
+
+	const handleFileConversion = (image, elapsedTime) => {
 		const generatedImage = generateClientImage({
 			imageData: image.data,
 			filename: image.filename,
@@ -114,7 +192,6 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 		setImageResults((prevImageResults) => {
 			let found = false;
 
-			// update the existing image if it exists
 			const updatedImageResults = prevImageResults.reduce((acc, image) => {
 				if (image.id === newImage.id) {
 					found = true;
@@ -179,6 +256,42 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 		}
 	};
 
+	useEffect(() => {
+		const handleBulkFileConversions = async (fileIds: string[]) => {
+			const conversionParams = {
+				convertToFormat: settings.fileOutputId,
+				imageQuality: settings.imageQuality,
+			};
+
+			const conversionPromises = fileIds.map((fileId) => {
+				const file = uppy.getFile(fileId);
+				return convertUploadedImage(file, fileId, conversionParams);
+			});
+
+			try {
+				await Promise.all(conversionPromises);
+				toast.custom(({ visible }) => (
+					<Alert
+						type="success"
+						isOpen={visible}
+						title="Conversions Complete! 🎉"
+						message="Your files are ready for download."
+					/>
+				));
+			} catch (error) {
+				console.error("An error occurred during file conversions", error);
+			}
+		};
+
+		uppy.addPostProcessor(async (uploadedFileIds) => {
+			await handleBulkFileConversions(uploadedFileIds);
+		});
+
+		return () => {
+			uppy.removePostProcessor(handleBulkFileConversions);
+		};
+	}, [uppy, settings.fileOutputId, settings.imageQuality]);
+
 	return (
 		<Layout>
 			<div className="flex flex-1 items-stretch">
@@ -202,11 +315,11 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 							</p>
 						</div>
 						<section
-							className="flex flex-col md:flex-row space-x-4 mt-2 pb-12"
+							className="flex flex-col lg:flex-row space-x-4 mt-2 pb-12"
 							aria-labelledby="main-heading"
 						>
-							<div className="flex-auto lg:w-48 order-last md:order-first">
-								<FileUploader uppy={uppy} onUpload={handleFileUpload} />
+							<div className="flex-auto lg:w-48 order-last lg:order-first">
+								<FileUploader uppy={uppy} />
 							</div>
 							<div className="flex-1 mt-8 md:mt-0 p-4">
 								<div className="border-b border-gray-200 pb-5 mb-8 sm:flex sm:items-center sm:justify-between">
@@ -256,101 +369,13 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 						</section>
 					</div>
 				</main>
-				{/* Details sidebar */}
 				{currentFile && (
-					<aside className="w-96 h-full overflow-y-auto border-l border-gray-200 bg-white p-8 lg:block">
-						<div className="space-y-6 pb-12">
-							<div>
-								<div className="float-right mt-0 mb-2 sm:block">
-									<button
-										type="button"
-										className="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-										onClick={() => updateCurrentFile(null)}
-									>
-										<span className="sr-only">Close</span>
-										<XMarkIcon className="h-8 w-8" aria-hidden="true" />
-									</button>
-								</div>
-
-								<div className="relative aspect-h-7 aspect-w-10 block w-full overflow-hidden rounded-lg">
-									<Image
-										src={currentFile.source}
-										alt={currentFile.name}
-										fill
-										className="object-cover"
-									/>
-								</div>
-								<div className="mt-4 flex items-start justify-between">
-									<div>
-										<h2 className="text-lg font-medium text-gray-900">
-											<span className="sr-only">Details for </span>
-											{currentFile.name}
-										</h2>
-										<p className="text-sm font-medium text-gray-500">
-											{currentFile.size}
-										</p>
-									</div>
-									<button
-										type="button"
-										onClick={() =>
-											handleOpenWaitListModal(
-												siteConfig.featureDiscovery.emailImageResults.id
-											)
-										}
-										className="ml-4 flex h-8 w-8 items-center justify-center rounded-full bg-white text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-									>
-										<PaperAirplaneIcon className="h-6 w-6" aria-hidden="true" />
-										<span className="sr-only">Send an email</span>
-									</button>
-								</div>
-							</div>
-							<div>
-								<h3 className="font-medium text-gray-900">Information</h3>
-								<dl className="mt-2 divide-y divide-gray-200 border-b border-t border-gray-200">
-									{Object.keys(currentFile.information).map((key) => (
-										<div
-											key={key}
-											className="flex justify-between py-3 text-sm font-medium"
-										>
-											<dt className="text-gray-500">{key}</dt>
-											<dd
-												className={`${
-													key === "Filename"
-														? "pl-4 truncate"
-														: "whitespace-nowrap"
-												} text-gray-900"`}
-											>
-												{currentFile.information[key]}
-											</dd>
-										</div>
-									))}
-								</dl>
-							</div>
-							<div className="flex gap-x-3">
-								<a
-									type="button"
-									download={currentFile.name}
-									onClick={() =>
-										posthog.capture("download_current_image", {
-											imageName: currentFile.name,
-										})
-									}
-									href={currentFile.source}
-									title={currentFile.name}
-									className="flex-1 rounded-md bg-blue-600 px-3 py-2 text-sm text-center font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-								>
-									Download
-								</a>
-								<button
-									type="button"
-									onClick={handleDeleteImage}
-									className="flex-1 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-								>
-									Delete
-								</button>
-							</div>
-						</div>
-					</aside>
+					<FileDetails
+						currentFile={currentFile}
+						updateCurrentFile={updateCurrentFile}
+						handleDeleteImage={handleDeleteImage}
+						handleOpenWaitListModal={handleOpenWaitListModal}
+					/>
 				)}
 				<WaitListModal
 					isOpen={showWaitListModal}

@@ -1,8 +1,11 @@
 import Uppy from "@uppy/core";
 import Tus from "@uppy/tus";
-import ImageEditor from "@uppy/image-editor";
 import { Dashboard } from "@uppy/react";
+import ImageEditor from "@uppy/image-editor";
+
 import { useEffect } from "react";
+
+import { v4 as uuidv4 } from "uuid";
 
 import { FileType } from "../types";
 import { getServerUrl } from "../utils";
@@ -16,9 +19,20 @@ export function createUppyWithTusUploader(restrictions) {
 
 	const uppy = new Uppy({
 		restrictions,
+		onBeforeFileAdded: (currentFile) => {
+			const modifiedFile = {
+				...currentFile,
+				id: `swift-convert-${uuidv4()}`,
+			};
+			return modifiedFile;
+		},
 	})
 		.use(Tus, {
 			endpoint: `${serverUrl}/api/uploads`,
+			onBeforeRequest: async (req, file) => {
+				// this ensures uppy id is passed to the server via header
+				req.setHeader("X-File-ID", file.id);
+			},
 		})
 		.use(ImageEditor);
 
@@ -27,12 +41,7 @@ export function createUppyWithTusUploader(restrictions) {
 
 interface DashboardProps {
 	uppy: Uppy;
-	onUpload: (imageData, elapsedTime) => void;
 	updateKnownUploadedFileTypes: (fileExt: string) => void;
-	conversionParams?: {
-		convertToFormat?: string;
-		imageQuality?: number;
-	};
 	restrictions?: {
 		maxNumberOfFiles?: number;
 		maxFileSize?: number;
@@ -43,15 +52,11 @@ interface DashboardProps {
 
 export default function UppyDashboard({
 	uppy,
-	onUpload,
 	updateKnownUploadedFileTypes,
 	restrictions,
-	conversionParams,
 }: DashboardProps): JSX.Element {
 	useEffect(() => {
-		uppy.setOptions({ restrictions: { ...restrictions } });
-
-		uppy.on("files-added", (files) => {
+		const handleFilesAdded = (files) => {
 			files.forEach((file) => {
 				const fileExt = file.extension.toLowerCase();
 
@@ -70,30 +75,9 @@ export default function UppyDashboard({
 				}
 				updateKnownUploadedFileTypes(fileExt);
 			});
-		});
-
-		uppy.on("upload-success", async (file, response) => {
-			const serverUrl = getServerUrl();
-			const conversionUrl = `${serverUrl}/api/v2/convert`;
-			try {
-				const conversionResponse = await fetch(conversionUrl, {
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-					},
-					body: JSON.stringify({
-						fileId: response.uploadURL.split("/").pop(),
-						convertToFormat: conversionParams.convertToFormat,
-						imageQuality: conversionParams.imageQuality,
-					}),
-				});
-				const elapsedTime = conversionResponse.headers.get("Server-Timing");
-				const data = await conversionResponse.json();
-				onUpload(data, elapsedTime);
-			} catch (error: any) {
-				console.error("Conversion failed for", file.name, error);
-			}
-		});
+		};
+		uppy.setOptions({ restrictions: { ...restrictions } });
+		uppy.on("files-added", handleFilesAdded);
 
 		uppy.on("complete", () => {
 			// hack to change the title of the dashboard after conversion is complete
@@ -140,14 +124,11 @@ export default function UppyDashboard({
 		const config = { childList: true, subtree: true };
 		observer.observe(document.body, config);
 
-		return () => observer.disconnect();
-	}, [
-		uppy,
-		restrictions,
-		updateKnownUploadedFileTypes,
-		conversionParams,
-		onUpload,
-	]);
+		return () => {
+			observer.disconnect();
+			uppy.off("files-added", handleFilesAdded);
+		};
+	}, [uppy, restrictions, updateKnownUploadedFileTypes]);
 
 	return (
 		<Dashboard
@@ -170,6 +151,8 @@ export default function UppyDashboard({
  * @more https://uppy.io/docs/status-bar/#locale
  */
 function getUppyStatusBarProps() {
+	if (typeof window === "undefined") return {};
+
 	const isDeviceWidthSmall = window.innerWidth < 640;
 
 	return {

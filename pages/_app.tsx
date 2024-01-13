@@ -1,6 +1,6 @@
 import "@/styles/globals.css";
 
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { Toaster } from "react-hot-toast";
 import { SessionProvider } from "next-auth/react";
 
@@ -46,6 +46,12 @@ export default function App({
 			router.events.off("routeChangeComplete", handleRouteChange);
 		};
 	}, [router.events]);
+
+	useEffect(() => {
+		return () => {
+			if (uppy) uppy.close();
+		};
+	}, [uppy]);
 
 	if (!settings) {
 		return <div>Loading...</div>;
