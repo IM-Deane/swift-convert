@@ -1,6 +1,8 @@
 import React from "react";
 import Image from "next/image";
 
+import { usePostHog } from "posthog-js/react";
+
 import { XMarkIcon, PaperAirplaneIcon } from "@heroicons/react/24/outline";
 
 import siteConfig from "site.config";
@@ -11,6 +13,8 @@ function FileDetails({
 	handleDeleteImage,
 	handleOpenWaitListModal,
 }) {
+	const posthog = usePostHog();
+
 	return (
 		<aside className="w-96 h-full overflow-y-auto border-l border-gray-200 bg-white p-8 lg:block">
 			<div className="space-y-6 pb-12">
@@ -82,6 +86,12 @@ function FileDetails({
 					<a
 						type="button"
 						download={currentFile.name}
+						onClick={() =>
+							posthog.capture("download_image", {
+								image_id: currentFile.id,
+								image_name: currentFile.name,
+							})
+						}
 						href={currentFile.source}
 						title={currentFile.name}
 						className="flex-1 rounded-md bg-blue-600 px-3 py-2 text-sm text-center font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
