@@ -11,7 +11,7 @@ import ImageSlider from "./ImageSilder";
 
 import { FileType, Input, MaxFileSize, fileTypes } from "@/types/index";
 
-const MAX_FILE_SIZE = MaxFileSize.standard;
+const MAX_FILE_SIZE = MaxFileSize.free;
 
 function FileUploader({ uppy }: { uppy: Uppy }) {
 	const {
@@ -62,9 +62,13 @@ function FileUploader({ uppy }: { uppy: Uppy }) {
 		};
 	}, [knownUploadedFileTypes, selectedOutputType]);
 
+	// we can restrict number of files to 2 for the free plan
+	// signing in gets you 20
+	// paying gets you 50 (depending on how our server handles load)
+	// We can do the same for file size
 	const restrictions = {
 		maxTotalFileSize: MAX_FILE_SIZE,
-		maxNumberOfFiles: 5,
+		maxNumberOfFiles: 20, // TODO: make this configurable
 		allowedFileTypes: [...allowedFileTypes, ".heic", ".heif"],
 	};
 
