@@ -98,6 +98,7 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 	};
 
 	const subscribeToSSE = (fileId: string) => {
+		const closedSseMessage = "SSE connection closed for fileId:";
 		const BASE_API_URL = getServerUrl();
 		const eventSource = new EventSource(
 			`${BASE_API_URL}/api/events?fileId=${fileId}`
@@ -106,12 +107,16 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 		eventSource.onmessage = function (event) {
 			const data = JSON.parse(event.data);
 			updateProgress(fileId, data.progress);
-			if (data.progress === 100) eventSource.close();
+			if (data.progress === 100) {
+				eventSource.close();
+				console.log(closedSseMessage, fileId);
+			}
 		};
 
 		eventSource.onerror = function (err) {
 			console.error("SSE error:", err);
 			eventSource.close();
+			console.log(closedSseMessage, fileId);
 		};
 	};
 
