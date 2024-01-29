@@ -121,11 +121,13 @@ export const compressAndSaveImages = async (images: ImageFile[]) => {
 
 	// Generate and download the zip file
 	const content = await zip.generateAsync({ type: "blob" });
-	const currentDate = new Date()
-		.toDateString()
-		.toLowerCase()
-		.replace(/ /g, "-");
-	saveAs(content, `swift-convert-${currentDate}.zip`);
+	const now = new Date();
+	const dateString = now.toDateString().toLowerCase().replace(/ /g, "-");
+	const timeString =
+		now.getHours() + "-" + now.getMinutes() + "-" + now.getSeconds();
+	const folderName = `swift-convert-${dateString}-${timeString}.zip`;
+
+	saveAs(content, folderName);
 };
 
 export function base64ToArrayBuffer(base64: string) {
