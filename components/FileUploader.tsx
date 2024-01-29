@@ -9,9 +9,9 @@ import UppyDashboard from "./UppyDashboard";
 import ConvertToDropdown from "./ConvertToDropdown";
 import ImageSlider from "./ImageSilder";
 
-import { FileType, Input, MaxFileSize, fileTypes } from "@/types/index";
+import { FileType, Input, MaxTotalUploadSize, fileTypes } from "@/types/index";
 
-const MAX_FILE_SIZE = MaxFileSize.free;
+const MAX_UPLOAD_FILE_SIZE = MaxTotalUploadSize.standard;
 
 function FileUploader({ uppy }: { uppy: Uppy }) {
 	const {
@@ -67,8 +67,7 @@ function FileUploader({ uppy }: { uppy: Uppy }) {
 	// paying gets you 50 (depending on how our server handles load)
 	// We can do the same for file size
 	const restrictions = {
-		maxTotalFileSize: MAX_FILE_SIZE,
-		maxNumberOfFiles: 20, // TODO: make this configurable
+		maxTotalFileSize: MAX_UPLOAD_FILE_SIZE,
 		allowedFileTypes: [...allowedFileTypes, ".heic", ".heif"],
 	};
 
@@ -103,8 +102,8 @@ function FileUploader({ uppy }: { uppy: Uppy }) {
 						/>
 					</div>
 					<p className="py-2 text-center text-sm text-grey-500 bg-white">
-						Total image upload size limited to max of{" "}
-						{prettyBytes(MAX_FILE_SIZE)}
+						Total upload size limited to max of{" "}
+						{prettyBytes(MAX_UPLOAD_FILE_SIZE)}
 					</p>
 				</div>
 			</div>

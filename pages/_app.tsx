@@ -9,7 +9,7 @@ import {
 	useSettingsContext,
 } from "@/context/SettingsProvider";
 import { createUppyWithTusUploader } from "@/components/UppyDashboard";
-import { MaxFileSize } from "../types";
+import { MaxSingleFileSize } from "../types";
 
 import posthog from "posthog-js";
 import { PostHogProvider } from "posthog-js/react";
@@ -34,7 +34,7 @@ export default function App({
 
 	const [uppy] = useState(
 		createUppyWithTusUploader({
-			maxTotalFileSize: MaxFileSize.free,
+			maxTotalFileSize: MaxSingleFileSize.free,
 		})
 	);
 

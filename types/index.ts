@@ -10,10 +10,16 @@ export enum SettingsKeys {
 	IMAGE_QUALITY = "imageQuality",
 }
 
-export enum MaxFileSize {
-	free = 10500000, // 10.5MB
-	standard = 25000000, // 25MB
-	pro = 75000000, // 75MB
+export enum MaxSingleFileSize {
+	free = 10500000, // 10.5mb
+	standard = 25000000, // 25mb
+	pro = 75000000, // 75mb
+}
+
+export enum MaxTotalUploadSize {
+	free = 20500000, // 20.5MB
+	standard = 75000000, // 50mb
+	pro = 100000000, // 100mb
 }
 
 export enum FileType {
