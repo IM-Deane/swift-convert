@@ -11,7 +11,7 @@ import ImageSlider from "./ImageSilder";
 
 import { FileType, Input, MaxTotalUploadSize, fileTypes } from "@/types/index";
 
-const MAX_UPLOAD_FILE_SIZE = MaxTotalUploadSize.standard;
+const MAX_UPLOAD_FILE_SIZE = MaxTotalUploadSize.free;
 
 function FileUploader({ uppy }: { uppy: Uppy }) {
 	const {
