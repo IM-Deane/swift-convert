@@ -15,6 +15,7 @@
     "start:prod": "npm run build && npm run start"
   },
   "dependencies": {
+    "@clerk/nextjs": "^4.29.5",
     "@headlessui/react": "^1.7.13",
     "@heroicons/react": "^2.0.17",
     "@notionhq/client": "^2.2.4",
@@ -43,7 +44,6 @@
     "install": "^0.13.0",
     "jszip": "^3.10.1",
     "next": "13.2.4",
-    "next-auth": "^4.21.1",
     "postcss": "^8.4.21",
     "posthog-js": "^1.97.1",
     "pretty-bytes": "^6.1.1",

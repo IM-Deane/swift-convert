@@ -2,7 +2,7 @@ import "@/styles/globals.css";
 
 import { useState, useEffect } from "react";
 import { Toaster } from "react-hot-toast";
-import { SessionProvider } from "next-auth/react";
+import { ClerkProvider } from "@clerk/nextjs";
 
 import {
 	SettingsProvider,
@@ -59,12 +59,12 @@ export default function App({
 
 	return (
 		<PostHogProvider client={posthog}>
-			<SessionProvider session={session}>
+			<ClerkProvider {...pageProps}>
 				<SettingsProvider>
 					<Toaster />
 					<Component {...pageProps} uppy={uppy} />
 				</SettingsProvider>
-			</SessionProvider>
+			</ClerkProvider>
 		</PostHogProvider>
 	);
 }

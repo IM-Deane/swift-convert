@@ -32,7 +32,7 @@ export interface SiteConfig {
 	description?: string;
 
 	mainNavTabs: MainNavTab[];
-	redirectUrls: {
+	redirectUrls?: {
 		dropbox: string;
 		google: string;
 	};

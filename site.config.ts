@@ -17,10 +17,6 @@ export default siteConfig({
 		"SwiftConvert is the best solution for converting photos without sacrificing quality. Our tool ensures flawless and lightning-speed conversions, so you can easily share your photos without any hassle. Try SwiftConvert today and experience the convenience of hassle-free photo conversions.",
 
 	mainNavTabs: [{ name: "Photos", href: "/", icon: PhotoIcon, current: true }],
-	redirectUrls: {
-		dropbox: "http://localhost:3000/api/auth/callback/dropbox",
-		google: "http://localhost:3000/api/auth/callback/google",
-	},
 
 	// NOTE: make sure you get the feature ID from Notion otherwise it won't register
 	// as of April 15, 2023 it's a multi_select field
