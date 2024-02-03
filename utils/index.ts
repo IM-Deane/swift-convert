@@ -16,7 +16,8 @@ export function classNames(...classes) {
 }
 
 interface ClientImagePayload {
-	imageData: string; // base64 encoded image
+	previewlUrl: string;
+	downloadUrl: string;
 	filename: string;
 	fileId: string;
 	fileType: string;
@@ -25,13 +26,20 @@ interface ClientImagePayload {
 	additionalInfo?: AdditionalInfo;
 }
 
-export const generateClientImage = (payload: ClientImagePayload): ImageFile => {
-	const arrayBuffer = base64ToArrayBuffer(payload.imageData);
-	const imageBlob = new Blob([arrayBuffer], { type: payload.fileType });
-	const newImageFile = new File([imageBlob], payload.filename, {
-		type: payload.fileType,
-	});
-	const imageURL = URL.createObjectURL(newImageFile);
+export const generateClientImage = (
+	payload: ClientImagePayload,
+	userKeptMetadata = false
+): ImageFile => {
+	let creationDate = null;
+	let lastModifiedDate = null;
+
+	if (userKeptMetadata) {
+		creationDate = payload.metadata.creationDate;
+		lastModifiedDate = payload.metadata.lastModifiedDate;
+	} else {
+		creationDate = new Date().toDateString();
+		lastModifiedDate = new Date().toDateString();
+	}
 
 	let uploadedFrom = UPLOAD_ORIGINS.localStorage;
 	if (payload.additionalInfo && payload.additionalInfo.uploadOrigin) {
@@ -40,21 +48,21 @@ export const generateClientImage = (payload: ClientImagePayload): ImageFile => {
 
 	return {
 		id: payload.fileId,
-		name: newImageFile.name,
-		size: prettyBytes(newImageFile.size),
+		name: payload.filename,
+		size: prettyBytes(payload.metadata.fileSize),
 		current: false,
 		progress: 100,
-		source: imageURL,
+		source: payload.previewlUrl,
+		downloadUrl: payload.downloadUrl,
 		type: payload.fileType,
 		information: {
-			Filename: newImageFile.name,
+			Filename: payload.filename,
 			Type: payload.metadata.type,
 			"Conversion time": `${payload.elapsedTime}ms`,
-			Created: new Date(newImageFile.lastModified).toDateString(),
-			"Last modified": new Date(newImageFile.lastModified).toDateString(),
+			Created: creationDate,
+			"Last modified": lastModifiedDate,
 			"Uploaded from": uploadedFrom,
 			"Image Quality": `${payload.additionalInfo?.imageQuality}%` || "100%",
-			// "File path": additionalInfo ? additionalInfo?.filePath : "N/A",
 		},
 	};
 };
@@ -81,6 +89,7 @@ export const generateInitialClientImage = (
 		current: false,
 		source: null, // initial source is null
 		progress: 0, // initial progress is 0
+		downloadUrl: null, // initial download url is null
 		information: {
 			"Uploaded from": uploadedFrom,
 			// "File path": additionalInfo ? additionalInfo?.filePath : "N/A",

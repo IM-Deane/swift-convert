@@ -8,7 +8,8 @@ const moduleExports = {
 		domains: [
 			"tailwindui.com",
 			"images.unsplash.com",
-			"heic-converter.onrender.com",
+			"swift-convert-image-processor.onrender.com",
+			"localhost",
 		],
 		contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
 	},

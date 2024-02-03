@@ -1,4 +1,4 @@
-import React from "react";
+import { useState } from "react";
 import Image from "next/image";
 
 import { usePostHog } from "posthog-js/react";
@@ -6,6 +6,7 @@ import { usePostHog } from "posthog-js/react";
 import { XMarkIcon, PaperAirplaneIcon } from "@heroicons/react/24/outline";
 
 import siteConfig from "site.config";
+import toast from "react-hot-toast";
 
 function FileDetails({
 	currentFile,
@@ -13,7 +14,41 @@ function FileDetails({
 	handleDeleteImage,
 	handleOpenWaitListModal,
 }) {
+	const [isDownloading, setIsDownloading] = useState(false);
+
 	const posthog = usePostHog();
+
+	const handleDownloadImage = async () => {
+		if (isDownloading) return;
+
+		setIsDownloading(true);
+		try {
+			const response = await fetch(currentFile.downloadUrl);
+			if (response.status !== 200) {
+				console.error("Download request failed:", response.statusText);
+				throw new Error(response.statusText);
+			}
+			const blob = await response.blob();
+			const url = window.URL.createObjectURL(blob);
+			const a = document.createElement("a");
+			a.href = url;
+			a.download = currentFile.name;
+			a.click();
+			window.URL.revokeObjectURL(url);
+
+			posthog.capture("download_image", {
+				image_id: currentFile.id,
+				image_name: currentFile.name,
+			});
+		} catch (error) {
+			console.error("Download request failed:", error);
+			if (error instanceof Error) {
+				toast.error(`Error downloading image: ${error.message}`);
+			}
+		} finally {
+			setIsDownloading(false);
+		}
+	};
 
 	return (
 		<aside className="w-96 h-full overflow-y-auto border-l border-gray-200 bg-white p-8 lg:block">
@@ -83,21 +118,15 @@ function FileDetails({
 					</dl>
 				</div>
 				<div className="flex gap-x-3">
-					<a
+					<button
 						type="button"
-						download={currentFile.name}
-						onClick={() =>
-							posthog.capture("download_image", {
-								image_id: currentFile.id,
-								image_name: currentFile.name,
-							})
-						}
-						href={currentFile.source}
+						onClick={handleDownloadImage}
 						title={currentFile.name}
-						className="flex-1 rounded-md bg-blue-600 px-3 py-2 text-sm text-center font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+						disabled={isDownloading}
+						className="flex-1 rounded-md bg-blue-600 cursor-pointer px-3 py-2 text-sm text-center font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
 					>
-						Download
-					</a>
+						{isDownloading ? "Downloading..." : "Download"}
+					</button>
 					<button
 						type="button"
 						onClick={handleDeleteImage}

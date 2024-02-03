@@ -173,7 +173,8 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 
 	const handleFileConversion = (image, elapsedTime) => {
 		const generatedImage = generateClientImage({
-			imageData: image.data,
+			previewlUrl: image.previewUrl,
+			downloadUrl: image.downloadUrl,
 			filename: image.filename,
 			fileId: image.fileId,
 			fileType: image.metadata.filetype,

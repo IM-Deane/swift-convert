@@ -57,6 +57,7 @@ export interface ImageFile {
 	name: string;
 	current: boolean;
 	source: string;
+	downloadUrl: string;
 	size: number | string;
 	type: string;
 	progress: number; // used for progress bar
