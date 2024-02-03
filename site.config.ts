@@ -1,5 +1,6 @@
 import { siteConfig } from "@/types/site-config";
 import { PhotoIcon } from "@heroicons/react/24/outline";
+import { UserCircleIcon } from "@heroicons/react/24/outline";
 
 import logo from "./public/swift-convert.svg";
 
@@ -16,7 +17,10 @@ export default siteConfig({
 	description:
 		"SwiftConvert is the best solution for converting photos without sacrificing quality. Our tool ensures flawless and lightning-speed conversions, so you can easily share your photos without any hassle. Try SwiftConvert today and experience the convenience of hassle-free photo conversions.",
 
-	mainNavTabs: [{ name: "Photos", href: "/", icon: PhotoIcon, current: true }],
+	mainNavTabs: [
+		{ name: "Photos", href: "/", icon: PhotoIcon, current: true },
+		{ name: "Profile", href: "/profile", icon: UserCircleIcon, current: false },
+	],
 
 	// NOTE: make sure you get the feature ID from Notion otherwise it won't register
 	// as of April 15, 2023 it's a multi_select field
