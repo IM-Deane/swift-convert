@@ -331,7 +331,7 @@ export default function Home({ uppy }: { uppy: Uppy }) {
 									<div className="mt-3 flex sm:ml-4 sm:mt-0">
 										<SavePhotosDropdown
 											imageResults={imageResults}
-											isDownloadDisabled={!isDownloadDisabled}
+											isDownloadDisabled={isDownloadDisabled}
 										/>
 										<button
 											type="button"
