@@ -39,10 +39,21 @@ export default function SavePhotosDropdown({
 
 	const handleDownloadPhotos = async () => {
 		try {
-			await compressAndSaveImages(imageResults);
+			const imagePromises = imageResults.map(async (image) => {
+				const response = await fetch(image.downloadUrl);
+				const blob = await response.blob();
+				return {
+					blob,
+					name: image.name,
+				};
+			});
+
+			const savedImageData = await Promise.all(imagePromises);
+			console.log(savedImageData);
+			await compressAndSaveImages(savedImageData);
 
 			posthog.capture("download_all_images", {
-				imageCount: imageResults.length,
+				imageCount: savedImageData.length,
 			});
 		} catch (error) {
 			console.error(error);
