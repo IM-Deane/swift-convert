@@ -4,8 +4,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
+import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
+
 import { Dialog, Transition } from "@headlessui/react";
-import { XMarkIcon } from "@heroicons/react/24/outline";
+import { XMarkIcon, Bars3BottomLeftIcon } from "@heroicons/react/24/outline";
+import { PlusIcon } from "@heroicons/react/20/solid";
 
 import siteConfig from "site.config";
 
@@ -176,7 +179,39 @@ export default function Layout({ title = siteConfig.slogan, children }) {
 				</Transition.Root>
 				{/* Content area */}
 				<div className="flex flex-1 flex-col overflow-y-auto">
-					<header className="w-full"></header>
+					<header className="w-full">
+						<div className="relative z-10 flex h-16 flex-shrink-0 border-b border-gray-200 bg-white shadow-sm">
+							<button
+								type="button"
+								className="border-r border-gray-200 px-4 text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 md:hidden"
+								onClick={() => setMobileMenuOpen(true)}
+							>
+								<span className="sr-only">Open sidebar</span>
+								<Bars3BottomLeftIcon className="h-6 w-6" aria-hidden="true" />
+							</button>
+							<div className="flex flex-1 justify-between px-4 sm:px-6">
+								<div className="flex flex-1" />
+								<div className="ml-2 flex items-center space-x-4 sm:ml-6 sm:space-x-6">
+									<SignedIn>
+										<UserButton />
+									</SignedIn>
+									{/* this shouldn't show but leaving here just in case */}
+									<SignedOut>
+										<SignInButton />
+									</SignedOut>
+									<button
+										type="button"
+										onClick={() => router.push("/")}
+										className="relative rounded-full bg-indigo-600 p-1.5 text-white hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+									>
+										<span className="absolute -inset-1.5" />
+										<PlusIcon className="h-5 w-5" aria-hidden="true" />
+										<span className="sr-only">Add file</span>
+									</button>
+								</div>
+							</div>
+						</div>
+					</header>
 					{children}
 					<Footer />
 				</div>
