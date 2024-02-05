@@ -21,3 +21,10 @@ export interface WaitListBodyContents {
 	email: string;
 	isEarlyAdopter: boolean;
 }
+
+export enum Providers {
+	Google = "oauth_google",
+	Dropbox = "oauth_dropbox",
+	Box = "oauth_box",
+	OneDrive = "oauth_onedrive",
+}

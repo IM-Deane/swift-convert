@@ -1,6 +1,11 @@
 import { Fragment } from "react";
 
 import { usePostHog } from "posthog-js/react";
+import { useAuth } from "@clerk/nextjs";
+import toast from "react-hot-toast";
+
+import useFetch from "@/hooks/useFetch";
+import { Providers } from "@/types/api";
 
 import { Menu, Transition } from "@headlessui/react";
 import {
@@ -9,7 +14,18 @@ import {
 	ChevronDownIcon,
 } from "@heroicons/react/20/solid";
 
-import { classNames, compressAndSaveImages } from "../utils/index";
+import { classNames, compressAndSaveImages } from "@/utils/index";
+import Alert from "./Alert";
+
+export const createOAuthTokenUrl = (userId: string, provider: string) => {
+	if (!Object.values(Providers).includes(provider as Providers)) {
+		throw new Error("Invalid provider");
+	} else if (!userId) {
+		throw new Error("Invalid user ID");
+	}
+	const apiUrl = `https://api.clerk.com/v1/users/${userId}/oauth_access_tokens/${provider}`;
+	return apiUrl;
+};
 
 const DropdownOption = ({ icon, text, onClick }) => {
 	return (
@@ -36,6 +52,8 @@ export default function SavePhotosDropdown({
 	isDownloadDisabled = true,
 }) {
 	const posthog = usePostHog();
+	const { isLoaded, userId } = useAuth();
+	const authenticatedFetch = useFetch();
 
 	const handleDownloadPhotos = async () => {
 		try {
@@ -49,7 +67,6 @@ export default function SavePhotosDropdown({
 			});
 
 			const savedImageData = await Promise.all(imagePromises);
-			console.log(savedImageData);
 			await compressAndSaveImages(savedImageData);
 
 			posthog.capture("download_all_images", {
@@ -57,6 +74,68 @@ export default function SavePhotosDropdown({
 			});
 		} catch (error) {
 			console.error(error);
+		}
+	};
+
+	const handleSaveToGoogleDrive = async () => {
+		if (!isLoaded || !userId) {
+			toast.custom((t) => (
+				<div
+					className={`${
+						t.visible ? "animate-enter" : "animate-leave"
+					} bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md p-4 max-w-sm w-full shadow-lg`}
+				>
+					<div className="flex items-center justify-between">
+						<p className="font-bold text-lg">Sign in to save photos</p>
+					</div>
+				</div>
+			));
+		}
+		try {
+			const files = imageResults.map((image) => {
+				const fileData = {
+					id: image.id,
+					fileType: image.type,
+				};
+				return fileData;
+			});
+			const serverUrl = `${process.env.NEXT_PUBLIC_SSE_URL}/api/v1/export/google`;
+			const response = await fetch(serverUrl, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({ userId, files }),
+			});
+			const data = await response.json();
+
+			if (!data.success) throw new Error(data.error);
+			const swiftConvertGoogleDriveFolder = data.swiftConvertfolderUrl;
+
+			toast.custom(({ visible }) => (
+				<Alert
+					type="success"
+					isOpen={visible}
+					title="Files uploaded to Google Drive! 🎉"
+					message={`You can view them in your Drive's "SwiftConvert" folder.`}
+					link={{
+						href: swiftConvertGoogleDriveFolder,
+						text: "Open SwiftConvert Folder",
+						isExternal: true,
+					}}
+				/>
+			));
+
+			posthog.capture("save_to_google_drive", {
+				imageCount: imageResults.length,
+			});
+		} catch (error: any) {
+			console.error(error);
+			if (error.statusCode === 401) {
+				toast.error("Please sign in to save photos to Google Drive");
+			} else {
+				toast.error(`Error saving photos to Google Drive: ${error.message}`);
+			}
 		}
 	};
 
@@ -106,7 +185,7 @@ export default function SavePhotosDropdown({
 					<div className="py-1">
 						<DropdownOption
 							text="Save to Google Drive"
-							onClick={handleDownloadPhotos}
+							onClick={handleSaveToGoogleDrive}
 							icon={
 								<ArchiveBoxIcon
 									className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500"

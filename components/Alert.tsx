@@ -8,10 +8,21 @@ interface AlertProps {
 	isOpen?: boolean;
 	title: string;
 	message: string;
+	link?: {
+		href: string;
+		text: string;
+		isExternal?: boolean;
+	};
 	type: "success" | "error";
 }
 
-function Alert({ title, message, type, isOpen = false }: AlertProps) {
+function Alert({
+	title,
+	message,
+	type,
+	isOpen = false,
+	link = undefined,
+}: AlertProps) {
 	const [show, setShow] = useState(isOpen);
 
 	const handleTypeIcon = (type) => {
@@ -59,6 +70,15 @@ function Alert({ title, message, type, isOpen = false }: AlertProps) {
 									<div className="ml-3 w-0 flex-1 pt-0.5">
 										<p className="text-sm font-medium text-gray-900">{title}</p>
 										<p className="mt-1 text-sm text-gray-500">{message}</p>
+										{link && (
+											<a
+												href={link.href}
+												className="text-sm text-blue-600 hover:underline"
+												target={link.isExternal ? "_blank" : "_self"}
+											>
+												{link.text}
+											</a>
+										)}
 									</div>
 									<div className="ml-4 flex flex-shrink-0">
 										<button
