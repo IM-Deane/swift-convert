@@ -1,10 +1,9 @@
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 
 import { usePostHog } from "posthog-js/react";
 import { useAuth } from "@clerk/nextjs";
 import toast from "react-hot-toast";
 
-import useFetch from "@/hooks/useFetch";
 import { Providers } from "@/types/api";
 
 import { Menu, Transition } from "@headlessui/react";
@@ -51,9 +50,10 @@ export default function SavePhotosDropdown({
 	imageResults,
 	isDownloadDisabled = true,
 }) {
+	const [isSavingPhotos, setIsSavingPhotos] = useState<boolean>(false);
+
 	const posthog = usePostHog();
 	const { isLoaded, userId } = useAuth();
-	const authenticatedFetch = useFetch();
 
 	const handleDownloadPhotos = async () => {
 		try {
@@ -91,6 +91,7 @@ export default function SavePhotosDropdown({
 				</div>
 			));
 		}
+		setIsSavingPhotos(true);
 		try {
 			const files = imageResults.map((image) => {
 				const fileData = {
@@ -136,6 +137,8 @@ export default function SavePhotosDropdown({
 			} else {
 				toast.error(`Error saving photos to Google Drive: ${error.message}`);
 			}
+		} finally {
+			setIsSavingPhotos(false);
 		}
 	};
 
@@ -143,20 +146,34 @@ export default function SavePhotosDropdown({
 		<Menu as="div" className="relative inline-block text-left">
 			<div>
 				<Menu.Button
-					disabled={isDownloadDisabled}
+					disabled={isDownloadDisabled || isSavingPhotos}
 					className={`${
 						isDownloadDisabled
 							? "cursor-not-allowed bg-gray-200"
 							: "cursor-pointer bg-blue-700 hover:bg-blue-800 focus:ring-4 flex-1 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-					} text-white font-medium rounded-lg inline-flex max-w-36 items-center text-sm px-5 py-2.5 text-center inline-flex w-full justify-center gap-x-1.5 rounded-md px-3 py-2`}
+					} text-white font-medium rounded-lg inline-flex max-w-42 items-center text-sm px-5 py-2.5 text-center inline-flex w-full justify-center gap-x-1.5 rounded-md px-3 py-2`}
 				>
-					Save Photos
-					<ChevronDownIcon
-						className={`-mr-1 h-5 w-5 text-gray-400 ${
-							isDownloadDisabled ? "text-gray-300" : "text-white"
-						}`}
-						aria-hidden="true"
-					/>
+					{isSavingPhotos ? "Saving photos..." : "Save photos"}
+					{!isSavingPhotos && (
+						<ChevronDownIcon
+							className={`-mr-1 h-5 w-5 text-gray-400 ${
+								isDownloadDisabled ? "text-gray-300" : "text-white"
+							}`}
+							aria-hidden="true"
+						/>
+					)}
+					{isSavingPhotos && (
+						<svg className="h-4 w-4 animate-spin" viewBox="3 3 18 18">
+							<path
+								className="fill-blue-800"
+								d="M12 5C8.13401 5 5 8.13401 5 12c0 3.866 3.13401 7 7 7 3.866.0 7-3.134 7-7 0-3.86599-3.134-7-7-7zM3 12c0-4.97056 4.02944-9 9-9 4.9706.0 9 4.02944 9 9 0 4.9706-4.0294 9-9 9-4.97056.0-9-4.0294-9-9z"
+							></path>
+							<path
+								className="fill-blue-100"
+								d="M16.9497 7.05015c-2.7336-2.73367-7.16578-2.73367-9.89945.0-.39052.39052-1.02369.39052-1.41421.0-.39053-.39053-.39053-1.02369.0-1.41422 3.51472-3.51472 9.21316-3.51472 12.72796.0C18.7545 6.02646 18.7545 6.65962 18.364 7.05015c-.390599999999999.39052-1.0237.39052-1.4143.0z"
+							></path>
+						</svg>
+					)}
 				</Menu.Button>
 			</div>
 
