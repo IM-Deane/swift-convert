@@ -67,6 +67,7 @@ export default function SavePhotosDropdown({
 	const { isLoaded, userId } = useAuth();
 
 	const handleDownloadPhotos = async () => {
+		setIsSavingPhotos(true);
 		try {
 			await compressAndSaveImages(imageResults);
 
@@ -75,6 +76,8 @@ export default function SavePhotosDropdown({
 			});
 		} catch (error) {
 			console.error(error);
+		} finally {
+			setIsSavingPhotos(false);
 		}
 	};
 
