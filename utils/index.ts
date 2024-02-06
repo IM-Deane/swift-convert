@@ -120,7 +120,7 @@ export const compressAndSaveImages = async (images: ImageFile[]) => {
 
 	// Add each image to the zip file
 	const loadImagePromises = images.map(async (image) => {
-		const response = await fetch(image.source);
+		const response = await fetch(image.downloadUrl);
 		const blob = await response.blob();
 		zip.file(image.name, blob);
 	});

@@ -68,20 +68,10 @@ export default function SavePhotosDropdown({
 
 	const handleDownloadPhotos = async () => {
 		try {
-			const imagePromises = imageResults.map(async (image) => {
-				const response = await fetch(image.downloadUrl);
-				const blob = await response.blob();
-				return {
-					blob,
-					name: image.name,
-				};
-			});
-
-			const savedImageData = await Promise.all(imagePromises);
-			await compressAndSaveImages(savedImageData);
+			await compressAndSaveImages(imageResults);
 
 			posthog.capture("download_all_images", {
-				imageCount: savedImageData.length,
+				imageCount: imageResults.length,
 			});
 		} catch (error) {
 			console.error(error);
@@ -167,7 +157,7 @@ export default function SavePhotosDropdown({
 					{isSavingPhotos ? "Saving photos..." : "Save photos"}
 					{!isSavingPhotos && (
 						<ChevronDownIcon
-							className={`-mr-1 h-5 w-5 text-gray-400 ${
+							className={`-mr-1 h-5 w-5 ${
 								isDownloadDisabled ? "text-gray-300" : "text-white"
 							}`}
 							aria-hidden="true"
