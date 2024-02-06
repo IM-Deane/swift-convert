@@ -1,4 +1,5 @@
 import { Fragment, useState } from "react";
+import Image, { StaticImageData } from "next/image";
 
 import { usePostHog } from "posthog-js/react";
 import { useAuth } from "@clerk/nextjs";
@@ -7,14 +8,12 @@ import toast from "react-hot-toast";
 import { Providers } from "@/types/api";
 
 import { Menu, Transition } from "@headlessui/react";
-import {
-	ArchiveBoxIcon,
-	ArrowDownTrayIcon,
-	ChevronDownIcon,
-} from "@heroicons/react/20/solid";
+import { ArrowDownTrayIcon, ChevronDownIcon } from "@heroicons/react/20/solid";
 
 import { classNames, compressAndSaveImages } from "@/utils/index";
 import Alert from "./Alert";
+
+import GoogleDriveIcon from "../public/logos/google-drive-svgrepo-com.svg";
 
 export const createOAuthTokenUrl = (userId: string, provider: string) => {
 	if (!Object.values(Providers).includes(provider as Providers)) {
@@ -24,6 +23,18 @@ export const createOAuthTokenUrl = (userId: string, provider: string) => {
 	}
 	const apiUrl = `https://api.clerk.com/v1/users/${userId}/oauth_access_tokens/${provider}`;
 	return apiUrl;
+};
+
+const CustomIcon = ({
+	src,
+	alt,
+	className = "mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500",
+}: {
+	src: StaticImageData | string;
+	alt: string;
+	className?: string;
+}) => {
+	return <Image src={src} alt={alt} className={className} />;
 };
 
 const DropdownOption = ({ icon, text, onClick }) => {
@@ -38,7 +49,7 @@ const DropdownOption = ({ icon, text, onClick }) => {
 						"group flex items-center px-4 py-2 text-sm cursor-pointer"
 					)}
 				>
-					{icon}
+					<span className="flex-shrink-0 mr-3">{icon}</span>
 					{text}
 				</a>
 			)}
@@ -204,10 +215,7 @@ export default function SavePhotosDropdown({
 							text="Save to Google Drive"
 							onClick={handleSaveToGoogleDrive}
 							icon={
-								<ArchiveBoxIcon
-									className="mr-3 h-5 w-5 text-gray-400 group-hover:text-gray-500"
-									aria-hidden="true"
-								/>
+								<CustomIcon src={GoogleDriveIcon} alt="Google Drive Icon" />
 							}
 						/>
 					</div>
